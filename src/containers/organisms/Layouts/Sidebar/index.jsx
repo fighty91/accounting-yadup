@@ -157,18 +157,18 @@ const Sidebar = (props) => {
                                     Dashboard
                                 </Link>
                             </li>
-                            <li className="nav-item">
+                            {/* <li className="nav-item">
                                 <Link to="#" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.depositActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#file-earmark"/></svg>
                                     Deposit
                                 </Link>
-                            </li>
-                            <li className="nav-item">
+                            </li> */}
+                            {/* <li className="nav-item">
                                 <Link to="#" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.withdrawalActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#cart"/></svg>
                                     Withdrawal
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
                                 <Link to="/journal-entries" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.entriesActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#file-earmark"/></svg>
