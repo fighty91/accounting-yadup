@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdateEntries.css'
+import './CreateUpdateEntries.scss'
 
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
-import { useAccountFunc, useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getContactsFromAPI, getEntriesFromAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
+
+import { useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
 
 const CreateUpdateEntries = (props) => {
     const navigate = useNavigate()
@@ -21,9 +22,7 @@ const CreateUpdateEntries = (props) => {
     transId = transId ? transId : searchParams.get('transId')
 
     const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
-
-    const { getAccGroup } = useAccountFunc()
-    const { postEntriesAPI, putEntriesAPI, getEntriesTransaction } = useJournalEntriesFunc()
+    const { postEntriesAPI, putEntriesAPI } = useJournalEntriesFunc()
     const { getIdenticalCode } = useIdenticalFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
@@ -32,9 +31,17 @@ const CreateUpdateEntries = (props) => {
     const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
     const [contacts, setContacts] = useState([])
-    const [transaction, setTransaction] = useState({ date: '2023-01-01', contactId: "", memo: "" })
+    const [transaction, setTransaction] = useState({
+        date: getFullDateNow(),
+        contactId: '',
+        userId: '',
+        memo: '',
+        transType: "Journal Entries"
+    })
     const [transDb, setTransDb] = useState({})
-    const [accountTransactions, setAccountTransactions] = useState([])
+    const [accountTransactions, setAccountTransactions] = useState([
+        { account: "", description: "", debit: "", credit: "" }, { account: "", description: "", debit: "", credit: "" }
+    ])
     const [transNumber, setTransNumber] = useState('')
     const [transNumberList, setTransNumberList] = useState([])
     
@@ -49,49 +56,49 @@ const CreateUpdateEntries = (props) => {
     })
 
     const getAccounts = async () => {
-        let {newAccounts, newParentAccounts} = await getAccGroup()
-        newAccounts = newAccounts.filter(e => e.isActive === true)
-        newParentAccounts.forEach((e, i) => {
-            let temp = newAccounts.find(acc => e.id === acc.parentId)
-            if(!temp || !e.isActive) newParentAccounts.splice(i,1)
+        let newAccounts = []
+        let newParentAccounts = []
+        props.accounts.forEach(e => {
+            if(e.isParent) {
+                newParentAccounts.push(e)
+            } else {
+                e.isActive && newAccounts.push(e)
+            }
         })
+        newParentAccounts.forEach((e, i) => {
+            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
+            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
+        })
+
         setAccounts(newAccounts)
         setParentAccounts(newParentAccounts)
     }
 
-    const getResetTransaction = async () => {
-        const date = getFullDateNow()
-        let trans = {
-            date,
-            userId: '',
-            memo: '',
-            transType: "Journal Entries"
-        }
+    const getResetUpdate = async (newTransactions) => {
+        let newTransaction = {...transaction}
         let newTransAccounts = [{ account: "", description: "", debit: "", credit: "" }, { account: "", description: "", debit: "", credit: "" }]
         
         if(transId) {
-            getAccounts()
-            let newTransaction = await getEntriesTransaction(transId)
-            const {memo, transAccounts, contactId, date} = newTransaction
-            trans.memo = memo
-            newTransAccounts = transAccounts
-            contactId && updateProps(trans, {contactId})
-
-            if(duplicate) {
-                setIsDuplicate(true)
-            } else {
-                setTransDb(newTransaction)
-                setIsUpdate(true)
-                trans.date = date
-                setTransNumber(newTransaction.transNumber)
+            let dataTransaction = newTransactions.find(e => e.id === transId)
+            if(dataTransaction) {
+                const {memo, transAccounts, contactId, date} = dataTransaction
+                newTransaction.memo = memo
+                newTransAccounts = transAccounts
+                contactId && updateProps(newTransaction, {contactId})
+    
+                if(duplicate) {
+                    setIsDuplicate(true)
+                } else {
+                    setTransDb(dataTransaction)
+                    setIsUpdate(true)
+                    newTransaction.date = date
+                    setTransNumber(dataTransaction.transNumber)
+                }
             }
         }
-        setTransaction(trans)
+        setTransaction(newTransaction)
         setAccountTransactions(newTransAccounts)
-
         transId && handleCurrency(newTransAccounts)
-        // const {newTransNumbers} = await getEntriesAPI()
-        // setTransNumberList(newTransNumbers)
     }
 
     const getResetFormIdentical = () => {
@@ -134,10 +141,6 @@ const CreateUpdateEntries = (props) => {
             newAccountTransactions.splice(rowIndex, 1)
             setAccountTransactions(newAccountTransactions)
         }
-    }
-
-    const handleFocusAccount = () => {
-        getAccounts()
     }
 
     const handleEntryAccount = (data) => {
@@ -208,7 +211,6 @@ const CreateUpdateEntries = (props) => {
             }
         } 
         if(transNumber) {
-            // const { newTransNumbers } = await getEntriesAPI()
             let numbExist = transNumberList.find(e => e === transNumber)
             if(isUpdate) {
                 if(numbExist === transDb.transNumber) numbExist = undefined
@@ -262,7 +264,6 @@ const CreateUpdateEntries = (props) => {
     }
 
     const getNewTransNumber = async () => {
-        // const { newTransNumbers } = await getEntriesAPI()
         const {initialCode, startFrom} = await getIdenticalCode()
         let numberList = []
         if(initialCode) {
@@ -288,9 +289,9 @@ const CreateUpdateEntries = (props) => {
     }
 
     useEffect(() => {
-        getResetTransaction()
         props.getContactsFromAPI()
         props.getEntriesFromAPI()
+        props.getAccountsFromAPI()
     }, [])
     
     useEffect(() => {
@@ -300,13 +301,23 @@ const CreateUpdateEntries = (props) => {
 
     useEffect(() => {
         let newTransNumbers = []
+        let newTransactions = []
         for(let x in props.transactions) {
             if( x === 'journalEntries' ) {
-                props.transactions[x].forEach(e => newTransNumbers.push(e.transNumber))
+                props.transactions[x].forEach(e => {
+                    newTransNumbers.push(e.transNumber)
+                    newTransactions.push(e)
+                })
             }
         }
         setTransNumberList(newTransNumbers)
+
+        getResetUpdate(newTransactions)
     }, [props.transactions])
+
+    useEffect(() => {
+        getAccounts()
+    }, [props.accounts])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
@@ -375,7 +386,7 @@ const CreateUpdateEntries = (props) => {
                                     accountTransactions.map((trans, row)=> {
                                         const {account, description, debit, credit} = trans
                                         const formValidation = [ nominalNull[row], nominalDouble[row], accountNull[row] ]
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleFocusAccount, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
+                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
                                         const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
                                         return <RowFormEntries key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
@@ -403,11 +414,13 @@ const CreateUpdateEntries = (props) => {
 
 const reduxState = (state) => ({
     contacts: state.contacts,
-    transactions: state.transactions
+    transactions: state.transactions,
+    accounts: state.accounts
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI())
+    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateEntries)

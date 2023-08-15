@@ -44,16 +44,15 @@ const RowFormEntries = (props) => {
         let numberName = ''
         if(accountId) {
             const newAccount = accounts.find(e => e.id === accountId)
-            const {number, accountName} = newAccount
-            numberName = `${number}  ${accountName}`
+            if(newAccount) {
+                const {number, accountName} = newAccount
+                numberName = `${number}  ${accountName}`
+            }
         }
         setAccountNumberName(numberName)
     }
-    useEffect(()=> {
-        
-    }, [])
     
-    const {handleEntryAccount, handleDeleteRow, handleFocusAccount, setAccountTransactions, handleSubmit} = props.rowFormFunc
+    const {handleEntryAccount, handleDeleteRow, setAccountTransactions, handleSubmit} = props.rowFormFunc
     const {row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions} = props.data
     const [nominalNull, nominalDouble, accountNull] = formValidation
     
@@ -64,7 +63,7 @@ const RowFormEntries = (props) => {
         <tr>
             <td className="ps-0 pe-0">
                 <label htmlFor={'ac-'+row} className="visually-hidden">Account</label>
-                <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} onFocus={() => handleFocusAccount()} value={account} title={accountNumberName} onMouseEnter={getNumberName}>
+                <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} value={account} title={accountNumberName} onMouseEnter={getNumberName}>
                     <option value="">Choose...</option>
                     {
                         parentAccounts.map(pAcc => {

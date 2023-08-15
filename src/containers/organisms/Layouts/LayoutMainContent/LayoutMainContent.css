@@ -10,3 +10,7 @@
     bottom:0;
     left: auto;
 }
+
+.container-full-viewport-height {
+    height: 100vh;
+}

@@ -4,7 +4,7 @@ import Sidebar from "../Sidebar";
 import { getCheckToken } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
-import './LayoutMainContent.css'
+import './LayoutMainContent.scss'
 
 const LayoutsMainContent = (props) => {
     const userId = JSON.parse(localStorage.getItem(`${props.corp}uid`))
@@ -27,12 +27,12 @@ const LayoutsMainContent = (props) => {
     return (
         accessToken &&
         <Fragment>
-            <div style={{height: "100vh"}}>
+            <div className="container-full-viewport-height">
                 <Navbar/>
                 <div className="container-fluid">
-                    <div className="row parent-scroll-area" >
+                    <div className="row parent-scroll-area">
                         <Sidebar />
-                            <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4 scroll-area" style={{height: "100%"}}>
+                            <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4 scroll-area">
                                 {
                                     Children.map(props.children, (child, i) => child)
                                 }
