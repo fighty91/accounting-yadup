@@ -1,0 +1,461 @@
+[
+  null,
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 80000000,
+        "description": ""
+      },
+      {
+        "account": "3",
+        "credit": 0,
+        "debit": 20000000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 0,
+        "debit": 100000000,
+        "description": ""
+      },
+      {
+        "account": "5",
+        "credit": 0,
+        "debit": 300000000,
+        "description": ""
+      },
+      {
+        "account": "27",
+        "credit": 0,
+        "debit": 200000000,
+        "description": ""
+      },
+      {
+        "account": "33",
+        "credit": 600000000,
+        "debit": 0,
+        "description": ""
+      },
+      {
+        "account": "39",
+        "credit": 100000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "Neraca Awal",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "25",
+        "credit": 0,
+        "debit": 7000000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 7000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.1",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "50",
+        "credit": 0,
+        "debit": 1000000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 1000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.2",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  null,
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "49",
+        "credit": 0,
+        "debit": 13000000,
+        "description": ""
+      },
+      {
+        "account": "5",
+        "credit": 13000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.4",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  null,
+  {
+    "date": "2023-07-31",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "58",
+        "credit": 0,
+        "debit": 7500,
+        "description": ""
+      },
+      {
+        "account": "3",
+        "credit": 7500,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.6",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-31",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "58",
+        "credit": 0,
+        "debit": 11000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 11000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.7",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-31",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "58",
+        "credit": 0,
+        "debit": 17500,
+        "description": ""
+      },
+      {
+        "account": "5",
+        "credit": 17500,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.8",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "3",
+        "credit": 0,
+        "debit": 10000000,
+        "description": ""
+      },
+      {
+        "account": "58",
+        "credit": 0,
+        "debit": 2500,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 10002500,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.9",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 7500000,
+        "description": ""
+      },
+      {
+        "account": "44",
+        "credit": 7500000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.10",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "contactId": "1",
+    "date": "2023-07-24",
+    "memo": "pendapatan usaha jasa konsultasi",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 5000000,
+        "description": ""
+      },
+      {
+        "account": "7",
+        "credit": 0,
+        "debit": 12000000,
+        "description": ""
+      },
+      {
+        "account": "44",
+        "credit": 17000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.11",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "3",
+        "credit": 0,
+        "debit": 2000000,
+        "description": ""
+      },
+      {
+        "account": "44",
+        "credit": 2000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2308.1",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  null,
+  null,
+  {
+    "contactId": "1",
+    "date": "2023-07-27",
+    "memo": "Penarikan tunai",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 2000000,
+        "description": "penerimaan kas"
+      },
+      {
+        "account": "4",
+        "credit": 2000000,
+        "debit": 0,
+        "description": "penarikan kas"
+      }
+    ],
+    "transNumber": "2307.3",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-24",
+    "memo": "Penyusutan kendaraan kantor",
+    "transAccounts": [
+      {
+        "account": "54",
+        "credit": 0,
+        "debit": 4000000,
+        "description": ""
+      },
+      {
+        "account": "28",
+        "credit": 4000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.14",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-26",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "4",
+        "credit": 0,
+        "debit": 2400000,
+        "description": ""
+      },
+      {
+        "account": "2",
+        "credit": 2400000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.15",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  null,
+  null,
+  {
+    "contactId": "3",
+    "date": "2023-07-26",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "51",
+        "credit": 0,
+        "debit": 10000000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 10000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.19",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "contactId": "2",
+    "date": "2023-07-26",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "3",
+        "credit": 0,
+        "debit": 8750000,
+        "description": ""
+      },
+      {
+        "account": "44",
+        "credit": 8750000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.20",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "contactId": "1",
+    "date": "2023-07-27",
+    "memo": "pembelian kendaraan",
+    "transAccounts": [
+      {
+        "account": "27",
+        "credit": 0,
+        "debit": 23000000,
+        "description": ""
+      },
+      {
+        "account": "4",
+        "credit": 23000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2307.21",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-07-27",
+    "memo": "Penarikan tunai",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 2500000,
+        "description": "penerimaan kas"
+      },
+      {
+        "account": "4",
+        "credit": 2000000,
+        "debit": 0,
+        "description": "penarikan kas"
+      },
+      {
+        "account": "5",
+        "credit": 500000,
+        "debit": 0,
+        "description": "penarikan kas"
+      }
+    ],
+    "transNumber": "2307.22",
+    "transType": "Journal Entries",
+    "userId": "1"
+  },
+  {
+    "date": "2023-08-03",
+    "memo": "",
+    "transAccounts": [
+      {
+        "account": "2",
+        "credit": 0,
+        "debit": 10000000,
+        "description": ""
+      },
+      {
+        "account": "5",
+        "credit": 10000000,
+        "debit": 0,
+        "description": ""
+      }
+    ],
+    "transNumber": "2309.1",
+    "transType": "Journal Entries",
+    "userId": "1"
+  }
+]

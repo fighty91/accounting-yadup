@@ -1,0 +1,37 @@
+@media (min-width: 768px) {
+  .sidebar .offcanvas-lg {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 48px;
+  }
+  .navbar-search {
+    display: block;
+  }
+}
+
+.sidebar .nav-link {
+  font-size: .875rem;
+  font-weight: 500;
+}
+
+.sidebar .nav-link:hover {
+  color: rgb(34, 34, 34) !important;
+}
+
+.sidebar .nav-link.active {
+  color: rgb(34, 34, 34) !important;
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+}
+
+/* sementara */
+.w3-sidebar{
+  /* height:100%;
+  width:200px; */
+  /* background-color:#fff; */
+  position: static !important;
+  /* z-index:1;
+  overflow:auto */
+}

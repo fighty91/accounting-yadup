@@ -1,0 +1,12 @@
+.nav-item {
+    a {
+        color: rgb(64, 64, 64);
+        &.active {
+            color: #0d6efd !important;
+        }
+    }
+}
+
+.label-detail {
+    min-width: 165px;
+}

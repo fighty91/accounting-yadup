@@ -1,0 +1,15 @@
+.trans-number-setting {
+    position: relative;
+    margin-left: 5px;
+    color: rgba(118, 118, 118, 0.961);
+}
+
+.trans-number-setting:hover {
+    cursor: pointer;
+    color: black !important;
+}
+
+.create-number-format:hover {
+    cursor: pointer;
+    color: #0d6efd;
+}

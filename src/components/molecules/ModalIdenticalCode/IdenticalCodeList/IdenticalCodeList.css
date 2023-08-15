@@ -1,0 +1,11 @@
+.identical-code-ready:hover {
+    cursor: pointer;
+    color: #0d6efd;
+}
+
+.delete-identical-code:hover {
+    cursor: pointer;
+    color: #dc3545 !important;
+    position: relative;
+    top: -1px;
+}

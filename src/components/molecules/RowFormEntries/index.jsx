@@ -1,0 +1,108 @@
+import React, { useEffect, useState } from "react";
+import InputValidation from "../../atoms/InputValidation";
+import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+
+const RowFormEntries = (props) => {
+    const [accountNumberName, setAccountNumberName] = useState('')
+    const { getCurrency, getNormalNumb } = useGeneralFunc()
+    const handleFocusInputNumb = (event) => {
+        const {value, name, id} = event.target
+        const temp = value === '' ? '' : getNormalNumb(value)
+        updateInputNumber(temp, id, name)
+    }
+    const handleBlurInputNumb = (event) => {
+        event.target.setAttribute('type', 'text')
+        const {value, name, id} = event.target
+        const temp = value === '' ? '' : getCurrency(value)
+        updateInputNumber(temp, id, name)
+    }
+    const handleEntryInputNumb = (event) => {
+        event.target.setAttribute('type', 'number')
+        let { value, name, id } = event.target
+        let temp = +value
+        updateInputNumber(temp, id, name)
+    }
+    const updateInputNumber = (temp, id, name) => {
+        const row = +id.slice(3)
+        let newAccountTransactions = [...accountTransactions]
+        newAccountTransactions.forEach((e, i) => { if(i === row) e[name] = temp })
+        setAccountTransactions(newAccountTransactions)
+    }
+
+    const handleKeyEnter = async (event) => {
+        if (event.code === 'Enter') {
+            event.target.blur()
+            // await handleSubmit()
+            setTimeout(()=> {
+                handleSubmit()
+            }, 600)
+        }
+    }
+
+    const getNumberName = (e) => {
+        const accountId = +e.target.value
+        let numberName = ''
+        if(accountId) {
+            const newAccount = accounts.find(e => e.id === accountId)
+            const {number, accountName} = newAccount
+            numberName = `${number}  ${accountName}`
+        }
+        setAccountNumberName(numberName)
+    }
+    useEffect(()=> {
+        
+    }, [])
+    
+    const {handleEntryAccount, handleDeleteRow, handleFocusAccount, setAccountTransactions, handleSubmit} = props.rowFormFunc
+    const {row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions} = props.data
+    const [nominalNull, nominalDouble, accountNull] = formValidation
+    
+    let nominalProblem = false
+    if(nominalNull || nominalDouble) nominalProblem = true
+
+    return(
+        <tr>
+            <td className="ps-0 pe-0">
+                <label htmlFor={'ac-'+row} className="visually-hidden">Account</label>
+                <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} onFocus={() => handleFocusAccount()} value={account} title={accountNumberName} onMouseEnter={getNumberName}>
+                    <option value="">Choose...</option>
+                    {
+                        parentAccounts.map(pAcc => {
+                            return (
+                            <optgroup label={pAcc.accountName} key={pAcc.id}>
+                                {
+                                    accounts.map(acc => {
+                                        if(pAcc.id === acc.parentId) {
+                                            return <option key={acc.id} value={acc.id}>{acc.number} &nbsp; {acc.accountName}</option>
+                                        }
+                                    })
+                                }
+                            </optgroup>
+                            )
+                        })
+                    }
+                </select>
+                {accountNull && <InputValidation name="account null" /> }
+            </td>
+            <td>
+                <label htmlFor={'dc-'+row} className="visually-hidden">Description</label>
+                <input type="text" name="description" id={'dc-'+row} className="form-control form-control-sm description" onChange={(e) => handleEntryAccount(e)} value={description} autoComplete="off" title={description} />
+            </td>
+            <td>
+                <label htmlFor={'db-'+row} className={`visually-hidden `}>Debit</label>
+                <input type="text" name="debit" id={'db-'+row} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} value={debit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
+                {nominalNull && <InputValidation name="nominal null" /> }
+                {nominalDouble && <InputValidation name="nominal double" /> }
+            </td>
+            <td>
+                <label htmlFor={'cr-'+row} className="visually-hidden">Credit</label>
+                <input type="text" name="credit" id={'cr-'+row} className={`form-control form-control-sm credit text-end ${nominalProblem === true && 'border-danger'} account-value`} value={credit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={credit} />
+            </td>
+            <td>
+                <button className="btn btn-outline-danger btn-sm delete-row" id={'dl-'+row} onClick={() => handleDeleteRow(row)}>&minus;</button>
+            </td>
+        </tr>
+    )
+}
+
+export default RowFormEntries

@@ -1,0 +1,7 @@
+.nav-item a {
+    color: rgb(64, 64, 64);
+}
+
+.nav-item a.active {
+    color: #0d6efd !important;
+}

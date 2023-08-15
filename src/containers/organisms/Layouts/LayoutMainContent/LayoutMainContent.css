@@ -1,0 +1,12 @@
+.scroll-area {
+    overflow-y:auto;
+    overflow-x: hidden;
+    height:100%;
+}
+.parent-scroll-area {
+    width:100%;
+    position:absolute;
+    top: 45px;;
+    bottom:0;
+    left: auto;
+}
