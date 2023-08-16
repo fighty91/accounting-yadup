@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import IdenticalCodeList from "./IdenticalCodeList";
 import FormIdenticalCode from "./FormIdenticalCode";
 import { useIdenticalFunc } from "../../../utils/MyFunction/MyFunction";
+import { getIdenticalCodeFromAPI } from "../../../config/redux/action";
+import { connect } from "react-redux";
 
 const ModalIdenticalCode = (props) => {
     const { getIdenticalCode, putIdenticalAPI } = useIdenticalFunc()
@@ -48,11 +50,6 @@ const ModalIdenticalCode = (props) => {
         await setIdentical(newIdenticalCode)
     }
 
-    const getSetIdenticalCode = async () => {
-        const newIdentical = await getIdenticalCode()
-        setIdentical(newIdentical)
-    }
-
     const handleShowFormIdentical = () => {
         setShowForm(showFormIdentic ? false : true)
     }
@@ -78,8 +75,14 @@ const ModalIdenticalCode = (props) => {
     }
 
     useEffect(()=> {
-        getSetIdenticalCode()
+        props.getIdenticalCodeFromAPI()
     }, [])
+    
+    useEffect(()=> {
+        for( let i of props.identicalCode ) {
+            i.codeFor === 'journalEntries' && setIdentical(i)
+        }
+    }, [props.identicalCode])
 
     const {identicalCode, showFormIdentic, formIdentical, identicalAvailable, lastInitialDigit} = props.data
     const {codeList} = identicalCode
@@ -95,6 +98,7 @@ const ModalIdenticalCode = (props) => {
                     <div className="modal-body">
                         <ul className="list-group list-group-flush">
                             {
+                                props.identicalCode &&
                                 codeList.map((code, i) => {
                                     return <IdenticalCodeList key={i} row={i} code={code} handleOnClick={()=>handleUseIdentical(code)} handleOnClickDel={()=>{handleDeleteIdentical(i)}} />
                                 })
@@ -115,4 +119,11 @@ const ModalIdenticalCode = (props) => {
     )
 }
 
-export default ModalIdenticalCode
+const reduxState = (state) => ({
+    identicalCode: state.identicalCode
+})
+const reduxDispatch = (dispatch) => ({
+    getIdenticalCodeFromAPI: () => dispatch(getIdenticalCodeFromAPI())
+})
+
+export default connect(reduxState, reduxDispatch)(ModalIdenticalCode)

@@ -132,7 +132,19 @@ const Sidebar = (props) => {
                 <symbol id="search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </symbol>
+                <symbol id="calculator" viewBox="0 0 16 16">
+                    <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                    <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+                </symbol>
+                <symbol id="dashboard" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                    <path fillRule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                </symbol>
+                <symbol id="cash-and-bank" viewBox="0 0 16 16">
+                    <path d="M8.277.084a.5.5 0 0 0-.554 0l-7.5 5A.5.5 0 0 0 .5 6h1.875v7H1.5a.5.5 0 0 0 0 1h13a.5.5 0 1 0 0-1h-.875V6H15.5a.5.5 0 0 0 .277-.916l-7.5-5zM12.375 6v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zM8 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM.5 15a.5.5 0 0 0 0 1h15a.5.5 0 1 0 0-1H.5z"/>
+                </symbol>
             </svg>
+            
 
             <div className="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
                 <div className="offcanvas-md offcanvas-end bg-body-tertiary" tabIndex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
@@ -151,10 +163,22 @@ const Sidebar = (props) => {
                     </div>
                     <div className="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto w3-sidebar">
                         <ul className="nav flex-column">
-                            <li className="nav-item">
-                                <Link to="/" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.dashboardActive && 'active'}`} aria-current="page" >
+                            {/* <li className="nav-item">
+                                <Link to="/" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.homeActive && 'active'}`} aria-current="page" >
                                     <svg className="bi"><use xlinkHref="#house-fill"/></svg>
+                                    Home
+                                </Link>
+                            </li> */}
+                            <li className="nav-item">
+                                <Link to="/" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.dashboardActive && 'active'}`} >
+                                    <svg className="bi"><use xlinkHref="#dashboard"/></svg>
                                     Dashboard
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/cash-and-bank" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.cashAndBankActive && 'active'}`} >
+                                    <svg className="bi"><use xlinkHref="#cash-and-bank"/></svg>
+                                    Cash and Bank
                                 </Link>
                             </li>
                             {/* <li className="nav-item">
@@ -176,8 +200,8 @@ const Sidebar = (props) => {
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/journal-entries" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.openingBalanceActive && 'active'}`} >
-                                    <svg className="bi"><use xlinkHref="#file-earmark"/></svg>
+                                <Link to="/opening-balance" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.openingBalanceActive && 'active'}`} >
+                                    <svg className="bi"><use xlinkHref="#calculator"/></svg>
                                     Opening Balance
                                 </Link>
                             </li>

@@ -333,6 +333,21 @@ const getEntriesAPI = (dispatch) => {
         });
     })
 }
+export const getIdenticalCodeFromAPI = () => (dispatch) => {
+    return new Promise(resolve => {
+        const starCountRef = ref(database, `${corp}/identicalCode`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let identicalCode = []
+            for( let x in temp) {
+                temp[x].codeFor = x
+                identicalCode.push(temp[x])
+            }
+            dispatch({type: 'SET_IDENTICAL_CODE', value: identicalCode})
+            resolve(identicalCode)
+        });
+    })
+}
 
 export const getDataFromAPI = (userId) => (dispatch) => {
     const starCountRef = ref(database, 'notes/' + userId);

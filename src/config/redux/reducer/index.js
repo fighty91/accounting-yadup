@@ -8,6 +8,7 @@ const initialState = {
     categories: [],
     contacts: [],
     transactions: {},
+    identicalCode: [],
 
     notes: []
 }
@@ -52,10 +53,15 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 transactions: newTransactions
             }
+        case 'SET_IDENTICAL_CODE' :
+            return {
+                ...state,
+                identicalCode: value
+            }
         case 'SET_NOTES' :
             return {
-            ...state,
-            notes: value
+                ...state,
+                notes: value
             }
         default:
             return state

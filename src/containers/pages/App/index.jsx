@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import './Home.scss'
+import './App.scss'
 import 'bootstrap';
 import 'bootstrap/js/dist/util';
 import 'bootstrap/js/dist/dropdown';
@@ -26,7 +26,7 @@ import Logout from "../Logout";
 import NewPage from "../NewPage";
 
 
-class Home extends Component {
+class App extends Component {
     render() {
         return (
             <Router>
@@ -64,4 +64,4 @@ class Home extends Component {
 }
 
 
-export default Home
+export default App
