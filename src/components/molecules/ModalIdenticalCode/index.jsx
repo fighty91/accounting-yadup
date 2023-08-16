@@ -1,14 +1,11 @@
 import React, { useEffect } from "react";
 import IdenticalCodeList from "./IdenticalCodeList";
 import FormIdenticalCode from "./FormIdenticalCode";
-import { useIdenticalFunc } from "../../../utils/MyFunction/MyFunction";
 import { getIdenticalCodeFromAPI, putIdenticalCodeToAPI } from "../../../config/redux/action";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 
 const ModalIdenticalCode = (props) => {
-    const { putIdenticalAPI } = useIdenticalFunc()
-
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -35,13 +32,14 @@ const ModalIdenticalCode = (props) => {
         }
     }
 
-    const handleDeleteIdentical = async (row) => {
+    const handleDeleteIdentical = (row) => {
         let newCodeList = [...codeList]
-        let newIdenticalCode = {...identicalCode}
         newCodeList.splice(row,1)
-        newIdenticalCode.codeList = newCodeList
-        await setIdentical(newIdenticalCode)
-        await putIdenticalAPI(newIdenticalCode)
+        let newIdenticalCode = {
+            ...identicalCode,
+            codeList: newCodeList
+        }
+        props.putIdenticalCodeToAPI(newIdenticalCode)
     }
 
     const handleCreateIdentical = async () => {
@@ -103,7 +101,6 @@ const ModalIdenticalCode = (props) => {
 
         let newCodeList = [...identicalCode.codeList]
         const {initialCode} = newFormIdentical
-        // const notAvailable = newCodeList.find(e => initialCode === e.initialCode)
         const notAvailable = newCodeList.find(e => initialCode && initialCode === e.initialCode)
         notAvailable && setAvailable(false)
     }
@@ -115,14 +112,7 @@ const ModalIdenticalCode = (props) => {
     useEffect(()=> {
         for( let i of props.identicalCode ) {
             if(i.codeFor === identicalCode.codeFor) {
-                let temp = {
-                    ...i,
-                    codeList: []
-                }
-                for( let x in i.codeList ) {
-                    temp.codeList.push(i.codeList[x])
-                }
-                setIdentical(temp)
+                setIdentical(i)
             }
         }
     }, [props.identicalCode])

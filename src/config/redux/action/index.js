@@ -353,8 +353,18 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
             let temp = {...snapshot.val()}
             let identicalCode = []
             for( let x in temp) {
-                temp[x].codeFor = x
-                identicalCode.push(temp[x])
+                const tempCodeList = temp[x].codeList
+                let codeList = []
+                for (let i in tempCodeList) {
+                    codeList.push(tempCodeList[i])
+                }
+
+                let tempIdentical = {
+                    ...temp[x],
+                    codeFor: x,
+                    codeList
+                }
+                identicalCode.push(tempIdentical)
             }
             dispatch({type: 'SET_IDENTICAL_CODE', value: identicalCode})
             resolve(identicalCode)
