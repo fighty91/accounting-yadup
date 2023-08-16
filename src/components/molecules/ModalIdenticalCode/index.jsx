@@ -2,19 +2,37 @@ import React, { useEffect } from "react";
 import IdenticalCodeList from "./IdenticalCodeList";
 import FormIdenticalCode from "./FormIdenticalCode";
 import { useIdenticalFunc } from "../../../utils/MyFunction/MyFunction";
-import { getIdenticalCodeFromAPI } from "../../../config/redux/action";
+import { getIdenticalCodeFromAPI, putIdenticalCodeToAPI } from "../../../config/redux/action";
 import { connect } from "react-redux";
+import Swal from "sweetalert2";
 
 const ModalIdenticalCode = (props) => {
-    const { getIdenticalCode, putIdenticalAPI } = useIdenticalFunc()
+    const { putIdenticalAPI } = useIdenticalFunc()
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1700,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
 
     const handleUseIdentical = async (data) => {
         let newIdenticalCode = {...identicalCode}
         for(let x in data) { 
             if(x !== 'defaultCode') newIdenticalCode[x] = data[x] 
         }
-        await setIdentical(newIdenticalCode)
-        await putIdenticalAPI(newIdenticalCode)
+        const res = await props.putIdenticalCodeToAPI(newIdenticalCode)
+        if(res) {
+            Toast.fire({
+                icon: 'success',
+                title: `Identical Code ${newIdenticalCode.initialCode}[auto]`
+            })
+        }
     }
 
     const handleDeleteIdentical = async (row) => {
@@ -27,7 +45,7 @@ const ModalIdenticalCode = (props) => {
     }
 
     const handleCreateIdentical = async () => {
-        const identicalCodeAPI = await getIdenticalCode()
+        const identicalCodeAPI = props.identicalCode
         let newCodeList = [...identicalCodeAPI.codeList]
         let newFormIdentical = {...formIdentical}
         
@@ -80,7 +98,7 @@ const ModalIdenticalCode = (props) => {
     
     useEffect(()=> {
         for( let i of props.identicalCode ) {
-            i.codeFor === 'journalEntries' && setIdentical(i)
+            i.codeFor === identicalCode.codeFor && setIdentical(i)
         }
     }, [props.identicalCode])
 
@@ -98,7 +116,6 @@ const ModalIdenticalCode = (props) => {
                     <div className="modal-body">
                         <ul className="list-group list-group-flush">
                             {
-                                props.identicalCode &&
                                 codeList.map((code, i) => {
                                     return <IdenticalCodeList key={i} row={i} code={code} handleOnClick={()=>handleUseIdentical(code)} handleOnClickDel={()=>{handleDeleteIdentical(i)}} />
                                 })
@@ -123,7 +140,8 @@ const reduxState = (state) => ({
     identicalCode: state.identicalCode
 })
 const reduxDispatch = (dispatch) => ({
-    getIdenticalCodeFromAPI: () => dispatch(getIdenticalCodeFromAPI())
+    getIdenticalCodeFromAPI: () => dispatch(getIdenticalCodeFromAPI()),
+    putIdenticalCodeToAPI: (data) => dispatch(putIdenticalCodeToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(ModalIdenticalCode)

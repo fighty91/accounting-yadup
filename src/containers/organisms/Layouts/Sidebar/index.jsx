@@ -143,6 +143,10 @@ const Sidebar = (props) => {
                 <symbol id="cash-and-bank" viewBox="0 0 16 16">
                     <path d="M8.277.084a.5.5 0 0 0-.554 0l-7.5 5A.5.5 0 0 0 .5 6h1.875v7H1.5a.5.5 0 0 0 0 1h13a.5.5 0 1 0 0-1h-.875V6H15.5a.5.5 0 0 0 .277-.916l-7.5-5zM12.375 6v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zm-2.5 0v7h-1.25V6h1.25zM8 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM.5 15a.5.5 0 0 0 0 1h15a.5.5 0 1 0 0-1H.5z"/>
                 </symbol>
+                <symbol id="contact-svg" viewBox="0 0 16 16">
+                    <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+                </symbol>
+
             </svg>
             
 
@@ -207,7 +211,7 @@ const Sidebar = (props) => {
                             </li>
                             <li className="nav-item">
                                 <Link to="/contacts" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.contactActive && 'active'}`} >
-                                    <svg className="bi"><use xlinkHref="#people"/></svg>
+                                    <svg className="bi"><use xlinkHref="#contact-svg"/></svg>
                                     Contacts
                                 </Link>
                             </li>

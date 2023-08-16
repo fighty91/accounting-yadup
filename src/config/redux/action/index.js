@@ -333,6 +333,19 @@ const getEntriesAPI = (dispatch) => {
         });
     })
 }
+export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
+    const {codeFor} = identicalCode
+    let newIdenticalCode = {...identicalCode}
+    delete newIdenticalCode.codeFor
+    return new Promise((resolve, reject) => {
+        set(ref(database, `${corp}/identicalCode/${codeFor}`), newIdenticalCode)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
 export const getIdenticalCodeFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
         const starCountRef = ref(database, `${corp}/identicalCode`);
