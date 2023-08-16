@@ -52,7 +52,7 @@ const CreateUpdateEntries = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        id: "", codeFor: "Journal Entries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        id: "", codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getAccounts = async () => {
@@ -402,7 +402,7 @@ const CreateUpdateEntries = (props) => {
 
             {/* Modal */}
             <ModalIdenticalCode 
-                data={{identicalCode, showFormIdentic, formIdentical, identicalAvailable, lastInitialDigit}} 
+                data={{identicalCode, showFormIdentic, formIdentical, identicalAvailable, lastInitialDigit}}
                 identicalState={{
                     setIdentical: (value)=>setIdenticalCode(value), setAvailable: (value)=>setIdenticalAvailable(value), setShowForm: (value)=>setShowFormIdentic(value),
                     setLastInitialDigit: (value)=>setLastInitialDigit(value), setFormIdentical: (value)=>setFormIdentical(value), getResetFormIdentical
