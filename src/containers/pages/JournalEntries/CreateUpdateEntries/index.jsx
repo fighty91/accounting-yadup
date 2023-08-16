@@ -48,6 +48,8 @@ const CreateUpdateEntries = (props) => {
     const [transNumberAvailable, setTransNumberAvailable] = useState(true)
     const [identicalAvailable, setIdenticalAvailable] = useState(true)
     const [lastInitialDigit, setLastInitialDigit] = useState(false)
+    const [lastInitialSpace, setLastInitialSpace] = useState(false)
+    const [firstInitialSpace, setFirstInitialSpace] = useState(false)
 
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
@@ -285,6 +287,8 @@ const CreateUpdateEntries = (props) => {
         setShowFormIdentic(false)
         setIdenticalAvailable(true)
         setLastInitialDigit(false)
+        setLastInitialSpace(false)
+        setFirstInitialSpace(false)
         getResetFormIdentical()
     }
 
@@ -402,11 +406,29 @@ const CreateUpdateEntries = (props) => {
 
             {/* Modal */}
             <ModalIdenticalCode 
-                data={{identicalCode, showFormIdentic, formIdentical, identicalAvailable, lastInitialDigit}}
-                identicalState={{
-                    setIdentical: (value)=>setIdenticalCode(value), setAvailable: (value)=>setIdenticalAvailable(value), setShowForm: (value)=>setShowFormIdentic(value),
-                    setLastInitialDigit: (value)=>setLastInitialDigit(value), setFormIdentical: (value)=>setFormIdentical(value), getResetFormIdentical
-                }}
+                data={
+                    {
+                        identicalCode,
+                        showFormIdentic,
+                        formIdentical,
+                        identicalAvailable,
+                        lastInitialDigit,
+                        lastInitialSpace,
+                        firstInitialSpace
+                    }
+                }
+                identicalState={
+                    {
+                        setIdentical: (value)=>setIdenticalCode(value),
+                        setAvailable: (value)=>setIdenticalAvailable(value),
+                        setShowForm: (value)=>setShowFormIdentic(value),
+                        setLastInitialDigit: (value)=>setLastInitialDigit(value),
+                        setLastInitialSpace: (value)=>setLastInitialSpace(value),
+                        setFirstInitialSpace: (value)=>setFirstInitialSpace(value),
+                        setFormIdentical: (value)=>setFormIdentical(value),
+                        getResetFormIdentical
+                    }
+                }
             />
         </LayoutsMainContent>
     )

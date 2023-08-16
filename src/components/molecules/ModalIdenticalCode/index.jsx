@@ -45,27 +45,27 @@ const ModalIdenticalCode = (props) => {
     }
 
     const handleCreateIdentical = async () => {
-        const identicalCodeAPI = props.identicalCode
-        let newCodeList = [...identicalCodeAPI.codeList]
-        let newFormIdentical = {...formIdentical}
+        let problemCount = 0
+
+        lastInitialDigit && problemCount++
+        lastInitialSpace && problemCount++
+        firstInitialSpace && problemCount++
+        !formIdentical.initialCode && problemCount++
+        !identicalAvailable && problemCount++
         
-        if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
-        let approve = true
-        newCodeList.forEach(e => {
-            if(e.initialCode === newFormIdentical.initialCode) {
-                setAvailable(false)
-                approve = false
-            }
-        })
-        
-        let newIdenticalCode = {...identicalCodeAPI}
-        if(approve) {
+        if(problemCount === 0) {
+            let newCodeList = [...identicalCode.codeList]
+            let newFormIdentical = {...formIdentical}
+            if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
             newCodeList.push(newFormIdentical)
-            newIdenticalCode.codeList = newCodeList
-            await putIdenticalAPI(newIdenticalCode)
-            await getResetFormIdentical()
+            newCodeList.sort((a, b) => a.initialCode - b.initialCode)
+            const newIdenticalCode = {
+                ...identicalCode,
+                codeList: newCodeList
+            }
+            const res = await props.putIdenticalCodeToAPI(newIdenticalCode)
+            res && getResetFormIdentical()
         }
-        await setIdentical(newIdenticalCode)
     }
 
     const handleShowFormIdentical = () => {
@@ -74,6 +74,10 @@ const ModalIdenticalCode = (props) => {
 
     const handleInputIdentical = (data) => {
         setAvailable(true)
+        let lastDigit = false
+        let lastSpace = false
+        let firstSpace = false
+
         let newFormIdentical = {...formIdentical}
         let {name, value} = data.target
         if (name === 'startFrom') {
@@ -81,15 +85,27 @@ const ModalIdenticalCode = (props) => {
             if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
         } else {
             newFormIdentical[name] = value
-            const lastChar = +value.charAt(value.length-1) + 1
-            value !== '' && lastChar > 0 ? setLastInitialDigit(true) : setLastInitialDigit(false)
+            if(value.length > 0 && value.charAt(0) === ' ') {
+                firstSpace = true
+            } else if(value.length > 1) {
+                const lastChar = value.charAt(value.length-1)
+                if(lastChar === ' ') {
+                    lastSpace = true
+                } else {
+                    if (value !== '' && +lastChar >= 0) lastDigit = true 
+                }
+            }
         }
+        setLastInitialDigit(lastDigit)
+        setLastInitialSpace(lastSpace)
+        setFirstInitialSpace(firstSpace)
         setFormIdentical(newFormIdentical)
 
         let newCodeList = [...identicalCode.codeList]
-        newCodeList.forEach(e => {
-            e.initialCode === newFormIdentical.initialCode && setAvailable(false)
-        })
+        const {initialCode} = newFormIdentical
+        // const notAvailable = newCodeList.find(e => initialCode === e.initialCode)
+        const notAvailable = newCodeList.find(e => initialCode && initialCode === e.initialCode)
+        notAvailable && setAvailable(false)
     }
 
     useEffect(()=> {
@@ -98,13 +114,41 @@ const ModalIdenticalCode = (props) => {
     
     useEffect(()=> {
         for( let i of props.identicalCode ) {
-            i.codeFor === identicalCode.codeFor && setIdentical(i)
+            if(i.codeFor === identicalCode.codeFor) {
+                let temp = {
+                    ...i,
+                    codeList: []
+                }
+                for( let x in i.codeList ) {
+                    temp.codeList.push(i.codeList[x])
+                }
+                setIdentical(temp)
+            }
         }
     }, [props.identicalCode])
 
-    const {identicalCode, showFormIdentic, formIdentical, identicalAvailable, lastInitialDigit} = props.data
+    const {identicalCode,
+        showFormIdentic,
+        formIdentical,
+        identicalAvailable,
+        lastInitialDigit,
+        lastInitialSpace,
+        firstInitialSpace
+    } = props.data
+
     const {codeList} = identicalCode
-    const {setIdentical, setAvailable, setShowForm, setLastInitialDigit, setFormIdentical, getResetFormIdentical} = props.identicalState
+
+    const {
+        setIdentical,
+        setAvailable,
+        setShowForm,
+        setLastInitialDigit,
+        setLastInitialSpace,
+        setFirstInitialSpace,
+        setFormIdentical,
+        getResetFormIdentical
+    } = props.identicalState
+
     return (
         <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog">
@@ -115,21 +159,22 @@ const ModalIdenticalCode = (props) => {
                     </div>
                     <div className="modal-body">
                         <ul className="list-group list-group-flush">
+                            <li className="list-group-item d-inline-flex justify-content-between create-number-format" onClick={handleShowFormIdentical}>
+                                <span className="">Create New Identical</span>
+                                <span className=""><i className="bi bi-caret-down-fill"></i></span>
+                            </li>
+                            {showFormIdentic && <FormIdenticalCode data={[formIdentical, identicalAvailable, lastInitialDigit, lastInitialSpace, firstInitialSpace]} handleInput={handleInputIdentical} handleCreate={handleCreateIdentical} />}
                             {
                                 codeList.map((code, i) => {
                                     return <IdenticalCodeList key={i} row={i} code={code} handleOnClick={()=>handleUseIdentical(code)} handleOnClickDel={()=>{handleDeleteIdentical(i)}} />
                                 })
                             }
-                            <li className="list-group-item d-inline-flex justify-content-between create-number-format" onClick={handleShowFormIdentical}>
-                                <span className="">Create New Identical</span>
-                                <span className=""><i className="bi bi-caret-down-fill"></i></span>
-                            </li>
                         </ul>
                     </div>
-                    {showFormIdentic && <FormIdenticalCode data={[formIdentical, identicalAvailable, lastInitialDigit]} handleInput={handleInputIdentical} handleCreate={handleCreateIdentical} />}
                     <div className="modal-footer">
                         <button type="button" className="btn btn-primary" data-bs-dismiss="modal">Close</button>
                     </div>
+
                 </div>
             </div>
         </div>

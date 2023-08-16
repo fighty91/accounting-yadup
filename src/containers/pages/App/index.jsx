@@ -22,9 +22,8 @@ import BalanceSheet from "../Reports/BalanceSheet/BalanceSheet";
 import Dashboard from "../Dashboard";
 import Login from "../Login";
 import Register from "../Register";
+// import Logout from "../Logout";
 import Logout from "../Logout";
-import NewPage from "../NewPage";
-
 
 class App extends Component {
     render() {
@@ -55,8 +54,6 @@ class App extends Component {
                     <Route path="/login" Component={Login} />
                     <Route path="/register" Component={Register} />
                     <Route path="/logout" Component={Logout} />
-
-                    <Route path="/new-page" Component={NewPage} />
                 </Routes>
             </Router>
         )
