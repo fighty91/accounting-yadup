@@ -21,11 +21,14 @@ const LayoutsMainContent = (props) => {
         if (!props.isLogin) {
             checkAccessToken()
         }
-        console.log('isLogin', props.isLogin)
+        // console.log('isLogin', props.isLogin)
     }, [])
+    // useEffect(() => {
+    //     console.log('isLogin', props.isLogin)
+    // }, [props.isLogin])
 
     return (
-        accessToken &&
+        props.isLogin &&
         <Fragment>
             <div className="container-full-viewport-height">
                 <Navbar/>

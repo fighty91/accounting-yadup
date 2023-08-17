@@ -110,7 +110,9 @@ const CreateUpdateEntries = (props) => {
     const handleEntryTransaction = (data) => {
         let newTransaction = {...transaction}
         const {name, value} = data.target
-        name === 'userId' || name === 'contactId' ? newTransaction[name] = +value : newTransaction[name] = value
+        // name === 'userId' || name === 'contactId' ? 
+        //     newTransaction[name] = +value : 
+            newTransaction[name] = value
         if(name === 'contactId') value < 1 && delete newTransaction[name]
         setTransaction(newTransaction)
     }
@@ -234,8 +236,11 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        // props.postJournalEntryToAPI(newTransaction)
         console.log(newTransaction)
+        // const res = props.postJournalEntryToAPI(newTransaction)
+        // if(res) {
+        //     console.log(res)
+        // }
         // const {id, transNumber} = await postEntriesAPI(newTransaction)
         // navigate(`/journal-entries/transaction-detail/${id}`)
         // setTimeout(()=> {
@@ -255,7 +260,7 @@ const CreateUpdateEntries = (props) => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
         if(!accountProblem) {
             let newTransaction = {...transaction}
-            newTransaction.userId = 1 // nanti disesuaikan lagi USER nya
+            newTransaction.userId = '1' // nanti disesuaikan lagi USER nya
             newTransaction.transAccounts = newAccountTransactions.filter(e => e.account)
             if(isUpdate) {
                 updateProps(newTransaction, {transNumber, id: transDb.id})

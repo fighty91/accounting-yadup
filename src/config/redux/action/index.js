@@ -1,5 +1,5 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getDatabase, push as pushData, ref, onValue, set, child, get, remove } from "firebase/database";
+import { getDatabase, push as pushData, ref, onValue, set, child, get, remove, increment } from "firebase/database";
 
 
 import { database } from "../../firebase";
@@ -8,21 +8,41 @@ const corp = 'yadupa'
 const yadupauid = JSON.parse(localStorage.getItem(`${corp}uid`))
 
 const setUserAccess = (userData) => {
-    const { email, uid, accessToken, emailVerified } = userData
-    // const { createdAt } = userData.metadata
-    set(ref(database, `${corp}/userAccessToken/` + uid), {
-        email,
-        emailVerified,
-        accessToken
+    return new Promise((resolve, reject) => {
+        const { email, uid, accessToken } = userData
+        set(ref(database, `${corp}/userAccessToken/` + uid), {
+            email,
+            accessToken
+        }).then(() => resolve(true))
+        .catch((err) => {
+            console.log(err)
+            reject(false)
+        })
     })
 }
-const setUsers = (userData) => {
-    const { name, email, uid, createdAt } = userData
-    // const { createdAt } = userData.metadata
-    set(ref(database, `${corp}/users/` + uid), {
-        name,
-        email,
-        createdAt
+const setUserRegister = (userData) => {
+    return new Promise(async(resolve, reject) => {
+        const { name, email, uid, createdAt } = userData
+        const users = await getOnceUsers()
+        let uid2 = 1
+        if(users) {
+            let userUid2 = []
+            for( let x in users ) {
+                userUid2.push(users[x].uid2)
+            }
+            uid2 += Math.max(...userUid2)
+        }
+        set(ref(database, `${corp}/users/${uid}`), {
+            uid1: uid,
+            uid2,
+            name,
+            email,
+            createdAt
+        }).then(() => resolve(true))
+        .catch((err) => {
+            console.log(err)
+            reject(false)
+        })
     })
 }
 // export const getUserData = () => (dispatch) => {
@@ -33,6 +53,23 @@ const setUsers = (userData) => {
 //         });
 //     })
 // }
+const getOnceUsers = () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corp}/users`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                resolve(snapshot.val())
+            } else {
+                resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
 const getUserAccessToken = (userId) => {
     // get once
     return new Promise((resolve, reject) => {
@@ -67,23 +104,24 @@ export const registerUserAPI = (data) => (dispatch) => {
         const {email, password, name} = data
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        .then(async(userCredential) => {
             // Signed in 
-            dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
-
-            const { email, uid, emailVerified, accessToken, metadata } = userCredential.user
+            const { email, uid, accessToken, metadata } = userCredential.user
             const userData = {
                 createdAt: metadata.createdAt,
                 uid,
                 name,
                 email,
-                emailVerified,
                 accessToken
             }
-
-            setUserAccess(userData)
-            setUsers(userData)
-            resolve(true)
+            let res = false
+            const res2 = await setUserAccess(userData)
+            const res3 = await setUserRegister(userData)
+            if(res2 && res3) {
+                res = true
+                dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
+            }
+            resolve(res)
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -102,11 +140,10 @@ export const loginUserAPI = (data) => (dispatch) => {
         signInWithEmailAndPassword(auth, data.email, data.password)
         .then(async(userCredential) => {
 
-            const { email, uid, accessToken, emailVerified } = userCredential.user
+            const { email, uid, accessToken } = userCredential.user
             const userData = {
                 uid,
                 email,
-                emailVerified,
                 accessToken
             }
 
