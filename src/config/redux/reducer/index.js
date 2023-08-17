@@ -46,12 +46,19 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 contacts: value
             }
-        case 'SET_ENTRIES' :
-            let newTransactions = {...state.transactions}
-            newTransactions.journalEntries = value
+        case 'SET_TRANSACTIONS' :
             return {
                 ...state,
-                transactions: newTransactions
+                transactions: value
+            }
+        case 'SET_ENTRIES' :
+            let entriesTransactions = {
+                ...state.transactions,
+                journalEntries: value
+            }
+            return {
+                ...state,
+                transactions: entriesTransactions
             }
         case 'SET_IDENTICAL_CODE' :
             return {

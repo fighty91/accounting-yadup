@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Accounts from "../Accounts";
+import CashAndBank from "../CashAndBank";
 import Contacts from "../Contacts";
 import JournalEntries from "../JournalEntries";
 import Reports from "../Reports";
@@ -22,7 +23,6 @@ import BalanceSheet from "../Reports/BalanceSheet/BalanceSheet";
 import Dashboard from "../Dashboard";
 import Login from "../Login";
 import Register from "../Register";
-// import Logout from "../Logout";
 import Logout from "../Logout";
 
 class App extends Component {
@@ -32,6 +32,7 @@ class App extends Component {
                 <Routes>
                     <Route path="/" exact Component={Dashboard} />
                     <Route path="/accounts" Component={Accounts}/>
+                    <Route path="/cash-and-bank" Component={CashAndBank}/>
                     <Route path="/contacts" Component={Contacts}/>
                     <Route path="/journal-entries" Component={JournalEntries}/>
                     <Route path="/reports" Component={Reports}/>

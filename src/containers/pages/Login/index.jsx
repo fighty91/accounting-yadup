@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { loginUserAPI } from "../../../config/redux/action";
@@ -46,6 +46,10 @@ const Login = (props) => {
         }
           
     }
+
+    useEffect(() => {
+        document.title = 'Accounting Yadupa - Login'
+    }, [])
 
     return (
         <Fragment>

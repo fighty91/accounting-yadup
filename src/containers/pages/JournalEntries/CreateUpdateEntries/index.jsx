@@ -8,7 +8,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, postJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -149,7 +149,7 @@ const CreateUpdateEntries = (props) => {
         let newAccountTransactions = [...accountTransactions]
         let {name, value, id} = data.target
         let idNumb = +id.slice(3)
-        name === 'debit' || name === 'credit' || name === 'account' ?
+        name === 'debit' || name === 'credit' ?
             newAccountTransactions[idNumb][name] = +value :
             newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
@@ -234,11 +234,13 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        const {id, transNumber} = await postEntriesAPI(newTransaction)
-        navigate(`/journal-entries/transaction-detail/${id}`)
-        setTimeout(()=> {
-            alert(`Berhasil menambahkan transaksi ${transNumber} ke daftar journal entries`)
-        }, 600)
+        // props.postJournalEntryToAPI(newTransaction)
+        console.log(newTransaction)
+        // const {id, transNumber} = await postEntriesAPI(newTransaction)
+        // navigate(`/journal-entries/transaction-detail/${id}`)
+        // setTimeout(()=> {
+        //     alert(`Berhasil menambahkan transaksi ${transNumber} ke daftar journal entries`)
+        // }, 600)
     }
     
     const putDataToAPI = async (newTransaction) => {
@@ -260,13 +262,13 @@ const CreateUpdateEntries = (props) => {
                 // await putDataToAPI(newTransaction)
             } else {
                 newTransaction.transNumber = transNumber ? transNumber : await getNewTransNumber()
-                // await postDataToAPI(newTransaction)
+                await postDataToAPI(newTransaction)
             }
         }
     }
 
     const getNewTransNumber = async () => {
-        const {initialCode, startFrom} = await getIdenticalCode()
+        const {initialCode, startFrom} = identicalCode
         let numberList = []
         if(initialCode) {
             transNumberList.forEach(e => {
@@ -442,7 +444,8 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
-    getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
+    getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
+    postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateEntries)

@@ -309,13 +309,32 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
 }
 
 export const getTransactionsFromAPI = () => async (dispatch) => {
-    const entries = await getEntriesAPI(dispatch)
-    // dispatch({type: 'SET_ENTRIES', value: entries})
+    const journalEntries = await getEntriesAPI(dispatch)
+    const transactions = {
+        journalEntries,
+    }
+    dispatch({type: 'SET_TRANSACTIONS', value: transactions})
+}
+export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        pushData(ref(database, `${corp}/transactions/journalEntries`), journalEntry)
+        .then((dataCredential) => {
+            resolve(dataCredential.key)
+            console.log(dataCredential)
+        })
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
 }
 export const getEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const journalEntries = await getEntriesAPI(dispatch)
-        journalEntries && resolve(journalEntries)
+        if(journalEntries) {
+            dispatch({type: 'SET_ENTRIES', value: journalEntries})
+            journalEntries && resolve(journalEntries)
+        }
     })
 }
 const getEntriesAPI = (dispatch) => {
@@ -328,7 +347,7 @@ const getEntriesAPI = (dispatch) => {
                 temp[x].id = x
                 journalEntries.push(temp[x])
             }
-            dispatch({type: 'SET_ENTRIES', value: journalEntries})
+            // dispatch({type: 'SET_ENTRIES', value: journalEntries})
             resolve(journalEntries)
         });
     })

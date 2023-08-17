@@ -33,7 +33,7 @@ const ModalIdenticalCode = (props) => {
     }
 
     const handleDeleteIdentical = (row) => {
-        let newCodeList = [...codeList]
+        let newCodeList = [...identicalCode.codeList]
         newCodeList.splice(row,1)
         let newIdenticalCode = {
             ...identicalCode,
@@ -44,7 +44,6 @@ const ModalIdenticalCode = (props) => {
 
     const handleCreateIdentical = async () => {
         let problemCount = 0
-
         lastInitialDigit && problemCount++
         lastInitialSpace && problemCount++
         firstInitialSpace && problemCount++
@@ -126,8 +125,6 @@ const ModalIdenticalCode = (props) => {
         firstInitialSpace
     } = props.data
 
-    const {codeList} = identicalCode
-
     const {
         setIdentical,
         setAvailable,
@@ -155,7 +152,7 @@ const ModalIdenticalCode = (props) => {
                             </li>
                             {showFormIdentic && <FormIdenticalCode data={[formIdentical, identicalAvailable, lastInitialDigit, lastInitialSpace, firstInitialSpace]} handleInput={handleInputIdentical} handleCreate={handleCreateIdentical} />}
                             {
-                                codeList.map((code, i) => {
+                                identicalCode.codeList.map((code, i) => {
                                     return <IdenticalCodeList key={i} row={i} code={code} handleOnClick={()=>handleUseIdentical(code)} handleOnClickDel={()=>{handleDeleteIdentical(i)}} />
                                 })
                             }

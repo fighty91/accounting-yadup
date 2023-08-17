@@ -3,7 +3,7 @@ import InputValidation from "../../atoms/InputValidation";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const RowFormEntries = (props) => {
-    const [accountNumberName, setAccountNumberName] = useState('')
+    const [accountNumberAndName, setAccountNumberAndName] = useState('')
     const { getCurrency, getNormalNumb } = useGeneralFunc()
     const handleFocusInputNumb = (event) => {
         const {value, name, id} = event.target
@@ -39,17 +39,17 @@ const RowFormEntries = (props) => {
         }
     }
 
-    const getNumberName = (e) => {
-        const accountId = +e.target.value
-        let numberName = ''
+    const getNumberAndNameShow = (e) => {
+        const accountId = e.target.value
+        let numberAndName = ''
         if(accountId) {
             const newAccount = accounts.find(e => e.id === accountId)
             if(newAccount) {
                 const {number, accountName} = newAccount
-                numberName = `${number}  ${accountName}`
+                numberAndName = `${number}  ${accountName}`
             }
         }
-        setAccountNumberName(numberName)
+        setAccountNumberAndName(numberAndName)
     }
     
     const {handleEntryAccount, handleDeleteRow, setAccountTransactions, handleSubmit} = props.rowFormFunc
@@ -63,7 +63,7 @@ const RowFormEntries = (props) => {
         <tr>
             <td className="ps-0 pe-0">
                 <label htmlFor={'ac-'+row} className="visually-hidden">Account</label>
-                <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} value={account} title={accountNumberName} onMouseEnter={getNumberName}>
+                <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} value={account} title={accountNumberAndName} onMouseEnter={getNumberAndNameShow}>
                     <option value="">Choose...</option>
                     {
                         parentAccounts.map(pAcc => {
