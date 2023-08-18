@@ -10,49 +10,39 @@ const Sidebar = (props) => {
 
     const [segment, setSegment] = useState({})
 
-    const handleActiveBar = () => {
+    const handleActiveBarAndTitle = () => {
         let newSegment = {}
         switch(segmentTemp) {
             case 'contacts':
                 newSegment.contactActive = true
+                document.title = 'Contact'
+                break
+            case 'cash-and-bank':
+                newSegment.cashAndBankActive = true
+                document.title = 'Cash and Bank'
                 break
             case 'journal-entries':
                 newSegment.entriesActive = true
+                document.title = 'Journal Entries'
                 break
             case 'reports':
                 newSegment.reportActive = true
+                document.title = 'Report'
                 break
             case 'accounts':
                 newSegment.accountActive = true
+                document.title = 'Account'
                 break
             case 'users':
                 newSegment.userPageActive = true
                 break
             default:
                 newSegment.dashboardActive = true
+                document.title = 'Dashboard'
         }
         setSegment(newSegment)
     }
     
-    const handleTitle = () => { // nanti dihapus setelah ada title pada masing2 halaman
-        switch(segmentTemp) {
-            case 'contacts':
-                document.title = 'Contact'
-                break
-            case 'journal-entries':
-                document.title = 'Journal Entries'
-                break
-            case 'reports':
-                document.title = 'Report'
-                break
-            case 'accounts':
-                document.title = 'Account'
-                break
-            default:
-                document.title = 'Dashboard'
-        }
-    }
-
     const getCorpName = () => {
         const initialCorp = props.corp.charAt(0).toUpperCase()
         let corp = initialCorp + props.corp.substr(1)
@@ -78,8 +68,7 @@ const Sidebar = (props) => {
     }
 
     useEffect(()=> {
-        handleActiveBar()
-        handleTitle()
+        handleActiveBarAndTitle()
     }, [segmentTemp])
 
     return (
