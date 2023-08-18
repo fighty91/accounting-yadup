@@ -22,9 +22,9 @@ import DetailJournalEntries from "../JournalEntries/DetailJournalEntries";
 import BalanceSheet from "../Reports/BalanceSheet/BalanceSheet";
 import Dashboard from "../Dashboard";
 import Login from "../Login";
-import Register from "../Register";
 import Logout from "../Logout";
 import Users from "../Users";
+import NewUser from "../Users/NewUser";
 
 class App extends Component {
     render() {
@@ -54,8 +54,8 @@ class App extends Component {
                     <Route path="/reports/balance-sheet" Component={BalanceSheet}/>
 
                     <Route path="/users" Component={Users} />
+                    <Route path="/users/new-user" Component={NewUser} />
                     <Route path="/login" Component={Login} />
-                    <Route path="/register" Component={Register} />
                     <Route path="/logout" Component={Logout} />
                 </Routes>
             </Router>

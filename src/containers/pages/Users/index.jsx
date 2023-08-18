@@ -4,24 +4,24 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import './Users.scss'
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteContactFromAPI, getContactsFromAPI, getTransactionsFromAPI, getUserAccessFromAPI, getUsersFromAPI } from "../../../config/redux/action";
+import { getTransactionsFromAPI, getUserAccessFromAPI, getUsersFromAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 
 const Users = (props) => {
     const [userAccess, setUserAccess] = useState([])
     const [users, setUsers] = useState([])
     // const [transactions, setTransactions] = useState([])
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1700,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener('mouseenter', Swal.stopTimer)
-          toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    // const Toast = Swal.mixin({
+    //     toast: true,
+    //     position: 'top-end',
+    //     showConfirmButton: false,
+    //     timer: 1700,
+    //     timerProgressBar: true,
+    //     didOpen: (toast) => {
+    //       toast.addEventListener('mouseenter', Swal.stopTimer)
+    //       toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //     }
+    // })
 
     // const getConfirmDelete = (data) => {
     //     const res = transactions.find(e => e.contactId === data.id)
@@ -63,18 +63,17 @@ const Users = (props) => {
     // }
 
     useEffect(() => {
-        // props.getContactsFromAPI()
-        // props.getTransactionsFromAPI()
+        props.getTransactionsFromAPI()
         props.getUsersFromAPI()
         props.getUserAccessFromAPI()
     }, [])
-
-    // useEffect(() => {
-    //     setContacts(props.contacts)
-    // }, [props.contacts])
     
     useEffect(() => {
-        setUsers(props.users)
+        let temp = []
+        for(let i of props.users) {
+            i.userAccessId > 0 && temp.push(i)
+        }
+        setUsers(temp)
     }, [props.users])
 
     useEffect(() => {
@@ -105,7 +104,7 @@ const Users = (props) => {
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Level</th>
+                                        <th scope="col">Access Level</th>
                                         <th scope="col" className="text-end">Action</th>
                                     </tr>
                                 </thead>
@@ -114,20 +113,10 @@ const Users = (props) => {
                                         users.map((user, i) => {
                                             let userAccessName = ''
                                             userAccess.forEach(e => {
-                                                if(e.id === user.userAccessId) {
-                                                    userAccessName = e.name
-                                                }
+                                                if(e.id === user.userAccessId) userAccessName = e.name
                                             })
-                                            // const {id, name, address, phone, position} = contact
-                                            // const {customer, vendor, employee, other} = position
-                                            // let positions = []
-                                            // if (customer) { positions.push('Customer') }
-                                            // if (vendor) { positions.push('Vendor') }
-                                            // if (employee) { positions.push('Employee') }
-                                            // if (other) { positions.push('Other') }
-
                                             return (
-                                                <tr key={user.id}>
+                                                <tr key={user.uid1} >
                                                     <td className="ps-2">
                                                         {i+1}
                                                     </td>
@@ -152,7 +141,6 @@ const Users = (props) => {
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </LayoutsMainContent>
@@ -161,15 +149,12 @@ const Users = (props) => {
 }
 
 const reduxState = (state) => ({
-    // contacts: state.contacts,
-    // transactions: state.transactions,
+    transactions: state.transactions,
     users: state.users,
     userAccess: state.userAccess
 })
 const reduxDispatch = (dispatch) => ({
-    // getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    // deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data)),
-    // getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
+    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     getUserAccessFromAPI: () => dispatch(getUserAccessFromAPI()),
 })

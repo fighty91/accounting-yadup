@@ -7,7 +7,7 @@ import { database } from "../../firebase";
 const corp = 'yadupa'
 const yadupauid = JSON.parse(localStorage.getItem(`${corp}uid`))
 
-const setUserAccess = (userData) => {
+const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
         const { email, uid, accessToken } = userData
         set(ref(database, `${corp}/userAccessToken/` + uid), {
@@ -22,7 +22,7 @@ const setUserAccess = (userData) => {
 }
 const setUserRegister = (userData) => {
     return new Promise(async(resolve, reject) => {
-        const { name, email, uid, createdAt } = userData
+        const { name, email, uid, createdAt, userAccessId } = userData
         const users = await getOnceUsers()
         let uid2 = 1
         if(users) {
@@ -37,6 +37,7 @@ const setUserRegister = (userData) => {
             uid2,
             name,
             email,
+            userAccessId,
             createdAt
         }).then(() => resolve(true))
         .catch((err) => {
@@ -101,7 +102,7 @@ export const registerUserAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({type: 'CHANGE_AUTH_LOADING', value: true})
 
-        const {email, password, name} = data
+        const {email, password, name, userAccessId} = data
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, email, password)
         .then(async(userCredential) => {
@@ -112,10 +113,11 @@ export const registerUserAPI = (data) => (dispatch) => {
                 uid,
                 name,
                 email,
+                userAccessId,
                 accessToken
             }
             let res = false
-            const res2 = await setUserAccess(userData)
+            const res2 = await setUserAccessToken(userData)
             const res3 = await setUserRegister(userData)
             if(res2 && res3) {
                 res = true
@@ -147,7 +149,7 @@ export const loginUserAPI = (data) => (dispatch) => {
                 accessToken
             }
 
-            await setUserAccess(userData)
+            await setUserAccessToken(userData)
             await localStorage.setItem(`${corp}uid`, JSON.stringify(uid))
             await localStorage.setItem(`token_${corp}uid`, JSON.stringify(accessToken))
             await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
