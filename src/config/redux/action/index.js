@@ -37,6 +37,7 @@ const setUserRegister = (userData) => {
             uid2,
             name,
             email,
+            isActive: true,
             userAccessId,
             createdAt
         }).then(() => resolve(true))
@@ -373,7 +374,6 @@ export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
         pushData(ref(database, `${corp}/transactions/journalEntries`), journalEntry)
         .then((dataCredential) => {
             resolve(dataCredential.key)
-            console.log(dataCredential)
         })
         .catch(err => {
             console.log(err)

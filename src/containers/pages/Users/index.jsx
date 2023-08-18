@@ -105,6 +105,7 @@ const Users = (props) => {
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Access Level</th>
+                                        <th scope="col"></th>
                                         <th scope="col" className="text-end">Action</th>
                                     </tr>
                                 </thead>
@@ -127,6 +128,7 @@ const Users = (props) => {
                                                         <p className="mb-0 fw-light email">{user.email}</p>
                                                     </td>
                                                     <td>{ userAccessName }</td>
+                                                    <td>{user.isActive ? 'active' : 'not active'}</td>
                                                     <td className="text-end">
                                                         <div className="btn-group" role="group" aria-label="Basic outlined example">
                                                             {/* <button type="submit" className="btn btn-outline-danger action" onClick={()=>handleDeleteContact({id, name})}>Delete</button> */}

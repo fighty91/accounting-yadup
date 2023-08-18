@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import './Navbar.css'
+import './Navbar.scss'
 import { connect } from "react-redux"
 import { getUserAccessFromAPI } from "../../../../config/redux/action"
 
@@ -136,11 +136,11 @@ const Layouts = (props) => {
                         Accounting
                     </span>
                 </Link>
-                <div className="col-md-3 col-lg-2 me-0 pe-4 text-end text-white d-none d-md-block">
-                    <h6 className="my-0" style={{"font-size": "13px"}}>
+                <div className="col-md-3 col-lg-2 me-0 pe-4 text-end text-white d-none d-md-block user">
+                    <h6 className="my-0 user-name" >
                         {props.user.name}
                     </h6>
-                    <p className="my-0 fw-light" style={{"font-size": "10px"}}>
+                    <p className="my-0 fw-light user-access-level" >
                         {
                             getAccessName(props.user.userAccessId)
                         }

@@ -8,7 +8,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, postJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUserFromAPI, postJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -34,7 +34,6 @@ const CreateUpdateEntries = (props) => {
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         contactId: '',
-        userId: '',
         memo: '',
         transType: "Journal Entries"
     })
@@ -108,12 +107,11 @@ const CreateUpdateEntries = (props) => {
     }
 
     const handleEntryTransaction = (data) => {
-        let newTransaction = {...transaction}
         const {name, value} = data.target
-        // name === 'userId' || name === 'contactId' ? 
-        //     newTransaction[name] = +value : 
-            newTransaction[name] = value
-        if(name === 'contactId') value < 1 && delete newTransaction[name]
+        let newTransaction = {
+            ...transaction,
+            [name]: value
+        }
         setTransaction(newTransaction)
     }
 
@@ -236,16 +234,13 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        console.log(newTransaction)
-        // const res = props.postJournalEntryToAPI(newTransaction)
-        // if(res) {
-        //     console.log(res)
-        // }
-        // const {id, transNumber} = await postEntriesAPI(newTransaction)
-        // navigate(`/journal-entries/transaction-detail/${id}`)
-        // setTimeout(()=> {
-        //     alert(`Berhasil menambahkan transaksi ${transNumber} ke daftar journal entries`)
-        // }, 600)
+        const res = await props.postJournalEntryToAPI(newTransaction)
+        if(res) {
+            navigate(`/journal-entries/transaction-detail/${res}`)
+            setTimeout(()=> {
+                alert(`Berhasil menambahkan transaksi ${newTransaction.transNumber} ke daftar journal entries`)
+            }, 600)
+        }
     }
     
     const putDataToAPI = async (newTransaction) => {
@@ -259,9 +254,16 @@ const CreateUpdateEntries = (props) => {
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
         if(!accountProblem) {
-            let newTransaction = {...transaction}
-            newTransaction.userId = '1' // nanti disesuaikan lagi USER nya
-            newTransaction.transAccounts = newAccountTransactions.filter(e => e.account)
+            const newDate = new Date
+            let newTransaction = {
+                ...transaction,
+                createdBy: props.user.uid2,
+                createdAt: newDate.getTime(),
+                transAccounts: newAccountTransactions.filter(e => e.account)
+            }
+            for(let i in newTransaction) {
+                !newTransaction[i] && delete newTransaction[i]
+            }
             if(isUpdate) {
                 updateProps(newTransaction, {transNumber, id: transDb.id})
                 // await putDataToAPI(newTransaction)
@@ -442,6 +444,7 @@ const CreateUpdateEntries = (props) => {
 }
 
 const reduxState = (state) => ({
+    user: state.user,
     contacts: state.contacts,
     transactions: state.transactions,
     accounts: state.accounts
