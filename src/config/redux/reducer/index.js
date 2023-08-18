@@ -4,13 +4,13 @@ const initialState = {
     authLoading: false,
     logoutLoading: false,
 
+    users: [],
+    userAccess: [],
     accounts: [],
     categories: [],
     contacts: [],
     transactions: {},
     identicalCode: [],
-
-    notes: []
 }
   
 const reducer = (state = initialState, action)  => {
@@ -65,10 +65,15 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 identicalCode: value
             }
-        case 'SET_NOTES' :
+        case 'SET_USERS' :
             return {
                 ...state,
-                notes: value
+                users: value
+            }
+        case 'SET_USERACCESS' :
+            return {
+                ...state,
+                userAccess: value
             }
         default:
             return state

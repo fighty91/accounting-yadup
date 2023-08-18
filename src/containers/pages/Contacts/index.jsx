@@ -92,7 +92,7 @@ const Contacts = (props) => {
                             <table className="table table-striped table-sm table-contacts">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="tabel-date">Name</th>
+                                        <th scope="col">Name</th>
                                         <th scope="col">Phone</th>
                                         <th scope="col" className="text-start">Position</th>
                                         <th scope="col" className="text-end">Action</th>

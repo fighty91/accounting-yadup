@@ -174,20 +174,8 @@ export const logoutUserAPI = () => (dispatch) => {
     });
 }
 
-export const addDataToAPI = (data) => (patch) => {
-    const writeNoteData = (data) => {
-        const { userId, title, date, content } = data
-        pushData(ref(database, 'notes/' + userId), {
-            title,
-            content,
-            date
-        });
-    }
-    writeNoteData(data)
-}
 // export const addDataToAPI = (data) => (patch) => {
 //     // writeUserData(data.userId, data.title)
-
 //     const writeUserData = (data) => {
 //         const { userId, title, date, content } = data
 //         const db = getDatabase();
@@ -209,16 +197,34 @@ export const addDataToAPI = (data) => (patch) => {
 //         });
 //     })
 // }
-export const addDataToAPI2 = (data) => (patch) => {
-    const writeNoteData = (data) => {
-        const { userId, title, date, content } = data
-        pushData(ref(database, 'notes/' + userId), {
-            title,
-            content,
-            date
+export const getUsersFromAPI = () => (dispatch) => {
+    return new Promise(resolve => {
+        const starCountRef = ref(database, `${corp}/users`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let users = []
+            for( let x in temp) {
+                users.push(temp[x])
+            }
+            users.sort((a, b) => a.name - b.name)
+            dispatch({type: 'SET_USERS', value: users})
+            resolve(users)
         });
-    }
-    writeNoteData(data)
+    })
+}
+export const getUserAccessFromAPI = () => (dispatch) => {
+    return new Promise(resolve => {
+        const starCountRef = ref(database, `${corp}/userAccess`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let userAccess = []
+            for( let x in temp) {
+                userAccess.push(temp[x])
+            }
+            dispatch({type: 'SET_USERACCESS', value: userAccess})
+            resolve(userAccess)
+        });
+    })
 }
 export const postAccountToAPI = (account) => (dispatch) => {
     return new Promise((resolve, reject) => {
@@ -424,23 +430,6 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
             }
             dispatch({type: 'SET_IDENTICAL_CODE', value: identicalCode})
             resolve(identicalCode)
-        });
-    })
-}
-
-export const getDataFromAPI = (userId) => (dispatch) => {
-    const starCountRef = ref(database, 'notes/' + userId);
-    return new Promise((resolve, reject) => {
-        onValue(starCountRef, (snapshot) => {
-            let data = []
-            for( let x in snapshot.val()) {
-                data.push({
-                    id: x,
-                    data: snapshot.val()[x]
-                })
-            }
-            dispatch({type: 'SET_NOTES', value: data})
-            resolve(data)
         });
     })
 }

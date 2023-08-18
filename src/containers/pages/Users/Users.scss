@@ -1,0 +1,29 @@
+.table-users {
+    tbody {
+        color: rgb(64, 64, 64);
+        font-size: 16px;
+        a {
+            color: rgb(64, 64, 64);
+            text-decoration: none;
+        }
+        a, button {
+            &.action {
+                font-size: 12px !important;
+                height: 20px !important;
+                padding: 0 8px;
+            }
+        }
+    }
+    .user-name {
+        &:hover {
+            color:  #0d6efd;
+            text-decoration: underline 1px;
+        }
+    }
+    .email {
+        font-size: 13px;
+    }
+    tbody {
+        font-size: 16px;
+    }
+}
