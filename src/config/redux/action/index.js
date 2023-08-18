@@ -148,13 +148,11 @@ export const loginUserAPI = (data) => (dispatch) => {
                 email,
                 accessToken
             }
-
             await setUserAccessToken(userData)
-            await localStorage.setItem(`${corp}uid`, JSON.stringify(uid))
-            await localStorage.setItem(`token_${corp}uid`, JSON.stringify(accessToken))
+            localStorage.setItem(`${corp}uid`, JSON.stringify(uid))
+            localStorage.setItem(`token_${corp}uid`, JSON.stringify(accessToken))
             await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
-            // await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
-            await resolve(userCredential.user)
+            resolve(userCredential.user)
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -199,6 +197,16 @@ export const logoutUserAPI = () => (dispatch) => {
 //         });
 //     })
 // }
+export const getUserFromAPI = (userId) => (dispatch) => {
+    return new Promise(resolve => {
+        const starCountRef = ref(database, `${corp}/users/${userId}`);
+        onValue(starCountRef, (snapshot) => {
+            const user = snapshot.val()
+            dispatch({type: 'SET_USER', value: user})
+            resolve(user)
+        });
+    })
+}
 export const getUsersFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
         const starCountRef = ref(database, `${corp}/users`);

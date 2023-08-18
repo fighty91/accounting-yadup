@@ -1,15 +1,37 @@
-import React, { Fragment } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import './Navbar.css'
 import { connect } from "react-redux"
+import { getUserAccessFromAPI } from "../../../../config/redux/action"
 
 
 const Layouts = (props) => {
+    const [userAccess, setUserAccess] = useState([])
     const getCorpName = () => {
         const initialCorp = props.corp.charAt(0).toUpperCase()
         let corp = initialCorp + props.corp.substr(1)
         return corp
     }
+
+    const getAccessName = (accessId) => {
+        let temp = ''
+        userAccess.forEach(e => {
+            if(e.id === accessId) {
+                temp = e.name
+            }
+        })
+        return temp
+    }
+
+    useEffect(() => {
+        props.getUserAccessFromAPI()
+    }, [])
+
+
+
+    useEffect(() => {
+        setUserAccess(props.userAccess)
+    }, [props.userAccess])
 
     return(
         <Fragment>
@@ -105,16 +127,25 @@ const Layouts = (props) => {
             </div>
 
             <header className="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-                    <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" to="/">
-                        <span className="fw-bolder">
-                            {getCorpName()} 
-                        </span>
-                        &nbsp;
-                        <span className="fw-normal fst-italic">
-                            Accounting
-                        </span>
-                    </Link>
-
+                <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" to="/">
+                    <span className="fw-bolder">
+                        {getCorpName()} 
+                    </span>
+                    &nbsp;
+                    <span className="fw-normal fst-italic">
+                        Accounting
+                    </span>
+                </Link>
+                <div className="col-md-3 col-lg-2 me-0 pe-4 text-end text-white d-none d-md-block">
+                    <h6 className="my-0" style={{"font-size": "13px"}}>
+                        {props.user.name}
+                    </h6>
+                    <p className="my-0 fw-light" style={{"font-size": "10px"}}>
+                        {
+                            getAccessName(props.user.userAccessId)
+                        }
+                    </p>
+                </div>
                 <ul className="navbar-nav flex-row d-md-none">
                     <li className="nav-item text-nowrap">
                         <button className="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,11 +165,12 @@ const Layouts = (props) => {
 }
 
 const reduxState = (state) => ({
+    user: state.user,
+    userAccess: state.userAccess,
     corp: state.corp
 })
-
 const reduxDispatch = (dispatch) => ({
-    // getCheckToken: (data) => dispatch(getCheckToken(data))
+    getUserAccessFromAPI: () => dispatch(getUserAccessFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(Layouts)

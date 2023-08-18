@@ -4,6 +4,7 @@ const initialState = {
     authLoading: false,
     logoutLoading: false,
 
+    user: [],
     users: [],
     userAccess: [],
     accounts: [],
@@ -64,6 +65,11 @@ const reducer = (state = initialState, action)  => {
             return {
                 ...state,
                 identicalCode: value
+            }
+        case 'SET_USER' :
+            return {
+                ...state,
+                user: value
             }
         case 'SET_USERS' :
             return {

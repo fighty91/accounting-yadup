@@ -1,7 +1,7 @@
 import React, { Children, Fragment, useEffect } from "react";
 import Navbar from "../Navbar";
 import Sidebar from "../Sidebar";
-import { getCheckToken } from "../../../../config/redux/action";
+import { getCheckToken, getUserFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import './LayoutMainContent.scss'
@@ -21,7 +21,7 @@ const LayoutsMainContent = (props) => {
         if (!props.isLogin) {
             checkAccessToken()
         }
-        // console.log('isLogin', props.isLogin)
+        props.getUserFromAPI(userId)
     }, [])
     // useEffect(() => {
     //     console.log('isLogin', props.isLogin)
@@ -52,7 +52,8 @@ const reduxState = (state) => ({
     corp: state.corp
 })
 const reduxDispatch = (dispatch) => ({
-    getCheckToken: (data) => dispatch(getCheckToken(data))
+    getCheckToken: (data) => dispatch(getCheckToken(data)),
+    getUserFromAPI: (data) => dispatch(getUserFromAPI(data))
 })
 
 export default connect(reduxState,reduxDispatch)(LayoutsMainContent)
