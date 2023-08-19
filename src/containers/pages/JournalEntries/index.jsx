@@ -92,7 +92,7 @@ const JournalEntries = (props) => {
                                                     </p>
                                                     <p className="mb-0 fw-light description">{description}</p>
                                                 </td>
-                                                <td className="text-end">{getCurrency(total)}</td>
+                                                <td className="text-end pe-2">{getCurrency(total)}</td>
                                             </tr>
                                         )
                                     })

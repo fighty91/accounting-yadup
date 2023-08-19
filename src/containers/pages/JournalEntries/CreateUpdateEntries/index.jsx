@@ -251,11 +251,10 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        const newDate = new Date
         let dataReadyToPost = {
             ...newTransaction,
             createdBy: props.user.uid2,
-            createdAt: newDate.getTime(),
+            createdAt: Date.now(),
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postJournalEntryToAPI(dataReadyToPost)
@@ -407,14 +406,14 @@ const CreateUpdateEntries = (props) => {
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>
                     </div>
-                    <div className="mb-5">
-                        <table className="table table-borderless">
+                    <div className="table-responsive-sm mb-4 mb-sm-5 create-update-entries">
+                        <table className="table table-borderless trans-account">
                             <thead>
                                 <tr>
-                                    <th className="text-start">Account</th>
+                                    <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
-                                    <th className="text-end pe-3">Debit</th>
-                                    <th className="text-end pe-3">Credit</th>
+                                    <th className="text-end pe-3 column-debit">Debit</th>
+                                    <th className="text-end pe-3 column-credit">Credit</th>
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
                                     </th>

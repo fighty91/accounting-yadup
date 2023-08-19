@@ -381,6 +381,13 @@ export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
         })
     })
 }
+export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
+    return new Promise(resolve => {
+        remove(ref(database, `${corp}/transactions/journalEntries/${transId}`))
+        .then(() => resolve(true))
+        .catch(err => console.log(err))
+    })
+}
 export const getEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const journalEntries = await getEntriesAPI(dispatch)

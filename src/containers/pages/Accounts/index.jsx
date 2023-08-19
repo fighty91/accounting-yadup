@@ -90,7 +90,7 @@ const Accounts = (props) => {
                                     </thead>
                                     <tbody className="table-group-divider">
                                         {
-                                            parentAccounts.map(parentAccount => {
+                                            parentAccounts.map((parentAccount, i) => {
                                                 let { id, number, accountName, isActive, categoryId } = parentAccount
                                                 const {childAccounts, parentAmount} = transAmount(id)
                                                 const category = categories.find(e => e.id === categoryId)

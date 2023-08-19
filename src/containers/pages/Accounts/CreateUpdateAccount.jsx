@@ -337,11 +337,7 @@ const CreateUpdateAccount = (props) => {
         }
         setTransactions(temp)
     }, [props.transactions])
-    
-    const test = () => {
-        // console.log(masterAmortization)
-    }
-
+  
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
     const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
     return(
@@ -351,7 +347,7 @@ const CreateUpdateAccount = (props) => {
                 <div className="card-body mt-3">
                     <div className="row g-3 mb-4">
                         <div className="col-md-6">
-                            <label htmlFor="accountName" className="" onClick={test}>Name</label>
+                            <label htmlFor="accountName" className="" >Name</label>
                             <input type="text" className="form-control form-control-sm" id="accountName" placeholder="" name="accountName" autoComplete="off" onChange={handleEntryAccount} value={account.accountName ? account.accountName : ''} onKeyUp={handleKeyEnter}/>
                             { nullValid.accountName && <InputValidation name="name null" /> }
                         </div>

@@ -16,9 +16,6 @@ const ContactCard = (props) => {
                     <li className="nav-item">
                         <Link className={`nav-link ${transactionsActive}`} to={`/contacts/transactions/${contactId}`}>Transactions</Link>
                     </li>
-                    <li className="nav-item">
-                        <Link className="nav-link disabled">Disabled</Link>
-                    </li>
                 </ul>
             </div>
             <div className="card-body mt-3">

@@ -94,6 +94,7 @@ const Contacts = (props) => {
                             <table className="table table-striped table-sm table-contacts">
                                 <thead>
                                     <tr>
+                                        <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Phone</th>
                                         <th scope="col" className="text-start">Position</th>
@@ -102,7 +103,7 @@ const Contacts = (props) => {
                                 </thead>
                                 <tbody className="table-group-divider">
                                     {
-                                        contacts.map(contact => {
+                                        contacts.map((contact, i) => {
                                             const {id, name, address, phone, position} = contact
                                             const {customer, vendor, employee, other} = position
                                             let positions = []
@@ -113,6 +114,7 @@ const Contacts = (props) => {
 
                                             return (
                                                 <tr key={id}>
+                                                    <td>{i+1}</td>
                                                     <td className="ps-2">
                                                         <Link to={`/contacts/detail/${id}`} className="contact-name">
                                                             <p className="mb-0 fw-normal">{name}</p>

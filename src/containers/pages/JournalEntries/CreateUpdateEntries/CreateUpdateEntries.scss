@@ -13,3 +13,14 @@
     cursor: pointer;
     color: #0d6efd;
 }
+
+.create-update-entries {
+    .trans-account {
+        .column-account {
+            min-width: 270px;
+        }
+        .column-debit, .column-credit {
+            min-width: 125px;
+        }
+    }
+}

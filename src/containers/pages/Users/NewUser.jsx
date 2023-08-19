@@ -11,7 +11,7 @@ import InputValidation from "../../../components/atoms/InputValidation";
 const NewUser = (props) => {
     const [userAccess, setUserAccess] = useState([])
     const navigate = useNavigate()
-    const [user, setUser] = useState({name: '', email: '', password: '', confirmPassword: '', userAccessId: 2})
+    const [user, setUser] = useState({name: '', email: '', password: '', confirmPassword: '', userAccessId: 3})
     const [passwordValid, setPasswordValid] = useState(true)
     const Toast = Swal.mixin({
         toast: true,

@@ -1,31 +1,24 @@
 [
+  null,
   {
-    "defaultCode": true,
-    "initialCode": "",
-    "startFrom": 10001
+    "access": [
+      "all"
+    ],
+    "id": 1,
+    "name": "Developer"
   },
   {
-    "initialCode": "2306.",
-    "startFrom": 1
+    "access": [
+      "all"
+    ],
+    "id": 2,
+    "name": "Administrator"
   },
   {
-    "initialCode": "2307.",
-    "startFrom": 1
-  },
-  {
-    "initialCode": "2308.",
-    "startFrom": 1
-  },
-  {
-    "initialCode": "2309.",
-    "startFrom": 1
-  },
-  {
-    "initialCode": "2310.",
-    "startFrom": 1
-  },
-  {
-    "initialCode": "2311.",
-    "startFrom": 1
+    "access": [
+      "all"
+    ],
+    "id": 3,
+    "name": "Accounting Staff"
   }
 ]

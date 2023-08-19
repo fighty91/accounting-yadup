@@ -71,7 +71,7 @@ const Users = (props) => {
     useEffect(() => {
         let temp = []
         for(let i of props.users) {
-            i.userAccessId > 0 && temp.push(i)
+            i.userAccessId > 1 && temp.push(i)
         }
         setUsers(temp)
     }, [props.users])
