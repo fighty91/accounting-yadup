@@ -12,6 +12,7 @@ import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUserFromA
 import { connect } from "react-redux";
 
 import { useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
+import Swal from "sweetalert2";
 
 const CreateUpdateEntries = (props) => {
     const navigate = useNavigate()
@@ -22,7 +23,7 @@ const CreateUpdateEntries = (props) => {
     transId = transId ? transId : searchParams.get('transId')
 
     const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
-    const { postEntriesAPI, putEntriesAPI } = useJournalEntriesFunc()
+    const { putEntriesAPI } = useJournalEntriesFunc()
     const { getIdenticalCode } = useIdenticalFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
@@ -205,11 +206,27 @@ const CreateUpdateEntries = (props) => {
             if (transCount < 2) {
                 accountProblem = true
                 transCount < 1 ? 
-                    alert('Tidak ada akun, transaksi tidak dapat diproses!!') :
-                    alert('Hanya satu akun, transaksi tidak dapat diproses!!')
+                    Swal.fire({
+                        title: 'Pending!',
+                        text: 'There is no transaction account, the transaction cannot be processed!!',
+                        icon: 'warning',
+                        confirmButtonColor: '#fd7e14'
+                    })
+                    :
+                    Swal.fire({
+                        title: 'Pending!',
+                        text: 'Only one account, transactions must be at least two accounts!!',
+                        icon: 'warning',
+                        confirmButtonColor: '#fd7e14'
+                    })
             } else if (totalDebit !== totalCredit) {
                 accountProblem = true
-                alert('Debit and credit unmatch!!')
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Debit and credit unmatch!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
             }
         } 
         if(transNumber) {
@@ -234,31 +251,41 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        const res = await props.postJournalEntryToAPI(newTransaction)
+        const newDate = new Date
+        let dataReadyToPost = {
+            ...newTransaction,
+            createdBy: props.user.uid2,
+            createdAt: newDate.getTime(),
+            transNumber: transNumber ? transNumber : await getNewTransNumber()
+        }
+        const res = await props.postJournalEntryToAPI(dataReadyToPost)
         if(res) {
             navigate(`/journal-entries/transaction-detail/${res}`)
-            setTimeout(()=> {
-                alert(`Berhasil menambahkan transaksi ${newTransaction.transNumber} ke daftar journal entries`)
-            }, 600)
+            Swal.fire({
+                title: 'Good job!',
+                text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
         }
     }
     
     const putDataToAPI = async (newTransaction) => {
         const {id, transNumber} = await putEntriesAPI(newTransaction)
         navigate(`/journal-entries/transaction-detail/${id}`)
-        setTimeout(()=> {
-            alert(`Berhasil memperbaharui transaksi ${transNumber} pada journal entries`)
-        }, 600)
+        Swal.fire({
+            title: 'Good job!',
+            text: `${newTransaction.transType} #${transNumber} updated`,
+            icon: 'success',
+            confirmButtonColor: '#198754'
+        })
     }
 
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
         if(!accountProblem) {
-            const newDate = new Date
             let newTransaction = {
                 ...transaction,
-                createdBy: props.user.uid2,
-                createdAt: newDate.getTime(),
                 transAccounts: newAccountTransactions.filter(e => e.account)
             }
             for(let i in newTransaction) {
@@ -268,7 +295,6 @@ const CreateUpdateEntries = (props) => {
                 updateProps(newTransaction, {transNumber, id: transDb.id})
                 // await putDataToAPI(newTransaction)
             } else {
-                newTransaction.transNumber = transNumber ? transNumber : await getNewTransNumber()
                 await postDataToAPI(newTransaction)
             }
         }

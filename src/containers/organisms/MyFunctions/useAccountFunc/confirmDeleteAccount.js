@@ -10,29 +10,37 @@ const confirmDeleteAccount = async (data) => {
         deleteApproval = true
     } else {
         transCount > 0 && 
-        Swal.fire(
-            'Failed!',
-            `There is already transactions in ${account.accountName}`,
-            'info'
-        )
+        Swal.fire({
+            title: 'Failed!',
+            text: `There is already transactions in ${account.accountName}`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#dc3545'
+        })
         childCount > 0 && 
-        Swal.fire(
-            'Failed!',
-            `There is already Sub Account in ${account.accountName}`,
-            'info'
-        )
+        Swal.fire({
+            title: 'Failed!',
+            text: `There is already Sub Account in ${account.accountName}`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#dc3545'
+        })
         masterAcc > 0 &&
-        Swal.fire(
-            'Failed!',
-            `There has been a depreciation or amortization account`,
-            'info'
-        )
+        Swal.fire({
+            title: 'Failed!',
+            text: `There has been a depreciation or amortization account`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#dc3545'
+        })
         contactCount > 0 && 
-        Swal.fire(
-            'Failed!',
-            `This account is used for mapping on contact`,
-            'info'
-        )
+        Swal.fire({
+            title: 'Failed!',
+            text: `This account is used for mapping on contact`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#dc3545'
+        })
     }
     return deleteApproval
 }

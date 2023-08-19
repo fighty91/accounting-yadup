@@ -93,28 +93,31 @@ const NewContact = (props) => {
         }
         if(positionCount < 1) {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Please mark input position first!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: 'Please mark input position first!!',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
 
         if(contact.name.length < 3) {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Name at least 3 characters!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: 'Name at least 3 characters!!',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
         if(contact.name.charAt(0) === ' ') {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Contact names cannot start with a space!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: "Contact names can't start with a space!!",
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
         if(problemCount === 0) {
             let newContact = {...contact}

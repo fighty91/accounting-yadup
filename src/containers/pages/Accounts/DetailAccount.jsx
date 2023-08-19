@@ -52,7 +52,6 @@ const DetailAccount = (props) => {
             accounts: props.accounts,
         }
         const deleteApproval = await confirmDeleteAccount(data)
-        console.log('aprove', deleteApproval)
 
         let deleteSuccess = false
         if(deleteApproval) {

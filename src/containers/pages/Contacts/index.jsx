@@ -25,11 +25,13 @@ const Contacts = (props) => {
     const getConfirmDelete = (data) => {
         const res = transactions.find(e => e.contactId === data.id)
         if(res) {
-            Swal.fire(
-                'Failed!',
-                `There is already transactions in ${data.name}`,
-                'info'
-            )
+            Swal.fire({
+                title: 'Failed!',
+                text: `There is already transactions in ${data.name}`,
+                icon: 'error',
+                confirmButtonText: 'Close',
+                confirmButtonColor: '#dc3545'
+            })
         } else {
             deleteContact(data)
         }
@@ -40,7 +42,7 @@ const Contacts = (props) => {
         if(res) {
             Toast.fire({
                 icon: 'success',
-                title: `Success Delete \n${data.name}`
+                title: `Success Delete \n${data.name}`,
             })
         }
     }

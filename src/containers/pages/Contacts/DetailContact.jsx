@@ -58,11 +58,13 @@ const DetailContact = (props) => {
     const getConfirmDelete = () => {
         const res = transactions.find(e => e.contactId === contact.id)
         if(res) {
-            Swal.fire(
-                'Failed!',
-                `There is already transactions in ${contact.name}`,
-                'info'
-            )
+            Swal.fire({
+                title: 'Failed!',
+                text: `There is already transactions in ${contact.name}`,
+                icon: 'error',
+                confirmButtonText: 'Close',
+                confirmButtonColor: '#dc3545'
+            })
         } else {
             deleteContact()
         }
