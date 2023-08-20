@@ -52,6 +52,7 @@ const NewUser = (props) => {
         } else {
             if( user.password === user.confirmPassword ) {
                 const res = await props.registerAPI(user)
+                console.log('oii', res)
                 if(res) {
                     Toast.fire({
                         icon: 'success',
@@ -61,7 +62,7 @@ const NewUser = (props) => {
                 } else {
                     Swal.fire(
                         'Failed!',
-                        `Failed Register ${user.name}`,
+                        `Failed Register ${user.email}`,
                         'info'
                     )
                 }

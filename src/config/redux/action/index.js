@@ -127,12 +127,12 @@ export const registerUserAPI = (data) => (dispatch) => {
             resolve(res)
         })
         .catch((error) => {
+            resolve(false)
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage)
             dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
-            reject(false)
-        });
+        })
     })
 }
 

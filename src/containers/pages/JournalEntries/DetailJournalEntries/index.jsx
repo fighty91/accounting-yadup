@@ -65,9 +65,6 @@ const DetailJournalEntries = (props) => {
     const deleteTransaction = async() => {
         const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
         if (deleteSuccess) {
-            // setTimeout(()=> {
-                //     alert(`Berhasil menghapus transaksi #${transaction.transNumber}`)
-                // }, 700)
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
@@ -76,20 +73,6 @@ const DetailJournalEntries = (props) => {
             })
             navigate('/journal-entries')
         }
-    }
-
-    const getCreatedAt = () => {
-        const newCreatedAt = new Date(transaction.createdAt)
-        const newDate = newCreatedAt.toLocaleString()
-        return newDate
-    }
-
-    const getCreatedBy = () => {
-        let newCreatedBy = ''
-        for(let i of props.users) {
-            if(i.uid2 === transaction.createdBy) newCreatedBy = i.name
-        }
-        return newCreatedBy
     }
 
     const getAuthor = () => {

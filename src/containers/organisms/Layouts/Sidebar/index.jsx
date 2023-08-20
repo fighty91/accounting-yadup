@@ -1,5 +1,5 @@
 import React, {Fragment, useEffect, useState} from "react";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import './Sidebar.css'
 import { connect } from "react-redux";
@@ -9,6 +9,7 @@ const Sidebar = (props) => {
     const segmentTemp = location.pathname.split('/')[1]
 
     const [segment, setSegment] = useState({})
+    const navigate = useNavigate()
 
     const handleActiveBarAndTitle = () => {
         let newSegment = {}
@@ -64,6 +65,23 @@ const Sidebar = (props) => {
         Toast.fire({
             icon: 'info',
             title: 'Logged Out'
+        })
+    }
+
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Logout?',
+            text: `You will be logout from ${props.user.name}!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, logout now!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/logout')
+                logoutNotif()
+            }
         })
     }
 
@@ -267,7 +285,8 @@ const Sidebar = (props) => {
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to='/logout' className="nav-link d-flex align-items-center gap-2 link-secondary" onClick={logoutNotif} >
+                                <Link className="nav-link d-flex align-items-center gap-2 link-secondary" onClick={handleLogout} >
+                                {/* <Link to='/logout' className="nav-link d-flex align-items-center gap-2 link-secondary" onClick={logoutNotif} > */}
                                     <svg className="bi"><use xlinkHref="#door-closed"/></svg>
                                     Logout
                                 </Link>
@@ -282,7 +301,8 @@ const Sidebar = (props) => {
 
 const reduxState = (state) => ({
     isLogin: state.isLogin,
-    corp: state.corp
+    corp: state.corp,
+    user: state.user
 })
 
 const reduxDispatch = (dispatch) => ({

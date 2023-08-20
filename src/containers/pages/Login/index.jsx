@@ -46,7 +46,6 @@ const Login = (props) => {
                 icon: 'error',
                 title: 'Login Failed'
             })
-            console.log('failed')
         }
           
     }
