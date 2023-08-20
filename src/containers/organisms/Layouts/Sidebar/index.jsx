@@ -192,18 +192,18 @@ const Sidebar = (props) => {
                                     Cash and Bank
                                 </Link>
                             </li>
-                            {/* <li className="nav-item">
-                                <Link to="#" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.depositActive && 'active'}`} >
+                            <li className="nav-item">
+                                <Link to="/receipt-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.depositActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#file-earmark"/></svg>
-                                    Deposit
+                                    Receipt Journal
                                 </Link>
-                            </li> */}
-                            {/* <li className="nav-item">
-                                <Link to="#" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.withdrawalActive && 'active'}`} >
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/payment-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.withdrawalActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#cart"/></svg>
-                                    Withdrawal
+                                    Payment Journal
                                 </Link>
-                            </li> */}
+                            </li>
                             <li className="nav-item">
                                 <Link to="/journal-entries" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.entriesActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#file-earmark"/></svg>

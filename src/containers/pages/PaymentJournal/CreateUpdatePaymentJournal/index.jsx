@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdateEntries.scss'
+import './CreateUpdatePaymentJournal.scss'
 
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
@@ -34,7 +34,7 @@ const CreateUpdateEntries = (props) => {
         date: getFullDateNow(),
         contactId: '',
         memo: '',
-        transType: "Journal Entries"
+        transType: "Payment Journal"
     })
     const [transDb, setTransDb] = useState({})
     const [accountTransactions, setAccountTransactions] = useState([
@@ -52,7 +52,7 @@ const CreateUpdateEntries = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        id: "", codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        id: "", codeFor: "paymentJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getAccounts = async () => {
@@ -371,24 +371,52 @@ const CreateUpdateEntries = (props) => {
         <LayoutsMainContent>
             <ContentHeader name={isUpdate ? 'Edit Transaction' : 'New Transaction'}/>
             {/* Entry Content */}
-            <div className="card pb-5 create-update-entries">
+            <div className="card pb-5 create-update-payment-journal">
                 <div className="card-header">
-                    Journal Entries
+                    Payment Journal
                 </div>
                 <div className="card-body">
+                    <div className="row g-3 mb-4 d-flex justify-content-between">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
+                            <label htmlFor="payFrom" className="form-label mb-0">Pay From</label>
+                            <select className="form-select form-select-sm" id="payFrom" name="payFrom">
+                                <option value="">Choose...</option>
+                                { 
+                                    parentAccounts.map((parentAcc, i) =>
+                                        parentAcc.categoryId === '1' &&
+                                        <optgroup label={parentAcc.accountName} key={parentAcc.id}>
+                                            {
+                                                accounts.map(acc => 
+                                                    parentAcc.id === acc.parentId &&
+                                                    <option key={acc.id} value={acc.id}>{acc.number} &nbsp; {acc.accountName}</option>
+                                                )
+                                            }
+                                        </optgroup>
+                                    )
+                                }
+                            </select>
+                        </div>
+                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-3">
+                            <label htmlFor="totalAmount" className="form-label mb-0"></label>
+                            <div className="fw-bold" id="totalAmount">
+                                Total Amount
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
                     <div className="row g-3 mb-4">
-                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2">
                             <label htmlFor="contactId" className="form-label mb-0">Contact</label>
                             <select className="form-select form-select-sm" id="contactId" value={transaction.contactId} name="contactId" onChange={handleEntryTransaction}>
                                 <option value="">Choose...</option>
                                 { contacts.map((contact, i) => <option key={i} value={contact.id}>{contact.name}</option>) }
                             </select>
                         </div>
-                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                        <div className="col-sm-6 col-md-3 col-lg-2 col-xl-2">
                             <label htmlFor="date" className="form-label mb-0">Date</label>
                             <input type="date" className="form-control form-control-sm" id="date" name="date" onChange={handleEntryTransaction} value={transaction.date} />
                         </div>
-                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                        <div className="col-sm-6 col-md-4 col-lg-2 col-xl-2">
                             <div className="d-inline-flex col-12">
                             <label htmlFor="transNumber" className="form-label mb-0">Number</label>
                             {
@@ -404,11 +432,13 @@ const CreateUpdateEntries = (props) => {
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-6 col-lg-5 col-xl-6">
                             <label htmlFor="memo" className="form-label mb-0">Memo</label>
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>
                     </div>
+                    
+                    
                     <div className="table-responsive-lg mb-4 mb-sm-5">
                         <table className="table table-borderless trans-account">
                             <thead>

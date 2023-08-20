@@ -4,6 +4,7 @@ import FormIdenticalCode from "./FormIdenticalCode";
 import { getIdenticalCodeFromAPI, putIdenticalCodeToAPI } from "../../../config/redux/action";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
+import './ModalIdenticalCode.scss'
 
 const ModalIdenticalCode = (props) => {
     const Toast = Swal.mixin({
@@ -137,11 +138,11 @@ const ModalIdenticalCode = (props) => {
     } = props.identicalState
 
     return (
-        <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="identicalLabel" aria-hidden="true">
             <div className="modal-dialog">
-                <div className="modal-content">
+                <div className="modal-content modal-identical-code">
                     <div className="modal-header">
-                        <h1 className="modal-title fs-5" id="exampleModalLabel">Identical Code</h1>
+                        <h1 className="modal-title fs-5" id="identicalLabel">Identical Code</h1>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">

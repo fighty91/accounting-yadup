@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Accounts from "../Accounts";
-import CashAndBank from "../CashAndBank";
+import PaymentJournal from "../PaymentJournal";
 import Contacts from "../Contacts";
 import JournalEntries from "../JournalEntries";
 import Reports from "../Reports";
@@ -25,6 +25,7 @@ import Login from "../Login";
 import Logout from "../Logout";
 import Users from "../Users";
 import NewUser from "../Users/NewUser";
+import CreateUpdatePaymentJournal from "../PaymentJournal/CreateUpdatePaymentJournal";
 
 class App extends Component {
     render() {
@@ -33,8 +34,8 @@ class App extends Component {
                 <Routes>
                     <Route path="/" exact Component={Dashboard} />
                     <Route path="/accounts" Component={Accounts}/>
-                    <Route path="/cash-and-bank" Component={CashAndBank}/>
                     <Route path="/contacts" Component={Contacts}/>
+                    <Route path="/payment-journal" Component={PaymentJournal}/>
                     <Route path="/journal-entries" Component={JournalEntries}/>
                     <Route path="/reports" Component={Reports}/>
 
@@ -46,6 +47,8 @@ class App extends Component {
                     <Route path="/contacts/edit-contact/:contactId" Component={EditContact}/>
                     <Route path="/contacts/new-contact" Component={NewContact}/>
                     <Route path="/contacts/transactions/:contactId" Component={TransactionsContact}/>
+
+                    <Route path="/payment-journal/new-transaction" Component={CreateUpdatePaymentJournal}/>
 
                     <Route path="/journal-entries/edit-transaction/:transId" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/new-transaction" Component={CreateUpdateEntries}/>
