@@ -92,6 +92,32 @@ const DetailJournalEntries = (props) => {
         return newCreatedBy
     }
 
+    const getAuthor = () => {
+        const authors = transaction.authors
+        if(authors) {
+            let initialMsg, authorId, dateTemp
+            
+            if(authors.length > 1) {
+                initialMsg = 'Updated by'
+                authorId = authors[authors.length - 1].updatedBy
+                dateTemp = new Date(authors[authors.length - 1].updatedAt)
+            } else {
+                initialMsg = 'Created by'
+                authorId = authors[0].createdBy
+                dateTemp = new Date(authors[0].createdAt)
+            }
+            
+            let authorName = ''
+            for(let e of props.users) {
+                if(e.uid2 === authorId) authorName = e.name
+            }
+            
+            let dateMsg = dateTemp.toLocaleString()
+            const msg = `${initialMsg} ${authorName} ${dateMsg}`
+            return msg
+        }
+    }
+
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getContactsFromAPI()
@@ -236,7 +262,7 @@ const DetailJournalEntries = (props) => {
                         <div className="row">
                             <div className="d-flex justify-content-end justify-content-sm-start mb-4">
                                 <div className="createdBy text-end text-sm-start">
-                                    Created by {getCreatedBy()} {getCreatedAt()}
+                                    {getAuthor()}
                                 </div>
                             </div>
                         </div>

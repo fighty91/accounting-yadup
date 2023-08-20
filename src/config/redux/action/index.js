@@ -381,6 +381,19 @@ export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
         })
     })
 }
+export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
+    const {id} = journalEntry
+    let newJournalEntry = {...journalEntry}
+    delete newJournalEntry.id
+    return new Promise((resolve, reject) => {
+        set(ref(database, `${corp}/transactions/journalEntries/${id}`), newJournalEntry)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
 export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         remove(ref(database, `${corp}/transactions/journalEntries/${transId}`))
@@ -390,11 +403,17 @@ export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
 }
 export const getEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
-        const journalEntries = await getEntriesAPI(dispatch)
-        if(journalEntries) {
+        const starCountRef = ref(database, `${corp}/transactions/journalEntries`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let journalEntries = []
+            for( let x in temp) {
+                temp[x].id = x
+                journalEntries.push(temp[x])
+            }
             dispatch({type: 'SET_ENTRIES', value: journalEntries})
-            journalEntries && resolve(journalEntries)
-        }
+            resolve(journalEntries)
+        });
     })
 }
 const getEntriesAPI = (dispatch) => {

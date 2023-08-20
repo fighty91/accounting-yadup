@@ -8,7 +8,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUserFromAPI, postJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUserFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc, useIdenticalFunc, useJournalEntriesFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -23,8 +23,6 @@ const CreateUpdateEntries = (props) => {
     transId = transId ? transId : searchParams.get('transId')
 
     const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
-    const { putEntriesAPI } = useJournalEntriesFunc()
-    const { getIdenticalCode } = useIdenticalFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
@@ -83,18 +81,17 @@ const CreateUpdateEntries = (props) => {
         if(transId) {
             let dataTransaction = newTransactions.find(e => e.id === transId)
             if(dataTransaction) {
-                const {memo, transAccounts, contactId, date} = dataTransaction
-                newTransaction.memo = memo
+                const {memo, transAccounts, contactId, date, authors} = dataTransaction
                 newTransAccounts = transAccounts
-                contactId && updateProps(newTransaction, {contactId})
+                updateProps(newTransaction, {contactId, memo, authors})
     
                 if(duplicate) {
                     setIsDuplicate(true)
                 } else {
                     setTransDb(dataTransaction)
                     setIsUpdate(true)
-                    newTransaction.date = date
                     setTransNumber(dataTransaction.transNumber)
+                    newTransaction.date = date
                 }
             }
         }
@@ -251,10 +248,13 @@ const CreateUpdateEntries = (props) => {
     }
 
     const postDataToAPI = async (newTransaction) => {
-        let dataReadyToPost = {
-            ...newTransaction,
+        let authors = [{
             createdBy: props.user.uid2,
             createdAt: Date.now(),
+        }]
+        let dataReadyToPost = {
+            ...newTransaction,
+            authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postJournalEntryToAPI(dataReadyToPost)
@@ -270,14 +270,21 @@ const CreateUpdateEntries = (props) => {
     }
     
     const putDataToAPI = async (newTransaction) => {
-        const {id, transNumber} = await putEntriesAPI(newTransaction)
-        navigate(`/journal-entries/transaction-detail/${id}`)
-        Swal.fire({
-            title: 'Good job!',
-            text: `${newTransaction.transType} #${transNumber} updated`,
-            icon: 'success',
-            confirmButtonColor: '#198754'
+        let dataReadyToUpdate = {...newTransaction}
+        dataReadyToUpdate.authors.push({
+            updatedBy: props.user.uid2,
+            updatedAt: Date.now()
         })
+        const res = await props.putJournalEntryToAPI(dataReadyToUpdate)
+        if(res) {
+            navigate(`/journal-entries/transaction-detail/${transDb.id}`)
+            Swal.fire({
+                title: 'Nice!',
+                text: `${newTransaction.transType} #${transNumber} updated`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+        }
     }
 
     const handleSubmit = async () => {
@@ -292,7 +299,7 @@ const CreateUpdateEntries = (props) => {
             }
             if(isUpdate) {
                 updateProps(newTransaction, {transNumber, id: transDb.id})
-                // await putDataToAPI(newTransaction)
+                await putDataToAPI(newTransaction)
             } else {
                 await postDataToAPI(newTransaction)
             }
@@ -349,7 +356,6 @@ const CreateUpdateEntries = (props) => {
             }
         }
         setTransNumberList(newTransNumbers)
-
         getResetUpdate(newTransactions)
     }, [props.transactions])
 
@@ -365,11 +371,6 @@ const CreateUpdateEntries = (props) => {
         <LayoutsMainContent>
             <ContentHeader name={isUpdate ? 'Edit Transaction' : 'New Transaction'}/>
             {/* Entry Content */}
-            {/* <svg xmlns="http://www.w3.org/2000/svg" style={{display: "none"}}>
-                <symbol id="gear-wide-connected" viewBox="0 0 16 16">
-                    <path d="M7.068.727c.243-.97 1.62-.97 1.864 0l.071.286a.96.96 0 0 0 1.622.434l.205-.211c.695-.719 1.888-.03 1.613.931l-.08.284a.96.96 0 0 0 1.187 1.187l.283-.081c.96-.275 1.65.918.931 1.613l-.211.205a.96.96 0 0 0 .434 1.622l.286.071c.97.243.97 1.62 0 1.864l-.286.071a.96.96 0 0 0-.434 1.622l.211.205c.719.695.03 1.888-.931 1.613l-.284-.08a.96.96 0 0 0-1.187 1.187l.081.283c.275.96-.918 1.65-1.613.931l-.205-.211a.96.96 0 0 0-1.622.434l-.071.286c-.243.97-1.62.97-1.864 0l-.071-.286a.96.96 0 0 0-1.622-.434l-.205.211c-.695.719-1.888.03-1.613-.931l.08-.284a.96.96 0 0 0-1.186-1.187l-.284.081c-.96.275-1.65-.918-.931-1.613l.211-.205a.96.96 0 0 0-.434-1.622l-.286-.071c-.97-.243-.97-1.62 0-1.864l.286-.071a.96.96 0 0 0 .434-1.622l-.211-.205c-.719-.695-.03-1.888.931-1.613l.284.08a.96.96 0 0 0 1.187-1.186l-.081-.284c-.275-.96.918-1.65 1.613-.931l.205.211a.96.96 0 0 0 1.622-.434l.071-.286zM12.973 8.5H8.25l-2.834 3.779A4.998 4.998 0 0 0 12.973 8.5zm0-1a4.998 4.998 0 0 0-7.557-3.779l2.834 3.78h4.723zM5.048 3.967c-.03.021-.058.043-.087.065l.087-.065zm-.431.355A4.984 4.984 0 0 0 3.002 8c0 1.455.622 2.765 1.615 3.678L7.375 8 4.617 4.322zm.344 7.646.087.065-.087-.065z"/>
-                </symbol>
-            </svg> */}
             <div className="card pb-5">
                 <div className="card-header">
                     Journal Entries
@@ -393,7 +394,9 @@ const CreateUpdateEntries = (props) => {
                             {
                                 !isUpdate &&
                                 <div onClick={handleButtonIdentical}>
-                                    <svg className="bi trans-number-setting" data-bs-toggle="modal" data-bs-target="#exampleModal"><use xlinkHref="#gear-wide-connected"/></svg>
+                                    <svg className="bi trans-number-setting" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        <use xlinkHref="#gear-wide-connected"/>
+                                    </svg>
                                 </div>
                             }
                             </div>
@@ -406,7 +409,7 @@ const CreateUpdateEntries = (props) => {
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>
                     </div>
-                    <div className="table-responsive-sm mb-4 mb-sm-5 create-update-entries">
+                    <div className="table-responsive-lg mb-4 mb-sm-5 create-update-entries">
                         <table className="table table-borderless trans-account">
                             <thead>
                                 <tr>
@@ -478,7 +481,8 @@ const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data))
+    postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data)),
+    putJournalEntryToAPI: (data) => dispatch(putJournalEntryToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateEntries)
