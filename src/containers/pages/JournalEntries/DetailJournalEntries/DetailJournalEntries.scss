@@ -28,12 +28,14 @@ table.table-transaction {
     font-weight: 600;
 }
 
-a {
-    color: rgb(64, 64, 64);
-    text-decoration: none;
-    &.action {
-        font-size: 12px !important;
-        height: 20px !important;
-        padding: 0 8px;
+.table-transaction-entries {
+    a {
+        color: rgb(64, 64, 64);
+        text-decoration: none;
+        &:hover {
+            color:  #0d6efd;
+            text-decoration: underline 1px;
+        }
     }
+
 }

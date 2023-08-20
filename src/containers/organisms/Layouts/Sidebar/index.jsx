@@ -18,9 +18,9 @@ const Sidebar = (props) => {
                 newSegment.contactActive = true
                 document.title = 'Contact'
                 break
-            case 'cash-and-bank':
-                newSegment.cashAndBankActive = true
-                document.title = 'Cash and Bank'
+            case 'payment-journal':
+                newSegment.paymentJournalActive = true
+                document.title = 'Payment Journal'
                 break
             case 'journal-entries':
                 newSegment.entriesActive = true
@@ -199,7 +199,7 @@ const Sidebar = (props) => {
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/payment-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.withdrawalActive && 'active'}`} >
+                                <Link to="/payment-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.paymentJournalActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#cart"/></svg>
                                     Payment Journal
                                 </Link>

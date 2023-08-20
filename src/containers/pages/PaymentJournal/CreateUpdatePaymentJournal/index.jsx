@@ -396,10 +396,11 @@ const CreateUpdateEntries = (props) => {
                                 }
                             </select>
                         </div>
-                        <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-3">
-                            <label htmlFor="totalAmount" className="form-label mb-0"></label>
-                            <div className="fw-bold" id="totalAmount">
-                                Total Amount
+                        <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
+                            <div className="total-amount text-sm-end">
+                                <span className="mb-0 text-secondary">Amount</span> <span className="text-primary" id="totalAmount">
+                                    120,000,000.00
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -445,7 +446,7 @@ const CreateUpdateEntries = (props) => {
                                 <tr>
                                     <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
-                                    <th className="text-end pe-3 column-debit">Debit</th>
+                                    <th className="text-end pe-3 column-debit">Amount</th>
                                     <th className="text-end pe-3 column-credit">Credit</th>
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>

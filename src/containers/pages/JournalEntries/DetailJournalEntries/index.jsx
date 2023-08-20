@@ -180,7 +180,7 @@ const DetailJournalEntries = (props) => {
                         </div>
                         <hr />
                         <div className="table-responsive-sm mb-4 mb-sm-5">
-                            <table className="table table-striped table-transaction">
+                            <table className="table table-striped table-transaction-entries">
                                 <thead>
                                     <tr>
                                         <th scope="col" className="account" colSpan="2">Account</th>
