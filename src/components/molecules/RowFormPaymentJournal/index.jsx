@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import InputValidation from "../../atoms/InputValidation";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
-const RowFormEntries = (props) => {
+const RowFormPaymentJournal = (props) => {
     const [accountNumberAndName, setAccountNumberAndName] = useState('')
     const { getCurrency, getNormalNumb } = useGeneralFunc()
     const handleFocusInputNumb = (event) => {
@@ -66,19 +66,17 @@ const RowFormEntries = (props) => {
                 <select name="account" id={'ac-'+row} className={`form-select form-select-sm ${accountNull === true && 'border-danger'} account`} onChange={(e)=>handleEntryAccount(e)} value={account} title={accountNumberAndName} onMouseEnter={getNumberAndNameShow}>
                     <option value="">Choose...</option>
                     {
-                        parentAccounts.map(pAcc => {
-                            return (
+                        parentAccounts.map(pAcc => 
+                            pAcc.categoryId > 1 &&
                             <optgroup label={pAcc.accountName} key={pAcc.id}>
                                 {
-                                    accounts.map(acc => {
-                                        if(pAcc.id === acc.parentId) {
-                                            return <option key={acc.id} value={acc.id}>{acc.number} &nbsp; {acc.accountName}</option>
-                                        }
-                                    })
+                                    accounts.map(acc => 
+                                        pAcc.id === acc.parentId &&
+                                        <option key={acc.id} value={acc.id}>{acc.number} &nbsp; {acc.accountName}</option>
+                                    )
                                 }
                             </optgroup>
-                            )
-                        })
+                        )
                     }
                 </select>
                 {accountNull && <InputValidation name="account null" /> }
@@ -89,7 +87,12 @@ const RowFormEntries = (props) => {
             </td>
             <td>
                 <label htmlFor={'db-'+row} className={`visually-hidden `}>Debit</label>
-                <input type="text" name="debit" id={'db-'+row} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} value={debit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
+                <input type="text" name="debit" id={'db-'+row} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} 
+                value={debit} 
+                onChange={handleEntryInputNumb} 
+                onFocus={handleFocusInputNumb} 
+                onBlur={handleBlurInputNumb} 
+                onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
                 {nominalNull && <InputValidation name="nominal null" /> }
                 {nominalDouble && <InputValidation name="nominal double" /> }
             </td>
@@ -104,4 +107,4 @@ const RowFormEntries = (props) => {
     )
 }
 
-export default RowFormEntries
+export default RowFormPaymentJournal

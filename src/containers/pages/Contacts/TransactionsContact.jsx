@@ -6,6 +6,7 @@ import ContactCard from "../../../components/molecules/ContactCard";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
 import { getContactsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import './Contacts.scss'
 
 const TransactionsContact = (props) => {
     let { contactId } = useParams();
@@ -96,11 +97,6 @@ const TransactionsContact = (props) => {
                                                 <p className="mb-0 fw-light description">{memo || 'no description'}</p>
                                             </td>
                                             <td className="text-end pe-2">{getCurrency(amount)}</td>
-                                            {/* <td className="text-end">
-                                                <Link href="#" className="btn btn-outline-secondary action">
-                                                    view
-                                                </Link>
-                                            </td> */}
                                         </tr>
                                     )
                                 })

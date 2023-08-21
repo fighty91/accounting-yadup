@@ -5,8 +5,8 @@ import { connect } from "react-redux"
 import { getUserAccessFromAPI } from "../../../../config/redux/action"
 import { getCorpNameShow } from "../../MyFunctions/useGeneralFunc"
 
-
 const Layouts = (props) => {
+    const [user, setUser] = useState({})
     const [userAccess, setUserAccess] = useState([])
     
     const getAccessName = (accessId) => {
@@ -24,6 +24,9 @@ const Layouts = (props) => {
     }, [])
 
 
+    useEffect(() => {
+        setUser(props.user)
+    }, [props.user])
 
     useEffect(() => {
         setUserAccess(props.userAccess)
@@ -134,10 +137,10 @@ const Layouts = (props) => {
                 </Link>
                 <div className="col-md-3 col-lg-2 me-0 pe-4 text-end text-white d-none d-md-block user">
                     <h6 className="my-0 user-name" >
-                        {props.user.name}
+                        {user && user.name}
                     </h6>
                     <p className="my-0 fw-light user-access-level" >
-                        { getAccessName(props.user.userAccessId) }
+                        { user && getAccessName(user.userAccessId) }
                     </p>
                 </div>
                 <ul className="navbar-nav flex-row d-md-none">

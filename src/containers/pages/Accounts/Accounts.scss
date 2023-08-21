@@ -1,4 +1,8 @@
 td {
+    a {
+        color: rgb(64, 64, 64);
+        text-decoration: none;
+    }
     .account-name, .account-number {
         &:hover {
             color:  #0d6efd;

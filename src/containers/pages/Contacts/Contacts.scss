@@ -27,3 +27,12 @@
         font-size: 16px;
     }
 }
+
+.table-transaction {
+    .number-transaction {
+        &:hover {
+            color:  #0d6efd;
+            text-decoration: underline 1px;
+        }
+    }
+}

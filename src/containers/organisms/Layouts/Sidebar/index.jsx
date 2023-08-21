@@ -297,7 +297,7 @@ const Sidebar = (props) => {
 
 const reduxState = (state) => ({
     isLogin: state.isLogin,
-    user: state.user
+    user: state.user,
 })
 
 const reduxDispatch = (dispatch) => ({

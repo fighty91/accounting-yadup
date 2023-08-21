@@ -41,7 +41,7 @@ const TransactionsAccount = (props) => {
     return (
         <Fragment>
             <div className="table-responsive-sm">
-                <table className="table table-striped table-sm table-transaction">
+                <table className="table table-striped table-sm table-transaction-account">
                     <thead>
                         <tr>
                             <th scope="col" className="tabel-date">Date</th>

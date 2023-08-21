@@ -2,6 +2,7 @@ import React, { Fragment, useEffect } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUserAPI } from "../../../config/redux/action";
+import { getCorpNameShow } from "../../organisms/MyFunctions/useGeneralFunc";
 import { corporation } from "../../../config/corporation";
 
 const Logout = (props)  => {

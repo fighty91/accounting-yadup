@@ -6,13 +6,13 @@ import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeade
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
-import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+import RowFormPaymentJournal from "../../../../components/molecules/RowFormPaymentJournal";
 
 const CreateUpdateEntries = (props) => {
     const navigate = useNavigate()
@@ -22,7 +22,7 @@ const CreateUpdateEntries = (props) => {
     let {transId} = useParams()
     transId = transId ? transId : searchParams.get('transId')
 
-    const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
+    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
@@ -37,9 +37,8 @@ const CreateUpdateEntries = (props) => {
         transType: "Payment Journal"
     })
     const [transDb, setTransDb] = useState({})
-    const [accountTransactions, setAccountTransactions] = useState([
-        { account: "", description: "", debit: "", credit: "" }, { account: "", description: "", debit: "", credit: "" }
-    ])
+    const [accountTransactions, setAccountTransactions] = useState([{ account: "", description: "", debit: "", credit: "" }])
+    const [accountPayment, setAccountPayment] = useState({ account: "", description: "", debit: 0, credit: 0 })
     const [transNumber, setTransNumber] = useState('')
     const [transNumberList, setTransNumberList] = useState([])
     
@@ -76,7 +75,7 @@ const CreateUpdateEntries = (props) => {
 
     const getResetUpdate = async (newTransactions) => {
         let newTransaction = {...transaction}
-        let newTransAccounts = [{ account: "", description: "", debit: "", credit: "" }, { account: "", description: "", debit: "", credit: "" }]
+        let newTransAccounts = [{ account: "", description: "", debit: "", credit: "" }]
         
         if(transId) {
             let dataTransaction = newTransactions.find(e => e.id === transId)
@@ -104,18 +103,25 @@ const CreateUpdateEntries = (props) => {
         setFormIdentical({ initialCode:'', startFrom:'' })
     }
 
-    const handleEntryTransaction = (data) => {
-        const {name, value} = data.target
+    const handleChangeAccountPayment = (e) => {
+        const newAccountPayment = {
+            ...accountPayment,
+            [e.target.name]: e.target.value
+        }
+        setAccountPayment(newAccountPayment)
+    }
+
+    const handleEntryTransaction = (e) => {
         let newTransaction = {
             ...transaction,
-            [name]: value
+            [e.target.name]: e.target.value
         }
         setTransaction(newTransaction)
     }
 
-    const handleEntryTransNumber = (data) => {
+    const handleEntryTransNumber = (e) => {
         let newValidation = {...validation}
-        let newTransNumber = data.target.value
+        let newTransNumber = e.target.value
         let numbExist = transNumberList.find(e => e === newTransNumber) 
         if(isUpdate) {
             if(numbExist === transDb.transNumber) numbExist = undefined
@@ -137,15 +143,15 @@ const CreateUpdateEntries = (props) => {
 
     const handleDeleteRow = (rowIndex) => {
         let newAccountTransactions = [...accountTransactions]
-        if(accountTransactions.length > 2) {
+        if(accountTransactions.length > 1) {
             newAccountTransactions.splice(rowIndex, 1)
             setAccountTransactions(newAccountTransactions)
         }
     }
 
-    const handleEntryAccount = (data) => {
+    const handleEntryAccount = (e) => {
         let newAccountTransactions = [...accountTransactions]
-        let {name, value, id} = data.target
+        let {name, value, id} = e.target
         let idNumb = +id.slice(3)
         name === 'debit' || name === 'credit' ?
             newAccountTransactions[idNumb][name] = +value :
@@ -174,10 +180,30 @@ const CreateUpdateEntries = (props) => {
         setAccountTransactions(newAccountTransactions)
     }
 
+    const totalAmount = () => {
+        let totalDebit = 0
+        // totalCredit = 0
+        accountTransactions.forEach(trans => {
+            let debit = getNormalNumb(trans.debit)
+            // let credit = getNormalNumb(trans.credit)
+            if(trans.account) {
+                if (debit > 0) { 
+                    totalDebit += debit; 
+                    // totalCredit += credit 
+                }
+            }
+        })
+        const newAccountPayment = {
+            ...accountPayment,
+            debit: totalDebit
+        }
+        setAccountPayment(newAccountPayment)
+    }
     const countValidation = async () => {
         let totalDebit = 0, totalCredit = 0, transCount = 0
         let accountProblem = false
         let rowValidation = {nominalNull: [], nominalDouble: [], accountNull: []}
+
         let newAccountTransactions = await handleNormalNumb()
         newAccountTransactions.forEach(trans => {
             let tempCount = {nominalNull: 0, nominalDouble: 0, accountNull: 0}
@@ -192,6 +218,7 @@ const CreateUpdateEntries = (props) => {
             }
             for( let x in rowValidation ) { rowValidation[x].push(tempCount[x] > 0 ? true : false) }
         })
+        newAccountTransactions.push(accountPayment)
         return {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions}
     }
 
@@ -379,7 +406,7 @@ const CreateUpdateEntries = (props) => {
                     <div className="row g-3 mb-4 d-flex justify-content-between">
                         <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
                             <label htmlFor="payFrom" className="form-label mb-0">Pay From</label>
-                            <select className="form-select form-select-sm" id="payFrom" name="payFrom">
+                            <select className="form-select form-select-sm" id="payFrom" name="account" value={accountPayment.account} onChange={handleChangeAccountPayment}>
                                 <option value="">Choose...</option>
                                 { 
                                     parentAccounts.map((parentAcc, i) =>
@@ -399,7 +426,7 @@ const CreateUpdateEntries = (props) => {
                         <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
                                 <span className="mb-0 text-secondary">Amount</span> <span className="text-primary">
-                                    120,000,000.00
+                                    { getCurrencyAbs(accountPayment.credit) }
                                 </span>
                             </div>
                         </div>
@@ -456,11 +483,14 @@ const CreateUpdateEntries = (props) => {
                             <tbody>
                                 {
                                     accountTransactions.map((trans, row)=> {
+                                        
+                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
+                                        
                                         const {account, description, debit, credit} = trans
                                         const formValidation = [ nominalNull[row], nominalDouble[row], accountNull[row] ]
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
+                                        
                                         const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
-                                        return <RowFormEntries key={row} rowFormFunc={rowFormFunc} data={data}/>
+                                        return <RowFormPaymentJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
                                 }
                             </tbody>
