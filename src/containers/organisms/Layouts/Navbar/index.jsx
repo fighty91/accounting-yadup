@@ -3,16 +3,12 @@ import { Link } from "react-router-dom"
 import './Navbar.scss'
 import { connect } from "react-redux"
 import { getUserAccessFromAPI } from "../../../../config/redux/action"
+import { getCorpNameShow } from "../../MyFunctions/useGeneralFunc"
 
 
 const Layouts = (props) => {
     const [userAccess, setUserAccess] = useState([])
-    const getCorpName = () => {
-        const initialCorp = props.corp.charAt(0).toUpperCase()
-        let corp = initialCorp + props.corp.substr(1)
-        return corp
-    }
-
+    
     const getAccessName = (accessId) => {
         let temp = ''
         userAccess.forEach(e => {
@@ -129,7 +125,7 @@ const Layouts = (props) => {
             <header className="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
                 <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" to="/">
                     <span className="fw-bolder">
-                        {getCorpName()} 
+                        { getCorpNameShow() }
                     </span>
                     &nbsp;
                     <span className="fw-normal fst-italic">
@@ -141,9 +137,7 @@ const Layouts = (props) => {
                         {props.user.name}
                     </h6>
                     <p className="my-0 fw-light user-access-level" >
-                        {
-                            getAccessName(props.user.userAccessId)
-                        }
+                        { getAccessName(props.user.userAccessId) }
                     </p>
                 </div>
                 <ul className="navbar-nav flex-row d-md-none">
@@ -166,8 +160,7 @@ const Layouts = (props) => {
 
 const reduxState = (state) => ({
     user: state.user,
-    userAccess: state.userAccess,
-    corp: state.corp
+    userAccess: state.userAccess
 })
 const reduxDispatch = (dispatch) => ({
     getUserAccessFromAPI: () => dispatch(getUserAccessFromAPI())

@@ -2,13 +2,14 @@ import React, { Fragment, useEffect } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUserAPI } from "../../../config/redux/action";
+import { corporation } from "../../../config/corporation";
 
 const Logout = (props)  => {
     const navigate = useNavigate()
     useEffect(() => {
         navigate('/login')
-        localStorage.removeItem(`${props.corp}uid`)
-        localStorage.removeItem(`token_${props.corp}uid`)
+        localStorage.removeItem(`${corporation.name}uid`)
+        localStorage.removeItem(`token_${corporation.name}uid`)
         props.getLogoutAPI()
     }, [])
     return (
@@ -17,7 +18,6 @@ const Logout = (props)  => {
 }
 
 const reduxState = (state) => ({
-    corp: state.corp,
     isLogin: state.isLogin
 })
 const reduxDispath = (dispatch) => ({

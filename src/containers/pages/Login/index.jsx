@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { loginUserAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 import './Login.scss'
+import { getCorpNameShow } from "../../organisms/MyFunctions/useGeneralFunc";
 
 const Login = (props) => {
     const navigate = useNavigate()
@@ -51,7 +52,7 @@ const Login = (props) => {
     }
 
     useEffect(() => {
-        document.title = 'Accounting Yadupa - Login'
+        document.title = `Accounting ${getCorpNameShow()} - Login`
     }, [])
 
     return (
@@ -104,8 +105,7 @@ const Login = (props) => {
 
 const reduxState = (state) => ({
     authLoading: state.authLoading,
-    isLogin: state.isLogin,
-    corp: state.corp
+    isLogin: state.isLogin
 })
 
 const reduxDispatch = (dispatch) => ({

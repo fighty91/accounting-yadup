@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import './Sidebar.css'
 import { connect } from "react-redux";
+import { getCorpNameShow } from "../../MyFunctions/useGeneralFunc";
 
 const Sidebar = (props) => {
     const location = useLocation()
@@ -36,6 +37,7 @@ const Sidebar = (props) => {
                 break
             case 'users':
                 newSegment.userPageActive = true
+                document.title = 'User'
                 break
             default:
                 newSegment.dashboardActive = true
@@ -44,12 +46,6 @@ const Sidebar = (props) => {
         setSegment(newSegment)
     }
     
-    const getCorpName = () => {
-        const initialCorp = props.corp.charAt(0).toUpperCase()
-        let corp = initialCorp + props.corp.substr(1)
-        return corp
-    }
-
     const logoutNotif = () => {
         const Toast = Swal.mixin({
             toast: true,
@@ -162,7 +158,7 @@ const Sidebar = (props) => {
                     <div className="offcanvas-header">
                         <h5 className="offcanvas-title" id="sidebarMenuLabel">
                             <span className="fw-bolder">
-                                {getCorpName()}
+                                {getCorpNameShow()}
                             </span>
                             &nbsp;
                             <span className="fw-normal fst-italic">
@@ -186,12 +182,12 @@ const Sidebar = (props) => {
                                     Dashboard
                                 </Link>
                             </li>
-                            <li className="nav-item">
+                            {/* <li className="nav-item">
                                 <Link to="/cash-and-bank" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.cashAndBankActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#cash-and-bank"/></svg>
                                     Cash and Bank
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
                                 <Link to="/receipt-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.depositActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#file-earmark"/></svg>
@@ -301,7 +297,6 @@ const Sidebar = (props) => {
 
 const reduxState = (state) => ({
     isLogin: state.isLogin,
-    corp: state.corp,
     user: state.user
 })
 

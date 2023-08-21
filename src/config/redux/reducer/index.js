@@ -1,5 +1,8 @@
+import { corporation } from "../../corporation"
+
+
 const initialState = {
-    corp: 'yadupa',
+    corp: corporation.name,
     isLogin: false,
     authLoading: false,
     logoutLoading: false,

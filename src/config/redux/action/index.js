@@ -1,16 +1,15 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getDatabase, push as pushData, ref, onValue, set, child, get, remove, increment } from "firebase/database";
-
-
+import { getDatabase, push as pushData, ref, onValue, set, child, get, remove } from "firebase/database";
 import { database } from "../../firebase";
+import { corporation } from "../../corporation";
 
-const corp = 'yadupa'
-const yadupauid = JSON.parse(localStorage.getItem(`${corp}uid`))
+const corpName = corporation.name
+// const yadupauid = JSON.parse(localStorage.getItem(`${corpName}uid`))
 
 const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
         const { email, uid, accessToken } = userData
-        set(ref(database, `${corp}/userAccessToken/` + uid), {
+        set(ref(database, `${corpName}/userAccessToken/` + uid), {
             email,
             accessToken
         }).then(() => resolve(true))
@@ -32,7 +31,7 @@ const setUserRegister = (userData) => {
             }
             uid2 += Math.max(...userUid2)
         }
-        set(ref(database, `${corp}/users/${uid}`), {
+        set(ref(database, `${corpName}/users/${uid}`), {
             uid1: uid,
             uid2,
             name,
@@ -48,7 +47,7 @@ const setUserRegister = (userData) => {
     })
 }
 // export const getUserData = () => (dispatch) => {
-//     const starCountRef = ref(database, `${corp}/users/` + yadupauid);
+//     const starCountRef = ref(database, `${corpName}/users/` + yadupauid);
 //     return new Promise(async (resolve, reject) => {
 //         onValue(starCountRef, (snapshot) => {
 //             resolve(snapshot.val())
@@ -59,7 +58,7 @@ const getOnceUsers = () => {
     // get once
     return new Promise((resolve) => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corp}/users`))
+        get(child(dbRef, `${corpName}/users`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 resolve(snapshot.val())
@@ -76,7 +75,7 @@ const getUserAccessToken = (userId) => {
     // get once
     return new Promise((resolve, reject) => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corp}/userAccessToken/` + userId))
+        get(child(dbRef, `${corpName}/userAccessToken/` + userId))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 resolve(snapshot.val())
@@ -150,8 +149,8 @@ export const loginUserAPI = (data) => (dispatch) => {
                 accessToken
             }
             await setUserAccessToken(userData)
-            localStorage.setItem(`${corp}uid`, JSON.stringify(uid))
-            localStorage.setItem(`token_${corp}uid`, JSON.stringify(accessToken))
+            localStorage.setItem(`${corpName}uid`, JSON.stringify(uid))
+            localStorage.setItem(`token_${corpName}uid`, JSON.stringify(accessToken))
             await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
             resolve(userCredential.user)
         })
@@ -192,7 +191,7 @@ export const logoutUserAPI = () => (dispatch) => {
 
 // export const getAccountFromAPI = (accountId) => (dispatch) => {
 //     return new Promise(resolve => {
-//         const starCountRef = ref(database, `${corp}/accounts/` + accountId);
+//         const starCountRef = ref(database, `${corpName}/accounts/` + accountId);
 //         onValue(starCountRef, (snapshot) => {
 //             resolve(snapshot.val())
 //         });
@@ -200,7 +199,7 @@ export const logoutUserAPI = () => (dispatch) => {
 // }
 export const getUserFromAPI = (userId) => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/users/${userId}`);
+        const starCountRef = ref(database, `${corpName}/users/${userId}`);
         onValue(starCountRef, (snapshot) => {
             const user = snapshot.val()
             dispatch({type: 'SET_USER', value: user})
@@ -210,7 +209,7 @@ export const getUserFromAPI = (userId) => (dispatch) => {
 }
 export const getUsersFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/users`);
+        const starCountRef = ref(database, `${corpName}/users`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let users = []
@@ -225,7 +224,7 @@ export const getUsersFromAPI = () => (dispatch) => {
 }
 export const getUserAccessFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/userAccess`);
+        const starCountRef = ref(database, `${corpName}/userAccess`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let userAccess = []
@@ -239,7 +238,7 @@ export const getUserAccessFromAPI = () => (dispatch) => {
 }
 export const postAccountToAPI = (account) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corp}/accounts`), account)
+        pushData(ref(database, `${corpName}/accounts`), account)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -254,7 +253,7 @@ export const putAccountToAPI = (account) => (dispatch) => {
     let newAccount = {...account}
     delete newAccount.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corp}/accounts/${id}`), newAccount)
+        set(ref(database, `${corpName}/accounts/${id}`), newAccount)
         .then(() => {
             resolve(true)
         })
@@ -266,7 +265,7 @@ export const putAccountToAPI = (account) => (dispatch) => {
 }
 export const deleteAccountFromAPI = (accountId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corp}/accounts/${accountId}`))
+        remove(ref(database, `${corpName}/accounts/${accountId}`))
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -274,14 +273,14 @@ export const deleteAccountFromAPI = (accountId) => (dispatch) => {
 export const setActiveAccount = (data) => (dispatch) => {
     return new Promise(resolve => {
         const { isActive, accountId } = data
-        set(ref(database, `${corp}/accounts/${accountId}/isActive`), isActive)
+        set(ref(database, `${corpName}/accounts/${accountId}/isActive`), isActive)
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
 }
 export const getAccountsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/accounts`);
+        const starCountRef = ref(database, `${corpName}/accounts`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let accounts = []
@@ -301,7 +300,7 @@ export const getAccountsFromAPI = () => (dispatch) => {
 }
 export const getCategoriesFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/categories`);
+        const starCountRef = ref(database, `${corpName}/categories`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let categories = []
@@ -316,7 +315,7 @@ export const getCategoriesFromAPI = () => (dispatch) => {
 }
 export const postContactToAPI = (contact) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corp}/contacts`), contact)
+        pushData(ref(database, `${corpName}/contacts`), contact)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -331,7 +330,7 @@ export const putContactToAPI = (contact) => (dispatch) => {
     let newContact = {...contact}
     delete newContact.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corp}/contacts/${id}`), newContact)
+        set(ref(database, `${corpName}/contacts/${id}`), newContact)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -341,7 +340,7 @@ export const putContactToAPI = (contact) => (dispatch) => {
 }
 export const getContactsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/contacts`);
+        const starCountRef = ref(database, `${corpName}/contacts`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let contacts = []
@@ -356,7 +355,7 @@ export const getContactsFromAPI = () => (dispatch) => {
 }
 export const deleteContactFromAPI = (contactId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corp}/contacts/${contactId}`))
+        remove(ref(database, `${corpName}/contacts/${contactId}`))
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -371,7 +370,7 @@ export const getTransactionsFromAPI = () => async (dispatch) => {
 }
 export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corp}/transactions/journalEntries`), journalEntry)
+        pushData(ref(database, `${corpName}/transactions/journalEntries`), journalEntry)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -386,7 +385,7 @@ export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
     let newJournalEntry = {...journalEntry}
     delete newJournalEntry.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corp}/transactions/journalEntries/${id}`), newJournalEntry)
+        set(ref(database, `${corpName}/transactions/journalEntries/${id}`), newJournalEntry)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -396,14 +395,14 @@ export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
 }
 export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corp}/transactions/journalEntries/${transId}`))
+        remove(ref(database, `${corpName}/transactions/journalEntries/${transId}`))
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
 }
 export const getEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
-        const starCountRef = ref(database, `${corp}/transactions/journalEntries`);
+        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let journalEntries = []
@@ -418,7 +417,7 @@ export const getEntriesFromAPI = () => (dispatch) => {
 }
 const getEntriesAPI = (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/transactions/journalEntries`);
+        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let journalEntries = []
@@ -436,7 +435,7 @@ export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
     let newIdenticalCode = {...identicalCode}
     delete newIdenticalCode.codeFor
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corp}/identicalCode/${codeFor}`), newIdenticalCode)
+        set(ref(database, `${corpName}/identicalCode/${codeFor}`), newIdenticalCode)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -446,7 +445,7 @@ export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
 }
 export const getIdenticalCodeFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corp}/identicalCode`);
+        const starCountRef = ref(database, `${corpName}/identicalCode`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let identicalCode = []

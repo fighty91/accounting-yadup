@@ -398,7 +398,7 @@ const CreateUpdateEntries = (props) => {
                         </div>
                         <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
-                                <span className="mb-0 text-secondary">Amount</span> <span className="text-primary" id="totalAmount">
+                                <span className="mb-0 text-secondary">Amount</span> <span className="text-primary">
                                     120,000,000.00
                                 </span>
                             </div>
