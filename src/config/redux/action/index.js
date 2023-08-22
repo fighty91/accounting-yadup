@@ -368,6 +368,54 @@ export const getTransactionsFromAPI = () => async (dispatch) => {
     }
     dispatch({type: 'SET_TRANSACTIONS', value: transactions})
 }
+export const postPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        pushData(ref(database, `${corpName}/transactions/paymentJournal`), paymentJournal)
+        .then((dataCredential) => {
+            resolve(dataCredential.key)
+        })
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const putPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
+    const {id} = paymentJournal
+    let newPaymentJournal = {...paymentJournal}
+    delete newPaymentJournal.id
+    return new Promise((resolve, reject) => {
+        set(ref(database, `${corpName}/transactions/paymentJournal/${id}`), newPaymentJournal)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const deletePaymentJournalFromAPI = (transId) => (dispatch) => {
+    return new Promise(resolve => {
+        remove(ref(database, `${corpName}/transactions/paymentJournal/${transId}`))
+        .then(() => resolve(true))
+        .catch(err => console.log(err))
+    })
+}
+export const getPaymentJournalFromAPI = () => (dispatch) => {
+    return new Promise( async (resolve) => {
+        const starCountRef = ref(database, `${corpName}/transactions/paymentJournal`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let paymentJournal = []
+            for( let x in temp) {
+                temp[x].id = x
+                paymentJournal.push(temp[x])
+            }
+            dispatch({type: 'SET_PAYMENT_JOURNAL', value: paymentJournal})
+            resolve(paymentJournal)
+        });
+    })
+}
+
 export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
     return new Promise((resolve, reject) => {
         pushData(ref(database, `${corpName}/transactions/journalEntries`), journalEntry)

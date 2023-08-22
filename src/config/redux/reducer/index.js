@@ -52,6 +52,15 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 transactions: value
             }
+        case 'SET_PAYMENT_JOURNAL' :
+            let paymentJournalTransactions = {
+                ...state.transactions,
+                paymentJournal: value
+            }
+            return {
+                ...state,
+                transactions: paymentJournalTransactions
+            }
         case 'SET_ENTRIES' :
             let entriesTransactions = {
                 ...state.transactions,

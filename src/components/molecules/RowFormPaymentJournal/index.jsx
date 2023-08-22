@@ -54,10 +54,10 @@ const RowFormPaymentJournal = (props) => {
     
     const {handleEntryAccount, handleDeleteRow, setAccountTransactions, handleSubmit} = props.rowFormFunc
     const {row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions} = props.data
-    const [nominalNull, nominalDouble, accountNull] = formValidation
+    const [nominalNull, accountNull] = formValidation
     
     let nominalProblem = false
-    if(nominalNull || nominalDouble) nominalProblem = true
+    if(nominalNull) nominalProblem = true
 
     return(
         <tr>
@@ -94,12 +94,11 @@ const RowFormPaymentJournal = (props) => {
                 onBlur={handleBlurInputNumb} 
                 onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
                 {nominalNull && <InputValidation name="nominal null" /> }
-                {nominalDouble && <InputValidation name="nominal double" /> }
             </td>
-            <td>
+            {/* <td>
                 <label htmlFor={'cr-'+row} className="visually-hidden">Credit</label>
                 <input type="text" name="credit" id={'cr-'+row} className={`form-control form-control-sm credit text-end ${nominalProblem === true && 'border-danger'} account-value`} value={credit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={credit} />
-            </td>
+            </td> */}
             <td>
                 <button className="btn btn-outline-danger btn-sm delete-row" id={'dl-'+row} onClick={() => handleDeleteRow(row)}>&minus;</button>
             </td>

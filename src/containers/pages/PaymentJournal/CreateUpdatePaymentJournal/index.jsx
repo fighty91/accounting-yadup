@@ -7,7 +7,7 @@ import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalC
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, postPaymentJournalToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -24,7 +24,7 @@ const CreateUpdateEntries = (props) => {
 
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
 
-    const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
+    const [validation, setValidation] = useState({nominalNull: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
     const [isDuplicate, setIsDuplicate] = useState(false)
     const [accounts, setAccounts] = useState([])
@@ -37,7 +37,9 @@ const CreateUpdateEntries = (props) => {
         transType: "Payment Journal"
     })
     const [transDb, setTransDb] = useState({})
-    const [accountTransactions, setAccountTransactions] = useState([{ account: "", description: "", debit: "", credit: "" }])
+    const [accountTransactions, setAccountTransactions] = useState([
+        { account: "", description: "", debit: "", credit: 0 }
+    ])
     const [accountPayment, setAccountPayment] = useState({ account: "", description: "", debit: 0, credit: 0 })
     const [transNumber, setTransNumber] = useState('')
     const [transNumberList, setTransNumberList] = useState([])
@@ -75,7 +77,10 @@ const CreateUpdateEntries = (props) => {
 
     const getResetUpdate = async (newTransactions) => {
         let newTransaction = {...transaction}
-        let newTransAccounts = [{ account: "", description: "", debit: "", credit: "" }]
+        let newTransAccounts = [
+            { account: "", description: "", debit: "", credit: 0 },
+            { account: "", description: "", debit: "", credit: 0 }
+        ]
         
         if(transId) {
             let dataTransaction = newTransactions.find(e => e.id === transId)
@@ -136,7 +141,7 @@ const CreateUpdateEntries = (props) => {
 
     const handleAddRow = () => {
         let newAccountTransactions = [...accountTransactions]
-        const accountTransaction = { account: "", description: "", debit: "", credit: "" }
+        const accountTransaction = { account: "", description: "", debit: "", credit: 0 }
         newAccountTransactions.push(accountTransaction)
         setAccountTransactions(newAccountTransactions)
     }
@@ -153,7 +158,7 @@ const CreateUpdateEntries = (props) => {
         let newAccountTransactions = [...accountTransactions]
         let {name, value, id} = e.target
         let idNumb = +id.slice(3)
-        name === 'debit' || name === 'credit' ?
+        name === 'debit' ?
             newAccountTransactions[idNumb][name] = +value :
             newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
@@ -162,10 +167,8 @@ const CreateUpdateEntries = (props) => {
     // untuk submit
     const handleNormalNumb = () => {
         let newAccountTransactions = [...accountTransactions]
-        newAccountTransactions.forEach((acc, i) => {
-            const {debit, credit} = acc
-            acc.debit = getNormalNumb(debit)
-            acc.credit = getNormalNumb(credit)
+        newAccountTransactions.forEach((acc) => {
+            acc.debit = getNormalNumb(acc.debit)
         })
         setAccountTransactions(newAccountTransactions)
         return newAccountTransactions
@@ -173,81 +176,54 @@ const CreateUpdateEntries = (props) => {
 
     const handleCurrency = (newAccountTransactions) => {
         newAccountTransactions.forEach((acc, i) => {
-            const {debit, credit} = acc
+            const {debit} = acc
             acc.debit = getCurrency(debit)
-            acc.credit = getCurrency(credit)
         })
         setAccountTransactions(newAccountTransactions)
     }
+    
+    const countValidation = async () => {
+        let totalDebit = 0, transCount = 0
+        let accountProblem = false
+        let rowValidation = {nominalNull: [], accountNull: []}
 
-    const totalAmount = () => {
-        let totalDebit = 0
-        // totalCredit = 0
-        accountTransactions.forEach(trans => {
-            let debit = getNormalNumb(trans.debit)
-            // let credit = getNormalNumb(trans.credit)
+        let newAccountTransactions = [...handleNormalNumb()]
+        newAccountTransactions.forEach((trans, i) => {
+            let tempCount = {nominalNull: 0, accountNull: 0}
+            const {debit} = trans
             if(trans.account) {
-                if (debit > 0) { 
-                    totalDebit += debit; 
-                    // totalCredit += credit 
+                transCount++
+                if(debit === 0) { 
+                    tempCount.nominalNull++
+                    accountProblem = true 
+                } else { 
+                    totalDebit += debit
+                }
+            } else {
+                if(debit !== 0) { 
+                    tempCount.accountNull++
+                    accountProblem = true 
                 }
             }
-        })
-        const newAccountPayment = {
-            ...accountPayment,
-            debit: totalDebit
-        }
-        setAccountPayment(newAccountPayment)
-    }
-    const countValidation = async () => {
-        let totalDebit = 0, totalCredit = 0, transCount = 0
-        let accountProblem = false
-        let rowValidation = {nominalNull: [], nominalDouble: [], accountNull: []}
-
-        let newAccountTransactions = await handleNormalNumb()
-        newAccountTransactions.forEach(trans => {
-            let tempCount = {nominalNull: 0, nominalDouble: 0, accountNull: 0}
-            const {account, debit, credit} = trans
-            if(account) {
-                transCount++
-                if(debit === 0 && credit === 0) { tempCount.nominalNull++; accountProblem = true }
-                else if (debit !== 0 && credit !== 0) { tempCount.nominalDouble++; accountProblem = true }
-                else { totalDebit += debit; totalCredit += credit }
-            } else {
-                if(debit !== 0 || credit !== 0) { tempCount.accountNull++; accountProblem = true }
+            for( let x in rowValidation ) {
+                rowValidation[x].push(
+                    tempCount[x] > 0 ? true : false
+                ) 
             }
-            for( let x in rowValidation ) { rowValidation[x].push(tempCount[x] > 0 ? true : false) }
         })
-        newAccountTransactions.push(accountPayment)
-        return {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions}
+        return {totalDebit, transCount, accountProblem, rowValidation, newAccountTransactions}
     }
 
     const getAccountValidation = async () => {
-        let {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
+        let {totalDebit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
         let newValidation = {...validation}
 
         if (!accountProblem) {
-            if (transCount < 2) {
-                accountProblem = true
-                transCount < 1 ? 
-                    Swal.fire({
-                        title: 'Pending!',
-                        text: 'There is no transaction account, the transaction cannot be processed!!',
-                        icon: 'warning',
-                        confirmButtonColor: '#fd7e14'
-                    })
-                    :
-                    Swal.fire({
-                        title: 'Pending!',
-                        text: 'Only one account, transactions must be at least two accounts!!',
-                        icon: 'warning',
-                        confirmButtonColor: '#fd7e14'
-                    })
-            } else if (totalDebit !== totalCredit) {
+            if (transCount < 1) {
                 accountProblem = true
                 Swal.fire({
                     title: 'Pending!',
-                    text: 'Debit and credit unmatch!!',
+                    text: 'There is no transaction account, the transaction cannot be processed!!',
                     icon: 'warning',
                     confirmButtonColor: '#fd7e14'
                 })
@@ -266,12 +242,14 @@ const CreateUpdateEntries = (props) => {
             accountProblem = true
             newValidation.numberNull = true
         }
+        accountProblem && handleCurrency(newAccountTransactions)
 
-        accountProblem && await handleCurrency(newAccountTransactions)
-
-        for( let x in rowValidation ) { newValidation[x] = rowValidation[x] }
+        for( let x in rowValidation ) {
+            newValidation[x] = rowValidation[x]
+        }
         setValidation(newValidation)
-        return {accountProblem, newAccountTransactions}
+        
+        return {accountProblem, newAccountTransactions, totalDebit}
     }
 
     const postDataToAPI = async (newTransaction) => {
@@ -284,9 +262,9 @@ const CreateUpdateEntries = (props) => {
             authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
-        const res = await props.postJournalEntryToAPI(dataReadyToPost)
+        const res = await props.postPaymentJournalToAPI(dataReadyToPost)
         if(res) {
-            navigate(`/journal-entries/transaction-detail/${res}`)
+            // navigate(`/payment-journal/transaction-detail/${res}`)
             Swal.fire({
                 title: 'Good job!',
                 text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
@@ -302,7 +280,7 @@ const CreateUpdateEntries = (props) => {
             updatedBy: props.user.uid2,
             updatedAt: Date.now()
         })
-        const res = await props.putJournalEntryToAPI(dataReadyToUpdate)
+        const res = await props.putPaymentJournalToAPI(dataReadyToUpdate)
         if(res) {
             navigate(`/journal-entries/transaction-detail/${transDb.id}`)
             Swal.fire({
@@ -315,18 +293,29 @@ const CreateUpdateEntries = (props) => {
     }
 
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions} = await getAccountValidation()
+        let {accountProblem, newAccountTransactions, totalDebit} = await getAccountValidation()
         if(!accountProblem) {
+            let transAccounts = []
+            for( let e of newAccountTransactions) {
+                e.account && e.debit > 0 && transAccounts.push(e)
+            }
+            let newAccountPayment = {
+                ...accountPayment,
+                credit: totalDebit
+            }
+            transAccounts.push(newAccountPayment)
+
             let newTransaction = {
                 ...transaction,
-                transAccounts: newAccountTransactions.filter(e => e.account)
+                transAccounts
             }
             for(let i in newTransaction) {
                 !newTransaction[i] && delete newTransaction[i]
             }
+
             if(isUpdate) {
-                updateProps(newTransaction, {transNumber, id: transDb.id})
-                await putDataToAPI(newTransaction)
+        //         updateProps(newTransaction, {transNumber, id: transDb.id})
+        //         await putDataToAPI(newTransaction)
             } else {
                 await postDataToAPI(newTransaction)
             }
@@ -362,7 +351,7 @@ const CreateUpdateEntries = (props) => {
 
     useEffect(() => {
         props.getContactsFromAPI()
-        props.getEntriesFromAPI()
+        props.getPaymentJournalFromAPI()
         props.getAccountsFromAPI()
     }, [])
     
@@ -389,10 +378,33 @@ const CreateUpdateEntries = (props) => {
     useEffect(() => {
         getAccounts()
     }, [props.accounts])
+
+    const handleTotalAmount = () => {
+        let totalAmount = 0
+        accountTransactions.forEach(trans => {
+            let debit = getNormalNumb(trans.debit)
+            if (debit > 0) { 
+                totalAmount += debit 
+            }
+        })
+        const newAccountPayment = {
+            ...accountPayment,
+            credit: totalAmount
+        }
+        setAccountPayment(newAccountPayment)
+    }
+
+    useEffect(() => {
+        let pendingCount = 0
+        accountTransactions.forEach(trans => {
+            typeof trans.debit === 'number' && pendingCount++
+        })
+        pendingCount < 1 && handleTotalAmount()
+    }, [accountTransactions])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
-    const {nominalNull, nominalDouble, accountNull} = validation
+    const {nominalNull, accountNull} = validation
 
     return (
         <LayoutsMainContent>
@@ -474,7 +486,7 @@ const CreateUpdateEntries = (props) => {
                                     <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
                                     <th className="text-end pe-3 column-debit">Amount</th>
-                                    <th className="text-end pe-3 column-credit">Credit</th>
+                                    {/* <th className="text-end pe-3 column-credit">Credit</th> */}
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
                                     </th>
@@ -487,7 +499,7 @@ const CreateUpdateEntries = (props) => {
                                         const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
                                         
                                         const {account, description, debit, credit} = trans
-                                        const formValidation = [ nominalNull[row], nominalDouble[row], accountNull[row] ]
+                                        const formValidation = [ nominalNull[row], accountNull[row] ]
                                         
                                         const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
                                         return <RowFormPaymentJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
@@ -498,7 +510,7 @@ const CreateUpdateEntries = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/journal-entries/transaction-detail/${transId}` : '/journal-entries'} color="outline-danger"/>
+                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/payment-journal/transaction-detail/${transId}` : '/payment-journal'} color="outline-danger"/>
                 </div>
             </div>
 
@@ -540,10 +552,10 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getPaymentJournalFromAPI: () => dispatch(getPaymentJournalFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data)),
-    putJournalEntryToAPI: (data) => dispatch(putJournalEntryToAPI(data))
+    postPaymentJournalToAPI: (data) => dispatch(postPaymentJournalToAPI(data)),
+    putPaymentJournalToAPI: (data) => dispatch(putPaymentJournalToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateEntries)
