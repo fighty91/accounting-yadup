@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdatePaymentJournal.scss'
+import './CreateUpdateReceiptJournal.scss'
 
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, postPaymentJournalToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
-import RowFormPaymentJournal from "../../../../components/molecules/RowFormPaymentJournal";
+import RowFormReceiptJournal from "../../../../components/molecules/RowFormReceiptJournal";
 
-const CreateUpdatePaymentJournal = (props) => {
+const CreateUpdateReceiptJournal = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
@@ -34,13 +34,13 @@ const CreateUpdatePaymentJournal = (props) => {
         date: getFullDateNow(),
         contactId: '',
         memo: '',
-        transType: "Payment Journal"
+        transType: "Receipt Journal"
     })
     const [transDb, setTransDb] = useState({})
     const [accountTransactions, setAccountTransactions] = useState([
-        { account: "", description: "", debit: "", credit: 0 }
+        { account: "", description: "", debit: 0, credit: "" }
     ])
-    const [paymentAccount, setPaymentAccount] = useState({ account: "", description: "", debit: 0, credit: 0 })
+    const [receiptAccount, setReceiptAccount] = useState({ account: "", description: "", debit: 0, credit: 0 })
     const [transNumber, setTransNumber] = useState('')
     const [transNumberList, setTransNumberList] = useState([])
     
@@ -53,7 +53,7 @@ const CreateUpdatePaymentJournal = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        codeFor: "paymentJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        codeFor: "receiptJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getAccounts = async () => {
@@ -78,8 +78,8 @@ const CreateUpdatePaymentJournal = (props) => {
     const getResetUpdate = async (newTransactions) => {
         let newTransaction = {...transaction}
         let newTransAccounts = [
-            { account: "", description: "", debit: "", credit: 0 },
-            { account: "", description: "", debit: "", credit: 0 }
+            { account: "", description: "", debit: 0, credit: "" },
+            { account: "", description: "", debit: 0, credit: "" }
         ]
         
         if(transId) {
@@ -108,12 +108,12 @@ const CreateUpdatePaymentJournal = (props) => {
         setFormIdentical({ initialCode:'', startFrom:'' })
     }
 
-    const handleChangePaymentAccount = (e) => {
-        const newPaymentAccount = {
-            ...paymentAccount,
+    const handleChangeReceiptAccount = (e) => {
+        const newReceiptAccount = {
+            ...receiptAccount,
             [e.target.name]: e.target.value
         }
-        setPaymentAccount(newPaymentAccount)
+        setReceiptAccount(newReceiptAccount)
     }
 
     const handleEntryTransaction = (e) => {
@@ -141,7 +141,7 @@ const CreateUpdatePaymentJournal = (props) => {
 
     const handleAddRow = () => {
         let newAccountTransactions = [...accountTransactions]
-        const accountTransaction = { account: "", description: "", debit: "", credit: 0 }
+        const accountTransaction = { account: "", description: "", debit: 0, credit: "" }
         newAccountTransactions.push(accountTransaction)
         setAccountTransactions(newAccountTransactions)
     }
@@ -158,7 +158,7 @@ const CreateUpdatePaymentJournal = (props) => {
         let newAccountTransactions = [...accountTransactions]
         let {name, value, id} = e.target
         let idNumb = +id.slice(3)
-        name === 'debit' ?
+        name === 'credit' ?
             newAccountTransactions[idNumb][name] = +value :
             newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
@@ -168,7 +168,7 @@ const CreateUpdatePaymentJournal = (props) => {
     const handleNormalNumb = () => {
         let newAccountTransactions = [...accountTransactions]
         newAccountTransactions.forEach((acc) => {
-            acc.debit = getNormalNumb(acc.debit)
+            acc.credit = getNormalNumb(acc.credit)
         })
         setAccountTransactions(newAccountTransactions)
         return newAccountTransactions
@@ -176,31 +176,31 @@ const CreateUpdatePaymentJournal = (props) => {
 
     const handleCurrency = (newAccountTransactions) => {
         newAccountTransactions.forEach((acc, i) => {
-            const {debit} = acc
-            acc.debit = getCurrency(debit)
+            const {credit} = acc
+            acc.credit = getCurrency(credit)
         })
         setAccountTransactions(newAccountTransactions)
     }
     
     const countValidation = async () => {
-        let totalDebit = 0, transCount = 0
+        let totalCredit = 0, transCount = 0
         let accountProblem = false
         let rowValidation = {nominalNull: [], accountNull: []}
 
         let newAccountTransactions = [...handleNormalNumb()]
         newAccountTransactions.forEach((trans, i) => {
             let tempCount = {nominalNull: 0, accountNull: 0}
-            const {debit} = trans
+            const {credit} = trans
             if(trans.account) {
                 transCount++
-                if(debit === 0) { 
+                if(credit === 0) { 
                     tempCount.nominalNull++
                     accountProblem = true 
                 } else { 
-                    totalDebit += debit
+                    totalCredit += credit
                 }
             } else {
-                if(debit !== 0) { 
+                if(credit !== 0) { 
                     tempCount.accountNull++
                     accountProblem = true 
                 }
@@ -211,11 +211,11 @@ const CreateUpdatePaymentJournal = (props) => {
                 ) 
             }
         })
-        return {totalDebit, transCount, accountProblem, rowValidation, newAccountTransactions}
+        return {totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions}
     }
 
     const getAccountValidation = async () => {
-        let {totalDebit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
+        let {totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
         let newValidation = {...validation}
 
         if (!accountProblem) {
@@ -249,7 +249,7 @@ const CreateUpdatePaymentJournal = (props) => {
         }
         setValidation(newValidation)
         
-        return {accountProblem, newAccountTransactions, totalDebit}
+        return {accountProblem, newAccountTransactions, totalCredit}
     }
 
     const postDataToAPI = async (newTransaction) => {
@@ -262,9 +262,9 @@ const CreateUpdatePaymentJournal = (props) => {
             authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
-        const res = await props.postPaymentJournalToAPI(dataReadyToPost)
+        const res = await props.postReceiptJournalToAPI(dataReadyToPost)
         if(res) {
-            // navigate(`/payment-journal/transaction-detail/${res}`)
+            // navigate(`/receipt-journal/transaction-detail/${res}`)
             Swal.fire({
                 title: 'Good job!',
                 text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
@@ -280,9 +280,9 @@ const CreateUpdatePaymentJournal = (props) => {
             updatedBy: props.user.uid2,
             updatedAt: Date.now()
         })
-        const res = await props.putPaymentJournalToAPI(dataReadyToUpdate)
+        const res = await props.putReceiptJournalToAPI(dataReadyToUpdate)
         if(res) {
-            navigate(`/payment-journal/transaction-detail/${transDb.id}`)
+            navigate(`/receipt-journal/transaction-detail/${transDb.id}`)
             Swal.fire({
                 title: 'Nice!',
                 text: `${newTransaction.transType} #${transNumber} updated`,
@@ -293,17 +293,17 @@ const CreateUpdatePaymentJournal = (props) => {
     }
 
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions, totalDebit} = await getAccountValidation()
+        let {accountProblem, newAccountTransactions, totalCredit} = await getAccountValidation()
         if(!accountProblem) {
             let transAccounts = []
             for( let e of newAccountTransactions) {
-                e.account && e.debit > 0 && transAccounts.push(e)
+                e.account && e.credit > 0 && transAccounts.push(e)
             }
-            let newPaymentAccount = {
-                ...paymentAccount,
-                credit: totalDebit
+            let newReceiptAccount = {
+                ...receiptAccount,
+                debit: totalCredit
             }
-            transAccounts.push(newPaymentAccount)
+            transAccounts.push(newReceiptAccount)
 
             let newTransaction = {
                 ...transaction,
@@ -351,7 +351,7 @@ const CreateUpdatePaymentJournal = (props) => {
 
     useEffect(() => {
         props.getContactsFromAPI()
-        props.getPaymentJournalFromAPI()
+        props.getReceiptJournalFromAPI()
         props.getAccountsFromAPI()
     }, [])
     
@@ -364,7 +364,7 @@ const CreateUpdatePaymentJournal = (props) => {
         let newTransNumbers = []
         let newTransactions = []
         for(let x in props.transactions) {
-            if( x === 'paymentJournal' ) {
+            if( x === 'receiptJournal' ) {
                 props.transactions[x].forEach(e => {
                     newTransNumbers.push(e.transNumber)
                     newTransactions.push(e)
@@ -382,22 +382,22 @@ const CreateUpdatePaymentJournal = (props) => {
     const handleTotalAmount = () => {
         let totalAmount = 0
         accountTransactions.forEach(trans => {
-            let debit = getNormalNumb(trans.debit)
-            if (debit > 0) { 
-                totalAmount += debit 
+            let credit = getNormalNumb(trans.credit)
+            if (credit > 0) { 
+                totalAmount += credit 
             }
         })
-        const newPaymentAccount = {
-            ...paymentAccount,
-            credit: totalAmount
+        const newReceiptAccount = {
+            ...receiptAccount,
+            debit: totalAmount
         }
-        setPaymentAccount(newPaymentAccount)
+        setReceiptAccount(newReceiptAccount)
     }
 
     useEffect(() => {
         let pendingCount = 0
         accountTransactions.forEach(trans => {
-            typeof trans.debit === 'number' && pendingCount++
+            typeof trans.credit === 'number' && pendingCount++
         })
         pendingCount < 1 && handleTotalAmount()
     }, [accountTransactions])
@@ -410,15 +410,15 @@ const CreateUpdatePaymentJournal = (props) => {
         <LayoutsMainContent>
             <ContentHeader name={isUpdate ? 'Edit Transaction' : 'New Transaction'}/>
             {/* Entry Content */}
-            <div className="card pb-5 create-update-payment-journal">
+            <div className="card pb-5 create-update-receipt-journal">
                 <div className="card-header">
-                    Payment Journal
+                    Receipt Journal
                 </div>
                 <div className="card-body">
                     <div className="row g-3 mb-4 d-flex justify-content-between">
                         <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
-                            <label htmlFor="payFrom" className="form-label mb-0">Pay From</label>
-                            <select className="form-select form-select-sm" id="payFrom" name="account" value={paymentAccount.account} onChange={handleChangePaymentAccount}>
+                            <label htmlFor="receiptFrom" className="form-label mb-0">Receipt From</label>
+                            <select className="form-select form-select-sm" id="receiptFrom" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
                                 <option value="">Choose...</option>
                                 { 
                                     parentAccounts.map((parentAcc, i) =>
@@ -438,7 +438,7 @@ const CreateUpdatePaymentJournal = (props) => {
                         <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
                                 <span className="mb-0 text-secondary">Amount</span> <span className="text-primary">
-                                    { getCurrencyAbs(paymentAccount.credit) }
+                                    { getCurrencyAbs(receiptAccount.debit) }
                                 </span>
                             </div>
                         </div>
@@ -485,7 +485,7 @@ const CreateUpdatePaymentJournal = (props) => {
                                 <tr>
                                     <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
-                                    <th className="text-end pe-3 column-debit">Amount</th>
+                                    <th className="text-end pe-3 column-credit">Amount</th>
                                     {/* <th className="text-end pe-3 column-credit">Credit</th> */}
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
@@ -498,11 +498,11 @@ const CreateUpdatePaymentJournal = (props) => {
                                         
                                         const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
                                         
-                                        const {account, description, debit, credit} = trans
+                                        const {account, description, credit} = trans
                                         const formValidation = [ nominalNull[row], accountNull[row] ]
                                         
-                                        const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
-                                        return <RowFormPaymentJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
+                                        const data = { row, account, accounts, description, credit, formValidation, parentAccounts, accountTransactions }
+                                        return <RowFormReceiptJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
                                 }
                             </tbody>
@@ -510,7 +510,7 @@ const CreateUpdatePaymentJournal = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/payment-journal/transaction-detail/${transId}` : '/payment-journal'} color="outline-danger"/>
+                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/receipt-journal/transaction-detail/${transId}` : '/receipt-journal'} color="outline-danger"/>
                 </div>
             </div>
 
@@ -552,10 +552,10 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getPaymentJournalFromAPI: () => dispatch(getPaymentJournalFromAPI()),
+    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    postPaymentJournalToAPI: (data) => dispatch(postPaymentJournalToAPI(data)),
-    putPaymentJournalToAPI: (data) => dispatch(putPaymentJournalToAPI(data))
+    postReceiptJournalToAPI: (data) => dispatch(postReceiptJournalToAPI(data)),
+    putReceiptJournalToAPI: (data) => dispatch(putReceiptJournalToAPI(data))
 })
 
-export default connect(reduxState, reduxDispatch)(CreateUpdatePaymentJournal)
+export default connect(reduxState, reduxDispatch)(CreateUpdateReceiptJournal)

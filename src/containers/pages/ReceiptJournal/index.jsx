@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import './JournalEntries.scss'
+import './ReceiptJournal.scss'
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI } from "../../../config/redux/action";
 
-const JournalEntries = (props) => {
+const ReceiptJournal = (props) => {
     const { getCurrency } = useGeneralFunc()
 
     const [accounts, setAccounts] = useState()
@@ -15,7 +15,7 @@ const JournalEntries = (props) => {
     const [contacts, setContacts] = useState()
 
     const getDataAPI = () => {
-        props.getEntriesFromAPI()
+        props.getReceiptJournalFromAPI()
         props.getContactsFromAPI()
         props.getAccountsFromAPI()
     }
@@ -35,7 +35,7 @@ const JournalEntries = (props) => {
     useEffect(() => {
         let temp = []
         for(let x in props.transactions) {
-            if( x === 'journalEntries' ) props.transactions[x].forEach(e => temp.push(e))
+            if( x === 'receiptJournal' ) props.transactions[x].forEach(e => temp.push(e))
         }
         temp.sort((a, b) => b.transNumber - a.transNumber)
         temp.sort((a, b) => {
@@ -48,7 +48,7 @@ const JournalEntries = (props) => {
     
     return (
         <LayoutsMainContent>
-            <ContentHeader name="Journal Entries"/>
+            <ContentHeader name="Receipt Journal"/>
             {/* Entry Content */}
             <div className="mb-4">
                 <Link to="new-transaction" className="btn btn-secondary btn-sm">New Transaction</Link>
@@ -56,7 +56,7 @@ const JournalEntries = (props) => {
             <div className="card pb-4">
                 <div className="card-body">
                     <div className="table-responsive-sm">
-                        <table className="table table-striped table-sm table-transaction-entries">
+                        <table className="table table-striped table-sm table-transaction-receipt-journal">
                             <thead>
                                 <tr>
                                     <th scope="col" className="tabel-date" >Date</th>
@@ -113,9 +113,9 @@ const reduxState = (state) => ({
     accounts: state.accounts
 })
 const reduxDispatch = (dispatch) => ({
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
 })
 
-export default connect(reduxState, reduxDispatch)(JournalEntries)
+export default connect(reduxState, reduxDispatch)(ReceiptJournal)

@@ -26,6 +26,8 @@ import Logout from "../Logout";
 import Users from "../Users";
 import NewUser from "../Users/NewUser";
 import CreateUpdatePaymentJournal from "../PaymentJournal/CreateUpdatePaymentJournal";
+import ReceiptJournal from "../ReceiptJournal";
+import CreateUpdateReceiptJournal from "../ReceiptJournal/CreateUpdateReceiptJournal";
 
 class App extends Component {
     render() {
@@ -35,6 +37,7 @@ class App extends Component {
                     <Route path="/" exact Component={Dashboard} />
                     <Route path="/accounts" Component={Accounts}/>
                     <Route path="/contacts" Component={Contacts}/>
+                    <Route path="/receipt-journal" Component={ReceiptJournal}/>
                     <Route path="/payment-journal" Component={PaymentJournal}/>
                     <Route path="/journal-entries" Component={JournalEntries}/>
                     <Route path="/reports" Component={Reports}/>
@@ -48,8 +51,9 @@ class App extends Component {
                     <Route path="/contacts/new-contact" Component={NewContact}/>
                     <Route path="/contacts/transactions/:contactId" Component={TransactionsContact}/>
 
-                    <Route path="/payment-journal/new-transaction" Component={CreateUpdatePaymentJournal}/>
 
+                    <Route path="/receipt-journal/new-transaction" Component={CreateUpdateReceiptJournal}/>
+                    <Route path="/payment-journal/new-transaction" Component={CreateUpdatePaymentJournal}/>
                     <Route path="/journal-entries/edit-transaction/:transId" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/new-transaction" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/transaction-detail/:transId" Component={DetailJournalEntries}/>

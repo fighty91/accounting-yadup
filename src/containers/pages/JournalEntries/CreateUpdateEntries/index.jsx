@@ -52,7 +52,7 @@ const CreateUpdateEntries = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        id: "", codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getAccounts = async () => {
