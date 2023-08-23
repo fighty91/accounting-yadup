@@ -14,12 +14,20 @@ const TransactionsAccount = (props) => {
     const getTransactions = async () => {
         let newTransactions = []
         for(let x in props.transactions) {
-            props.transactions[x].forEach(e => {
+            for(let e of props.transactions[x]) {
                 e.transAccounts.forEach(acc => {
                     acc.account === accountId && newTransactions.push(e)
                 })
-            })
+            }
         }
+        newTransactions.sort((a, b) => 
+            a.transNumber < b.transNumber ? -1 :
+            a.transNumber > b.transNumber ? 1 : 0
+        )
+        newTransactions.sort((a, b) => 
+            a.date < b.date ? -1 :
+            a.date > b.date ? 1 : 0
+        )
         setTransactions(newTransactions)
     }
 

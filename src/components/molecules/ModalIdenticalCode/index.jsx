@@ -56,7 +56,10 @@ const ModalIdenticalCode = (props) => {
             let newFormIdentical = {...formIdentical}
             if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
             newCodeList.push(newFormIdentical)
-            newCodeList.sort((a, b) => a.initialCode - b.initialCode)
+            newCodeList.sort((a, b) => 
+                a.transNumber < b.transNumber ? -1 :
+                a.transNumber > b.transNumber ? 1 : 0
+            )
             const newIdenticalCode = {
                 ...identicalCode,
                 codeList: newCodeList

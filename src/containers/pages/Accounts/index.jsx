@@ -22,13 +22,6 @@ const Accounts = (props) => {
         props.getTransactionsFromAPI()
     }
 
-    const setAccountsFromProps = () => {
-        const newParentAccounts = props.accounts.filter(e => e.isParent)
-        setParentAccounts(newParentAccounts)
-        const newAccounts = props.accounts.filter(e => !e.isParent)
-        setAccounts(newAccounts)
-    }
-
     const transAmount = (accountId) => {
         let parentAmount = 0
         let childAccounts = accounts.filter(e => e.parentId === accountId)
@@ -53,7 +46,10 @@ const Accounts = (props) => {
     }, [])
     
     useEffect(() => {
-        setAccountsFromProps()
+        const newParentAccounts = props.accounts.filter(e => e.isParent)
+        setParentAccounts(newParentAccounts)
+        const newAccounts = props.accounts.filter(e => !e.isParent)
+        setAccounts(newAccounts)
     }, [props.accounts])
 
     useEffect(() => {

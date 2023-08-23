@@ -216,7 +216,14 @@ export const getUsersFromAPI = () => (dispatch) => {
             for( let x in temp) {
                 users.push(temp[x])
             }
-            users.sort((a, b) => a.name - b.name)
+            users.sort((a, b) => 
+                a.name < b.name ? -1 :
+                a.name > b.name ? 1 : 0
+            )
+            users.sort((a, b) => 
+                a.userAccessId < b.userAccessId ? -1 :
+                a.userAccessId > b.userAccessId ? 1 : 0
+            )
             dispatch({type: 'SET_USERS', value: users})
             resolve(users)
         });
@@ -288,11 +295,10 @@ export const getAccountsFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 accounts.push(temp[x])
             }
-            accounts.sort((a, b) => {
-                let tempA = Number(a.number.split('-').join(''))
-                let tempB = Number(b.number.split('-').join(''))
-                return tempA - tempB
-            })
+            accounts.sort((a, b) => 
+                a.number < b.number ? -1 :
+                a.number > b.number ? 1 : 0
+            )
             dispatch({type: 'SET_ACCOUNTS', value: accounts})
             resolve(accounts)
         });
@@ -348,6 +354,10 @@ export const getContactsFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 contacts.push(temp[x])
             }
+            contacts.sort((a, b) => 
+                a.name < b.name ? -1 :
+                a.name > b.name ? 1 : 0
+            )
             dispatch({type: 'SET_CONTACTS', value: contacts})
             resolve(contacts)
         });
@@ -409,6 +419,14 @@ export const getReceiptJournalFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 receiptJournal.push(temp[x])
             }
+            receiptJournal.sort((a, b) => 
+                a.transNumber < b.transNumber ? 1 :
+                a.transNumber > b.transNumber ? -1 : 0
+            )
+            receiptJournal.sort((a, b) => 
+                a.date < b.date ? 1 :
+                a.date > b.date ? -1 : 0
+            )
             dispatch({type: 'SET_RECEIPT_JOURNAL', value: receiptJournal})
             resolve(receiptJournal)
         });
@@ -456,6 +474,14 @@ export const getPaymentJournalFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 paymentJournal.push(temp[x])
             }
+            paymentJournal.sort((a, b) => 
+                a.transNumber < b.transNumber ? 1 :
+                a.transNumber > b.transNumber ? -1 : 0
+            )
+            paymentJournal.sort((a, b) => 
+                a.date < b.date ? 1 :
+                a.date > b.date ? -1 : 0
+            )
             dispatch({type: 'SET_PAYMENT_JOURNAL', value: paymentJournal})
             resolve(paymentJournal)
         });
@@ -504,26 +530,20 @@ export const getEntriesFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 journalEntries.push(temp[x])
             }
+            journalEntries.sort((a, b) => 
+                a.transNumber < b.transNumber ? 1 :
+                a.transNumber > b.transNumber ? -1 : 0
+            )
+            journalEntries.sort((a, b) => 
+                a.date < b.date ? 1 :
+                a.date > b.date ? -1 : 0
+            )
             dispatch({type: 'SET_ENTRIES', value: journalEntries})
             resolve(journalEntries)
         });
     })
 }
-const getEntriesAPI = (dispatch) => {
-    return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);
-        onValue(starCountRef, (snapshot) => {
-            let temp = {...snapshot.val()}
-            let journalEntries = []
-            for( let x in temp) {
-                temp[x].id = x
-                journalEntries.push(temp[x])
-            }
-            // dispatch({type: 'SET_ENTRIES', value: journalEntries})
-            resolve(journalEntries)
-        });
-    })
-}
+
 export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
     const {codeFor} = identicalCode
     let newIdenticalCode = {...identicalCode}
@@ -549,7 +569,6 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
                 for (let i in tempCodeList) {
                     codeList.push(tempCodeList[i])
                 }
-
                 let tempIdentical = {
                     ...temp[x],
                     codeFor: x,

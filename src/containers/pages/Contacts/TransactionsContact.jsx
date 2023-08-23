@@ -23,15 +23,6 @@ const TransactionsContact = (props) => {
         }
     }
 
-    const getTransactions = async () => {
-        let newTransactions = []
-        for(let x in props.transactions) {
-            props.transactions[x].forEach(e => newTransactions.push(e))
-        }
-        const temp = newTransactions.filter(e => e.contactId === contactId)
-        setTransactions(temp)
-    }
-    
     useEffect(() => {
         props.getContactsFromAPI()
         props.getTransactionsFromAPI()
@@ -42,7 +33,21 @@ const TransactionsContact = (props) => {
     },[props.contacts])
 
     useEffect(() => {
-        getTransactions()
+        let newTransactions = []
+        for(let x in props.transactions) {
+            for(let e of props.transactions[x]) {
+                e.contactId === contactId && newTransactions.push(e)
+            }
+        }
+        newTransactions.sort((a, b) => 
+            a.transNumber < b.transNumber ? 1 :
+            a.transNumber > b.transNumber ? -1 : 0
+        )
+        newTransactions.sort((a, b) => 
+            a.date < b.date ? 1 :
+            a.date > b.date ? -1 : 0
+        )
+        setTransactions(newTransactions)
     },[props.transactions])
     
     const getPosition = () => {

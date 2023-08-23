@@ -37,12 +37,6 @@ const JournalEntries = (props) => {
         for(let x in props.transactions) {
             if( x === 'journalEntries' ) props.transactions[x].forEach(e => temp.push(e))
         }
-        temp.sort((a, b) => b.transNumber - a.transNumber)
-        temp.sort((a, b) => {
-            const dateA = +a.date.split('-').join('')
-            const dateB = +b.date.split('-').join('')
-            return dateB - dateA
-        })
         setTransactions(temp)
     }, [props.transactions])
     
