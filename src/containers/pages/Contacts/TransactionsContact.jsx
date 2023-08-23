@@ -115,7 +115,7 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI())
+    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
 })
 
 export default connect(reduxState, reduxDispatch)(TransactionsContact)

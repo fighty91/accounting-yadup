@@ -218,6 +218,11 @@ const CreateUpdateReceiptJournal = (props) => {
         let {totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
         let newValidation = {...validation}
 
+        newValidation.receiptAccountNull = false
+        if(!receiptAccount.account) {
+            accountProblem = true
+            newValidation.receiptAccountNull = true
+        }
         if (!accountProblem) {
             if (transCount < 1) {
                 accountProblem = true
@@ -418,7 +423,7 @@ const CreateUpdateReceiptJournal = (props) => {
                     <div className="row g-3 mb-4 d-flex justify-content-between">
                         <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
                             <label htmlFor="receiptFrom" className="form-label mb-0">Receipt From</label>
-                            <select className="form-select form-select-sm" id="receiptFrom" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
+                            <select className={`form-select form-select-sm ${ validation.receiptAccountNull && 'border-danger'}`} id="receiptFrom" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
                                 <option value="">Choose...</option>
                                 { 
                                     parentAccounts.map((parentAcc, i) =>
@@ -434,6 +439,7 @@ const CreateUpdateReceiptJournal = (props) => {
                                     )
                                 }
                             </select>
+                            { validation.receiptAccountNull && <InputValidation name="account null"/> }
                         </div>
                         <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
@@ -468,7 +474,7 @@ const CreateUpdateReceiptJournal = (props) => {
                                 </div>
                             }
                             </div>
-                            <input type="text" className={`form-control form-control-sm me-1 ${!transNumberAvailable && 'border-danger'}`} id="transNumber" name="transNumber" onChange={handleEntryTransNumber} placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} />
+                            <input type="text" className={`form-control form-control-sm me-1 ${!transNumberAvailable && 'border-danger'} ${validation.numberNull && 'border-danger'}`} id="transNumber" name="transNumber" onChange={handleEntryTransNumber} placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} />
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
                         </div>

@@ -201,7 +201,7 @@ const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
-    deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data))
+    deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data)),
 })
 
 export default connect(reduxState, reduxDispatch)(DetailContact)

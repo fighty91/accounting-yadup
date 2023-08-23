@@ -362,11 +362,9 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
 }
 
 export const getTransactionsFromAPI = () => async (dispatch) => {
-    const journalEntries = await getEntriesAPI(dispatch)
-    const transactions = {
-        journalEntries,
-    }
-    dispatch({type: 'SET_TRANSACTIONS', value: transactions})
+    await getEntriesFromAPI()(dispatch)
+    await getPaymentJournalFromAPI()(dispatch)
+    await getReceiptJournalFromAPI()(dispatch)
 }
 
 export const postReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
