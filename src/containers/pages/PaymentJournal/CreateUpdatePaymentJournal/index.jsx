@@ -271,7 +271,7 @@ const CreateUpdatePaymentJournal = (props) => {
         }
         const res = await props.postPaymentJournalToAPI(dataReadyToPost)
         if(res) {
-            // navigate(`/payment-journal/transaction-detail/${res}`)
+            navigate(`/payment-journal/transaction-detail/${res}`)
             Swal.fire({
                 title: 'Good job!',
                 text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,

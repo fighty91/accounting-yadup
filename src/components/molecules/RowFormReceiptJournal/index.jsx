@@ -87,7 +87,7 @@ const RowFormReceiptJournal = (props) => {
             </td>
             <td>
                 <label htmlFor={'cr-'+row} className={`visually-hidden `}>Credit</label>
-                <input type="text" name="credit" id={'cr-'+row} className={`form-control form-control-sm text-end credit ${nominalProblem === true && 'border-danger'} account-value`} 
+                <input type="text" name="credit" id={'cr-'+row} min={0} className={`form-control form-control-sm text-end credit ${nominalProblem === true && 'border-danger'} account-value`} 
                 value={credit} 
                 onChange={handleEntryInputNumb} 
                 onFocus={handleFocusInputNumb} 

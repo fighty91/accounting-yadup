@@ -87,7 +87,7 @@ const RowFormPaymentJournal = (props) => {
             </td>
             <td>
                 <label htmlFor={'db-'+row} className={`visually-hidden `}>Debit</label>
-                <input type="text" name="debit" id={'db-'+row} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} 
+                <input type="text" name="debit" id={'db-'+row} min={0} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} 
                 value={debit} 
                 onChange={handleEntryInputNumb} 
                 onFocus={handleFocusInputNumb} 

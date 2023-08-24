@@ -300,15 +300,14 @@ const CreateUpdateReceiptJournal = (props) => {
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions, totalCredit} = await getAccountValidation()
         if(!accountProblem) {
-            let transAccounts = []
-            for( let e of newAccountTransactions) {
-                e.account && e.credit > 0 && transAccounts.push(e)
-            }
             let newReceiptAccount = {
                 ...receiptAccount,
                 debit: totalCredit
             }
-            transAccounts.push(newReceiptAccount)
+            let transAccounts = [newReceiptAccount]
+            for( let e of newAccountTransactions) {
+                e.account && e.credit > 0 && transAccounts.push(e)
+            }
 
             let newTransaction = {
                 ...transaction,

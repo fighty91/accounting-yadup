@@ -89,13 +89,13 @@ const RowFormEntries = (props) => {
             </td>
             <td>
                 <label htmlFor={'db-'+row} className={`visually-hidden `}>Debit</label>
-                <input type="text" name="debit" id={'db-'+row} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} value={debit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
+                <input type="text" name="debit" id={'db-'+row} min={0} className={`form-control form-control-sm text-end debit ${nominalProblem === true && 'border-danger'} account-value`} value={debit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
                 {nominalNull && <InputValidation name="nominal null" /> }
                 {nominalDouble && <InputValidation name="nominal double" /> }
             </td>
             <td>
                 <label htmlFor={'cr-'+row} className="visually-hidden">Credit</label>
-                <input type="text" name="credit" id={'cr-'+row} className={`form-control form-control-sm credit text-end ${nominalProblem === true && 'border-danger'} account-value`} value={credit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={credit} />
+                <input type="text" name="credit" id={'cr-'+row} min={0} className={`form-control form-control-sm credit text-end ${nominalProblem === true && 'border-danger'} account-value`} value={credit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={credit} />
             </td>
             <td>
                 <button className="btn btn-outline-danger btn-sm delete-row" id={'dl-'+row} onClick={() => handleDeleteRow(row)}>&minus;</button>

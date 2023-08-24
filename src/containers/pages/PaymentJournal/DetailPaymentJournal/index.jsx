@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import "./DetailReceiptJournal.scss"
+import "./DetailPaymentJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 
-const DetailReceiptJournal = (props) => {
+const DetailPaymentJournal = (props) => {
     const { transId } = useParams()
     const { getCurrency } = useGeneralFunc()
     const navigate = useNavigate()
@@ -17,12 +17,12 @@ const DetailReceiptJournal = (props) => {
     const [accounts, setAccounts] = useState([])
     const [contact, setContact] = useState({ name: ''})
     const [transAccounts, setTransAccounts] = useState([])
-    const [receiptAccount, setReceiptAccount] = useState({})
+    const [paymentAccount, setPaymentAccount] = useState({})
     const [transaction, setTransaction] = useState({
         transNumber: "",
         date: '',
         memo: "",
-        transType: "Receipt Journal",
+        transType: "Payment Journal",
         transAccounts: []
     })
 
@@ -61,7 +61,7 @@ const DetailReceiptJournal = (props) => {
     }
     
     const deleteTransaction = async() => {
-        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
+        const deleteSuccess = await props.deletePaymentJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             Swal.fire({
                 title: 'Success Delete!',
@@ -69,7 +69,7 @@ const DetailReceiptJournal = (props) => {
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-            navigate('/receipt-journal')
+            navigate('/payment-journal')
         }
     }
 
@@ -102,7 +102,7 @@ const DetailReceiptJournal = (props) => {
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getContactsFromAPI()
-        props.getReceiptJournalFromAPI()
+        props.getPaymentJournalFromAPI()
         props.getUsersFromAPI()
     }, [])
 
@@ -113,15 +113,15 @@ const DetailReceiptJournal = (props) => {
     useEffect(() => {
         let tempTransaction = {}
         let tempTransAccounts = []
-        let tempReceiptAccount = {}
+        let tempPaymentAccount = {}
 
         for(let x in props.transactions) {
-            x === 'receiptJournal' &&
+            x === 'paymentJournal' &&
             props.transactions[x].forEach(trans => {
                 if(trans.id === transId) {
                     tempTransaction = trans
                     for(let e of trans.transAccounts) {
-                        e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e)
+                        e.credit ? tempPaymentAccount = e : tempTransAccounts.push(e)
                     }
                 }
             })
@@ -129,24 +129,24 @@ const DetailReceiptJournal = (props) => {
         
         setTransaction(tempTransaction)
         setTransAccounts(tempTransAccounts)
-        setReceiptAccount(tempReceiptAccount)
+        setPaymentAccount(tempPaymentAccount)
         getContact(tempTransaction.contactId)
     }, [props.transactions])
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
             {/* Entry Content */}
-            <div className="card pb-5 detail-receipt-journal">
+            <div className="card pb-5 detail-payment-journal">
                 <div className="card-body">
                     <section>
                         <div className="row">
                             <div className="d-sm-flex justify-content-between">
                                 <div>
                                     <div className="d-flex mb-2">
-                                        <div className="label">Receive on</div>
+                                        <div className="label">Pay from</div>
                                         <div>: &nbsp;</div>
-                                        <Link className="receiptAccount" to={`/accounts/account-detail/${receiptAccount.account}?page=transactions`}>
-                                            {getAccount(receiptAccount.account).accountName}
+                                        <Link className="paymentAccount" to={`/accounts/account-detail/${paymentAccount.account}?page=transactions`}>
+                                            {getAccount(paymentAccount.account).accountName}
                                         </Link>
                                     </div>
                                     {/* <hr className="mt-0 mb-2 d-none d-sm-block"/> */}
@@ -171,7 +171,7 @@ const DetailReceiptJournal = (props) => {
                                                 <div className="amount text-secondary">Amount &nbsp;</div>
                                                 <div className="amount-value text-primary">
                                                     {
-                                                        getCurrency(receiptAccount.debit)
+                                                        getCurrency(paymentAccount.credit)
                                                         // getCurrency(transAccounts.reduce((accumulator, val) => accumulator + val.credit, 0))
                                                     }
                                                 </div>
@@ -195,7 +195,7 @@ const DetailReceiptJournal = (props) => {
                         </div>
                         <hr />
                         <div className="table-responsive-md mb-4 mb-sm-5">
-                            <table className="table table-striped table-transaction-receipt-journal">
+                            <table className="table table-striped table-transaction-payment-journal">
                                 <thead>
                                     <tr>
                                         <th scope="col" className="account" colSpan="2">Account</th>
@@ -221,7 +221,7 @@ const DetailReceiptJournal = (props) => {
                                                         </Link>
                                                     </td>
                                                     <td>{trans.description}</td>
-                                                    <td className="text-end">{getCurrency(trans.credit)}</td>
+                                                    <td className="text-end">{getCurrency(trans.debit)}</td>
                                                 </tr>
                                             )
                                         })
@@ -238,8 +238,8 @@ const DetailReceiptJournal = (props) => {
                                     <div className="mb-2 amount text-secondary text-end">
                                         Amount <span className="text-primary">
                                             { 
-                                                getCurrency(receiptAccount.debit)
-                                                // getCurrency(transAccounts && transAccounts.reduce((accumulator, val) => accumulator + val.credit, 0)) 
+                                                getCurrency(paymentAccount.credit) 
+                                                // getCurrency(transAccounts && transAccounts.reduce((accumulator, val) => accumulator + val.debit, 0)) 
                                             }
                                         </span>
                                     </div>
@@ -268,11 +268,11 @@ const DetailReceiptJournal = (props) => {
                         <div className="row">
                             <div className="d-flex justify-content-between">
                                 <div>
-                                    <ButtonLinkTo name="Edit" linkTo={`/receipt-journal/edit-transaction/${transaction.id}`} color="outline-primary"/>
+                                    <ButtonLinkTo name="Edit" linkTo={`/payment-journal/edit-transaction/${transaction.id}`} color="outline-primary"/>
                                     &nbsp;&nbsp;&nbsp;
                                     <ButtonDelete color="outline-danger" handleOnClick={handleDeleteTransaction}/>
                                 </div>
-                                <ButtonDuplicate name="Duplicate Transaction" linkTo={`/receipt-journal/new-transaction?duplicate=true&transId=${transaction.id}`} color='outline-success' />
+                                <ButtonDuplicate name="Duplicate Transaction" linkTo={`/payment-journal/new-transaction?duplicate=true&transId=${transaction.id}`} color='outline-success' />
                             </div>
                         </div>
                     </section>
@@ -291,9 +291,9 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getPaymentJournalFromAPI: () => dispatch(getPaymentJournalFromAPI()),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
-    deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data))
+    deletePaymentJournalFromAPI: (data) => dispatch(deletePaymentJournalFromAPI(data))
 })
 
-export default connect(reduxState, reduxDispatch)(DetailReceiptJournal)
+export default connect(reduxState, reduxDispatch)(DetailPaymentJournal)
