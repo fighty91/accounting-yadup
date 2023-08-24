@@ -38,6 +38,9 @@ const TransactionsContact = (props) => {
             for(let e of props.transactions[x]) {
                 e.contactId === contactId && newTransactions.push(e)
             }
+            // props.transactions[x].forEach(e => 
+            //     e.contactId === contactId && newTransactions.push(e)
+            // )
         }
         newTransactions.sort((a, b) => 
             a.transNumber < b.transNumber ? 1 :

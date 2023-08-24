@@ -110,8 +110,8 @@ const Accounts = (props) => {
                                                             childAccounts.map(acc => {
                                                                 return (
                                                                     <tr key={acc.id}>
-                                                                        <td className="ps-2 pe-0 account-number"><Link to={`account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
-                                                                        <td className="ps-2"><Link to={`account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
+                                                                        <td className="ps-2 pe-0 me-0 account-number"><Link to={`account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
+                                                                        <td className="ps-2 ps-0 ms-0"><Link to={`account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
                                                                         <td className="text-start">{acc.categoryName}</td>
                                                                         <td className="text-center"> { acc.isActive === true ? 'active' : 'not active' } </td>
                                                                         {

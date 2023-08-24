@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import "./DetailJournalEntries.scss"
+import "./DetailReceiptJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 
-const DetailJournalEntries = (props) => {
+const DetailReceiptJournal = (props) => {
     const { transId } = useParams()
     const { getCurrency } = useGeneralFunc()
     const navigate = useNavigate()
@@ -17,11 +17,12 @@ const DetailJournalEntries = (props) => {
     const [accounts, setAccounts] = useState([])
     const [contact, setContact] = useState({ name: ''})
     const [transAccounts, setTransAccounts] = useState([])
+    const [receiptAccount, setReceiptAccount] = useState({})
     const [transaction, setTransaction] = useState({
         transNumber: "",
         date: '',
         memo: "",
-        transType: "Journal Entries",
+        transType: "Receipt Journal",
         transAccounts: []
     })
 
@@ -42,6 +43,15 @@ const DetailJournalEntries = (props) => {
             return newAccount 
         }
     }
+    const getReceiptAccount = (dataId) => {
+        let newAccount = {}
+        accounts.forEach(acc => {
+            if(acc.id === dataId) newAccount = acc
+        })
+        if(newAccount) {
+            return `${newAccount.accountName}` 
+        }
+    }
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -60,7 +70,7 @@ const DetailJournalEntries = (props) => {
     }
     
     const deleteTransaction = async() => {
-        const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
+        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             Swal.fire({
                 title: 'Success Delete!',
@@ -68,7 +78,7 @@ const DetailJournalEntries = (props) => {
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-            navigate('/journal-entries')
+            navigate('/receipt-journal')
         }
     }
 
@@ -101,7 +111,7 @@ const DetailJournalEntries = (props) => {
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getContactsFromAPI()
-        props.getEntriesFromAPI()
+        props.getReceiptJournalFromAPI()
         props.getUsersFromAPI()
     }, [])
 
@@ -110,29 +120,46 @@ const DetailJournalEntries = (props) => {
     }, [props.accounts])
     
     useEffect(() => {
-        let temp = {}
+        let tempTransaction = {}
+        let tempTransAccounts = []
+        let tempReceiptAccount = {}
+
         for(let x in props.transactions) {
-            if( x === 'journalEntries' ) {
-                props.transactions[x].forEach(e => {
-                    if(e.id === transId) temp = e
-                })
-            }
+            x === 'receiptJournal' &&
+            props.transactions[x].forEach(trans => {
+                if(trans.id === transId) {
+                    tempTransaction = trans
+                    for(let e of trans.transAccounts) {
+                        e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e)
+                    }
+                }
+            })
         }
-        setTransaction(temp)
-        setTransAccounts(temp.transAccounts)
-        getContact(temp.contactId)
+        
+        setTransaction(tempTransaction)
+        setTransAccounts(tempTransAccounts)
+        setReceiptAccount(tempReceiptAccount)
+        getContact(tempTransaction.contactId)
     }, [props.transactions])
-    
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
             {/* Entry Content */}
-            <div className="card pb-5 detail-journal-entries">
+            <div className="card pb-5 detail-receipt-journal">
                 <div className="card-body">
                     <section>
                         <div className="row">
                             <div className="d-sm-flex justify-content-between">
                                 <div>
+                                    <div className="d-flex mb-2">
+                                        <div className="label">Receive on</div>
+                                        <div>: &nbsp;</div>
+                                        {/* perbaiki link */}
+                                        <Link className="receiptAccount" to={`/accounts/account-detail/${receiptAccount.account}?page=transactions`}>
+                                            {getAccount(receiptAccount.account).accountName}
+                                        </Link>
+                                    </div>
+                                    {/* <hr className="mt-0 mb-2 d-none d-sm-block"/> */}
                                     <div className="d-flex mb-2">
                                         <div className="label">Date</div>
                                         <div>: &nbsp;</div>
@@ -176,8 +203,8 @@ const DetailJournalEntries = (props) => {
                             </div>
                         </div>
                         <hr />
-                        <div className="table-responsive-sm mb-4 mb-sm-5">
-                            <table className="table table-striped table-transaction-entries">
+                        <div className="table-responsive-md mb-4 mb-sm-5">
+                            <table className="table table-striped table-transaction-receipt-journal">
                                 <thead>
                                     <tr>
                                         <th scope="col" className="account" colSpan="2">Account</th>
@@ -194,12 +221,12 @@ const DetailJournalEntries = (props) => {
                                             return (
                                                 <tr key={i}>
                                                     <td className="account-number">
-                                                        <Link to={`/accounts/account-detail/${account.id}?page=transactions`} className="account-detail-journal-entries">
+                                                        <Link to={`/accounts/account-detail/${account.id}?page=transactions`}>
                                                             {account.number} 
                                                         </Link>
                                                     </td>
                                                     <td>
-                                                        <Link to={`/accounts/account-detail/${account.id}?page=transactions`} className="account-detail-journal-entries">
+                                                        <Link to={`/accounts/account-detail/${account.id}?page=transactions`}>
                                                             {account.accountName}
                                                         </Link>
                                                     </td>
@@ -233,7 +260,7 @@ const DetailJournalEntries = (props) => {
                             transaction.memo && 
                             <div className="row d-none d-sm-block">
                                 <div className="d-flex mb-5 fst-italic">
-                                    <div className="label">Memo</div>
+                                    <div className="label-memo">Memo</div>
                                     <div>: &nbsp;</div>
                                     <div className="memo">{transaction.memo}</div>
                                 </div>
@@ -249,11 +276,11 @@ const DetailJournalEntries = (props) => {
                         <div className="row">
                             <div className="d-flex justify-content-between">
                                 <div>
-                                    <ButtonLinkTo name="Edit" linkTo={`/journal-entries/edit-transaction/${transaction.id}`} color="outline-primary"/>
+                                    <ButtonLinkTo name="Edit" linkTo={`/receipt-journal/edit-transaction/${transaction.id}`} color="outline-primary"/>
                                     &nbsp;&nbsp;&nbsp;
                                     <ButtonDelete color="outline-danger" handleOnClick={handleDeleteTransaction}/>
                                 </div>
-                                <ButtonDuplicate name="Duplicate Transaction" linkTo={`/journal-entries/new-transaction?duplicate=true&transId=${transaction.id}`} color='outline-success' />
+                                <ButtonDuplicate name="Duplicate Transaction" linkTo={`/receipt-journal/new-transaction?duplicate=true&transId=${transaction.id}`} color='outline-success' />
                             </div>
                         </div>
                     </section>
@@ -272,9 +299,9 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
-    deleteJournalEntryFromAPI: (data) => dispatch(deleteJournalEntryFromAPI(data))
+    deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data))
 })
 
-export default connect(reduxState, reduxDispatch)(DetailJournalEntries)
+export default connect(reduxState, reduxDispatch)(DetailReceiptJournal)

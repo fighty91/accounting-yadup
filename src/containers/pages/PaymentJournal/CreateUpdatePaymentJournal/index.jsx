@@ -424,7 +424,7 @@ const CreateUpdatePaymentJournal = (props) => {
                 <div className="card-body">
                     <div className="row g-3 mb-4 d-flex justify-content-between">
                         <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
-                            <label htmlFor="payFrom" className="form-label mb-0">Pay From</label>
+                            <label htmlFor="payFrom" className="form-label mb-0">Pay from</label>
                             <select className={`form-select form-select-sm ${validation.paymentAccountNull && 'border-danger'}`} id="payFrom" name="account" value={paymentAccount.account} onChange={handleChangePaymentAccount}>
                                 <option value="">Choose...</option>
                                 { 

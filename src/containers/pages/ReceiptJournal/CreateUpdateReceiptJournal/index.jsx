@@ -269,7 +269,7 @@ const CreateUpdateReceiptJournal = (props) => {
         }
         const res = await props.postReceiptJournalToAPI(dataReadyToPost)
         if(res) {
-            // navigate(`/receipt-journal/transaction-detail/${res}`)
+            navigate(`/receipt-journal/transaction-detail/${res}`)
             Swal.fire({
                 title: 'Good job!',
                 text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
@@ -422,8 +422,8 @@ const CreateUpdateReceiptJournal = (props) => {
                 <div className="card-body">
                     <div className="row g-3 mb-4 d-flex justify-content-between">
                         <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
-                            <label htmlFor="receiptFrom" className="form-label mb-0">Receipt From</label>
-                            <select className={`form-select form-select-sm ${ validation.receiptAccountNull && 'border-danger'}`} id="receiptFrom" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
+                            <label htmlFor="receiveOn" className="form-label mb-0">Receive on</label>
+                            <select className={`form-select form-select-sm ${ validation.receiptAccountNull && 'border-danger'}`} id="receiveOn" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
                                 <option value="">Choose...</option>
                                 { 
                                     parentAccounts.map((parentAcc, i) =>

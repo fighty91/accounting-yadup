@@ -9,8 +9,9 @@ td {
             text-decoration: underline 1px;
         }
     }
-    .account-number {
-        width: 75px;
+    &.account-number {
+        min-width: 70px;
+        width: 73px;
     }
 }
 
