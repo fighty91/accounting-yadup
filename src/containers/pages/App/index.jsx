@@ -53,12 +53,14 @@ class App extends Component {
                     <Route path="/contacts/new-contact" Component={NewContact}/>
                     <Route path="/contacts/transactions/:contactId" Component={TransactionsContact}/>
 
-
+                    <Route path="/receipt-journal/edit-transaction/:transId" Component={CreateUpdateReceiptJournal}/>
                     <Route path="/receipt-journal/new-transaction" Component={CreateUpdateReceiptJournal}/>
                     <Route path="/receipt-journal/transaction-detail/:transId" Component={DetailReceiptJournal}/>
 
+                    <Route path="/payment-journal/edit-transaction/:transId" Component={CreateUpdatePaymentJournal}/>
                     <Route path="/payment-journal/new-transaction" Component={CreateUpdatePaymentJournal}/>
                     <Route path="/payment-journal/transaction-detail/:transId" Component={DetailPaymentJournal}/>
+
                     <Route path="/journal-entries/edit-transaction/:transId" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/new-transaction" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/transaction-detail/:transId" Component={DetailJournalEntries}/>

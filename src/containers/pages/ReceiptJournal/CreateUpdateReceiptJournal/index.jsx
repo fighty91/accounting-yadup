@@ -311,8 +311,8 @@ const CreateUpdateReceiptJournal = (props) => {
             }
 
             if(isUpdate) {
-        //         updateProps(newTransaction, {transNumber, id: transDb.id})
-        //         await putDataToAPI(newTransaction)
+                updateProps(newTransaction, {transNumber, id: transDb.id})
+                await putDataToAPI(newTransaction)
             } else {
                 await postDataToAPI(newTransaction)
             }
