@@ -38,6 +38,7 @@ const CreateUpdateReceiptJournal = (props) => {
     })
     const [transDb, setTransDb] = useState({})
     const [accountTransactions, setAccountTransactions] = useState([
+        { account: "", description: "", debit: 0, credit: "" },
         { account: "", description: "", debit: 0, credit: "" }
     ])
     const [receiptAccount, setReceiptAccount] = useState({ account: "", description: "", debit: 0, credit: 0 })
@@ -76,32 +77,24 @@ const CreateUpdateReceiptJournal = (props) => {
     }
 
     const getResetUpdate = async (newTransactions) => {
-        let newTransaction = {...transaction}
-        let newTransAccounts = [
-            { account: "", description: "", debit: 0, credit: "" },
-            { account: "", description: "", debit: 0, credit: "" }
-        ]
-        
-        if(transId) {
-            let dataTransaction = newTransactions.find(e => e.id === transId)
-            if(dataTransaction) {
-                const {memo, transAccounts, contactId, date, authors} = dataTransaction
-                newTransAccounts = transAccounts
-                updateProps(newTransaction, {contactId, memo, authors})
-    
-                if(duplicate) {
-                    setIsDuplicate(true)
-                } else {
-                    setTransDb(dataTransaction)
-                    setIsUpdate(true)
-                    setTransNumber(dataTransaction.transNumber)
-                    newTransaction.date = date
-                }
+        let dataTransaction = newTransactions.find(e => e.id === transId)
+        if(dataTransaction) {
+            const {memo, transAccounts, contactId, date, authors} = dataTransaction
+            let newTransAccounts = []
+            transAccounts.forEach(e => e.debit ? setReceiptAccount(e) : newTransAccounts.push(e))
+            let tempTransaction = {...transaction, contactId, memo, authors}
+
+            if(duplicate) {
+                setIsDuplicate(true)
+            } else {
+                setTransDb(dataTransaction)
+                setIsUpdate(true)
+                setTransNumber(dataTransaction.transNumber)
+                tempTransaction.date = date
             }
+            setTransaction(tempTransaction)
+            handleCurrency(newTransAccounts)
         }
-        setTransaction(newTransaction)
-        setAccountTransactions(newTransAccounts)
-        transId && handleCurrency(newTransAccounts)
     }
 
     const getResetFormIdentical = () => {
@@ -376,7 +369,7 @@ const CreateUpdateReceiptJournal = (props) => {
             }
         }
         setTransNumberList(newTransNumbers)
-        getResetUpdate(newTransactions)
+        transId && getResetUpdate(newTransactions)
     }, [props.transactions])
 
     useEffect(() => {
