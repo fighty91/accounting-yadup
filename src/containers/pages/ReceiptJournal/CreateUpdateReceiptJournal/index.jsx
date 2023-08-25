@@ -420,7 +420,7 @@ const CreateUpdateReceiptJournal = (props) => {
                 </div>
                 <div className="card-body">
                     <div className="row g-3 mb-4 d-flex justify-content-between">
-                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-3 mt-3">
                             <label htmlFor="receiveOn" className="form-label mb-0">Receive on</label>
                             <select className={`form-select form-select-sm ${ validation.receiptAccountNull && 'border-danger'}`} id="receiveOn" name="account" value={receiptAccount.account} onChange={handleChangeReceiptAccount}>
                                 <option value="">Choose...</option>
@@ -440,7 +440,7 @@ const CreateUpdateReceiptJournal = (props) => {
                             </select>
                             { validation.receiptAccountNull && <InputValidation name="account null"/> }
                         </div>
-                        <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
+                        <div className="col-sm-6 col-md-7 col-lg-9 col-xl-9 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
                                 <span className="mb-0 text-secondary">Amount</span> <span className="text-primary">
                                     { getCurrencyAbs(receiptAccount.debit) }
@@ -450,7 +450,7 @@ const CreateUpdateReceiptJournal = (props) => {
                     </div>
                     <hr />
                     <div className="row g-3 mb-4">
-                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-3">
                             <label htmlFor="contactId" className="form-label mb-0">Contact</label>
                             <select className="form-select form-select-sm" id="contactId" value={transaction.contactId} name="contactId" onChange={handleEntryTransaction}>
                                 <option value="">Choose...</option>
@@ -477,7 +477,7 @@ const CreateUpdateReceiptJournal = (props) => {
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
                         </div>
-                        <div className="col-sm-6 col-lg-5 col-xl-6">
+                        <div className="col-sm-6 col-md-8 col-lg-5 col-xl-5">
                             <label htmlFor="memo" className="form-label mb-0">Memo</label>
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>

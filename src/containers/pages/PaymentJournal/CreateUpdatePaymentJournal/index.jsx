@@ -38,6 +38,7 @@ const CreateUpdatePaymentJournal = (props) => {
     })
     const [transDb, setTransDb] = useState({})
     const [accountTransactions, setAccountTransactions] = useState([
+        { account: "", description: "", debit: "", credit: 0 },
         { account: "", description: "", debit: "", credit: 0 }
     ])
     const [paymentAccount, setPaymentAccount] = useState({ account: "", description: "", debit: 0, credit: 0 })
@@ -78,15 +79,21 @@ const CreateUpdatePaymentJournal = (props) => {
     const getResetUpdate = async (newTransactions) => {
         let newTransaction = {...transaction}
         let newTransAccounts = [
-            { account: "", description: "", debit: "", credit: 0 },
-            { account: "", description: "", debit: "", credit: 0 }
+            // { account: "", description: "", debit: "", credit: 0 },
+            // { account: "", description: "", debit: "", credit: 0 }
         ]
+        let newPaymentAccount = {}
         
         if(transId) {
             let dataTransaction = newTransactions.find(e => e.id === transId)
             if(dataTransaction) {
                 const {memo, transAccounts, contactId, date, authors} = dataTransaction
-                newTransAccounts = transAccounts
+                // newTransAccounts = transAccounts
+
+                for(let e of transAccounts) {
+                    e.debit ? newTransAccounts.push(e) : newPaymentAccount = e
+                }
+
                 updateProps(newTransaction, {contactId, memo, authors})
     
                 if(duplicate) {
@@ -98,10 +105,11 @@ const CreateUpdatePaymentJournal = (props) => {
                     newTransaction.date = date
                 }
             }
+            setTransaction(newTransaction)
+            setPaymentAccount(newPaymentAccount)
+            transId && handleCurrency(newTransAccounts)
         }
-        setTransaction(newTransaction)
-        setAccountTransactions(newTransAccounts)
-        transId && handleCurrency(newTransAccounts)
+        // setAccountTransactions(newTransAccounts)
     }
 
     const getResetFormIdentical = () => {
@@ -423,7 +431,7 @@ const CreateUpdatePaymentJournal = (props) => {
                 </div>
                 <div className="card-body">
                     <div className="row g-3 mb-4 d-flex justify-content-between">
-                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2 mt-3">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-3 mt-3">
                             <label htmlFor="payFrom" className="form-label mb-0">Pay from</label>
                             <select className={`form-select form-select-sm ${validation.paymentAccountNull && 'border-danger'}`} id="payFrom" name="account" value={paymentAccount.account} onChange={handleChangePaymentAccount}>
                                 <option value="">Choose...</option>
@@ -443,7 +451,7 @@ const CreateUpdatePaymentJournal = (props) => {
                             </select>
                             { validation.paymentAccountNull && <InputValidation name="account null"/> }
                         </div>
-                        <div className="col-sm-6 col-md-7 col-lg-9 col-xl-10 align-self-end mt-3">
+                        <div className="col-sm-6 col-md-7 col-lg-9 col-xl-9 align-self-end mt-3">
                             <div className="total-amount text-sm-end">
                                 <span className="mb-0 text-secondary">Amount</span> <span className="text-primary">
                                     { getCurrencyAbs(paymentAccount.credit) }
@@ -453,7 +461,7 @@ const CreateUpdatePaymentJournal = (props) => {
                     </div>
                     <hr />
                     <div className="row g-3 mb-4">
-                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-2">
+                        <div className="col-sm-6 col-md-5 col-lg-3 col-xl-3">
                             <label htmlFor="contactId" className="form-label mb-0">Contact</label>
                             <select className="form-select form-select-sm" id="contactId" value={transaction.contactId} name="contactId" onChange={handleEntryTransaction}>
                                 <option value="">Choose...</option>
@@ -480,7 +488,7 @@ const CreateUpdatePaymentJournal = (props) => {
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
                         </div>
-                        <div className="col-sm-6 col-lg-5 col-xl-6">
+                        <div className="col-sm-6 col-md-8 col-lg-5 col-xl-5">
                             <label htmlFor="memo" className="form-label mb-0">Memo</label>
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>
