@@ -31,6 +31,10 @@ const Sidebar = (props) => {
                 newSegment.entriesActive = true
                 document.title = 'Journal Entries'
                 break
+            case 'opening-balance':
+                newSegment.openingBalanceActive = true
+                document.title = 'Opening Balance'
+                break
             case 'reports':
                 newSegment.reportActive = true
                 document.title = 'Report'

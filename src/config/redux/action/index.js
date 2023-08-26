@@ -543,6 +543,61 @@ export const getEntriesFromAPI = () => (dispatch) => {
         });
     })
 }
+export const postOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        pushData(ref(database, `${corpName}/transactions/openingBalance`), openingBalance)
+        .then((dataCredential) => {
+            resolve(dataCredential.key)
+        })
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const putOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
+    const {id} = openingBalance
+    let newOpeningBalance = {...openingBalance}
+    delete newOpeningBalance.id
+    return new Promise((resolve, reject) => {
+        set(ref(database, `${corpName}/transactions/openingBalance/${id}`), newOpeningBalance)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const deleteOpeningBalanceFromAPI = (transId) => (dispatch) => {
+    return new Promise(resolve => {
+        remove(ref(database, `${corpName}/transactions/openingBalance/${transId}`))
+        .then(() => resolve(true))
+        .catch(err => console.log(err))
+    })
+}
+export const getOpeningBalanceFromAPI = () => (dispatch) => {
+    return new Promise( async (resolve) => {
+        const starCountRef = ref(database, `${corpName}/transactions/openingBalance`);
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let openingBalance = []
+            for( let x in temp) {
+                temp[x].id = x
+                openingBalance.push(temp[x])
+            }
+            openingBalance.sort((a, b) => 
+                a.transNumber < b.transNumber ? 1 :
+                a.transNumber > b.transNumber ? -1 : 0
+            )
+            openingBalance.sort((a, b) => 
+                a.date < b.date ? 1 :
+                a.date > b.date ? -1 : 0
+            )
+            dispatch({type: 'SET_OPENING_BALANCE', value: openingBalance})
+            resolve(openingBalance)
+        });
+    })
+}
 
 export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
     const {codeFor} = identicalCode

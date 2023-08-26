@@ -30,6 +30,7 @@ import ReceiptJournal from "../ReceiptJournal";
 import CreateUpdateReceiptJournal from "../ReceiptJournal/CreateUpdateReceiptJournal";
 import DetailReceiptJournal from "../ReceiptJournal/DetailReceiptJournal";
 import DetailPaymentJournal from "../PaymentJournal/DetailPaymentJournal";
+import OpeningBalance from "../OpeningBalance";
 
 class App extends Component {
     render() {
@@ -42,6 +43,7 @@ class App extends Component {
                     <Route path="/receipt-journal" Component={ReceiptJournal}/>
                     <Route path="/payment-journal" Component={PaymentJournal}/>
                     <Route path="/journal-entries" Component={JournalEntries}/>
+                    <Route path="/opening-balance" Component={OpeningBalance}/>
                     <Route path="/reports" Component={Reports}/>
 
                     <Route path="/accounts/account-detail/:accountId" Component={DetailAccount}/>
