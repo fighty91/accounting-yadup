@@ -5,7 +5,7 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 
 const ReceiptJournal = (props) => {
     const { getCurrency } = useGeneralFunc()
@@ -15,7 +15,7 @@ const ReceiptJournal = (props) => {
     const [contacts, setContacts] = useState()
 
     const getDataAPI = () => {
-        props.getReceiptJournalFromAPI()
+        props.getReceiptJournalsFromAPI()
         props.getContactsFromAPI()
         props.getAccountsFromAPI()
     }
@@ -107,7 +107,7 @@ const reduxState = (state) => ({
     accounts: state.accounts
 })
 const reduxDispatch = (dispatch) => ({
-    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
 })

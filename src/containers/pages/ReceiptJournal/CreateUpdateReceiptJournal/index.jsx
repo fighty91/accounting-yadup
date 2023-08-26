@@ -7,7 +7,7 @@ import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalC
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -76,8 +76,9 @@ const CreateUpdateReceiptJournal = (props) => {
         setParentAccounts(newParentAccounts)
     }
 
-    const getResetUpdate = async (newTransactions) => {
-        let dataTransaction = newTransactions.find(e => e.id === transId)
+    const getResetUpdate = async (dataTransaction) => {
+        // let dataTransaction = await props.getReceiptJournalFromAPI(transId)
+        // let dataTransaction = newTransactions.find(e => e.id === transId)
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
             let newTransAccounts = []
@@ -347,8 +348,8 @@ const CreateUpdateReceiptJournal = (props) => {
     }
 
     useEffect(() => {
+        transId && getReceiptJournal()
         props.getContactsFromAPI()
-        props.getReceiptJournalFromAPI()
         props.getAccountsFromAPI()
     }, [])
     
@@ -359,18 +360,20 @@ const CreateUpdateReceiptJournal = (props) => {
 
     useEffect(() => {
         let newTransNumbers = []
-        let newTransactions = []
-        for(let x in props.transactions) {
-            if( x === 'receiptJournal' ) {
-                props.transactions[x].forEach(e => {
-                    newTransNumbers.push(e.transNumber)
-                    newTransactions.push(e)
-                })
-            }
+        if(props.transactions.receiptJournal) {
+            props.transactions.receiptJournal.forEach(e => {
+                newTransNumbers.push(e.transNumber)
+            })
+        } else {
+            props.getReceiptJournalsFromAPI()
         }
         setTransNumberList(newTransNumbers)
-        transId && getResetUpdate(newTransactions)
     }, [props.transactions])
+
+    const getReceiptJournal = async () => {
+        let dataTransaction = await props.getReceiptJournalFromAPI(transId)
+        getResetUpdate(dataTransaction)
+    }
 
     useEffect(() => {
         getAccounts()
@@ -550,7 +553,8 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getReceiptJournalFromAPI: (data) => dispatch(getReceiptJournalFromAPI(data)),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postReceiptJournalToAPI: (data) => dispatch(postReceiptJournalToAPI(data)),
     putReceiptJournalToAPI: (data) => dispatch(putReceiptJournalToAPI(data))

@@ -77,13 +77,13 @@ const OpeningBalance = (props) => {
                     </div>
                     <div className="card pb-4">
                         <div className="card-body">
-                            <div className="table-responsive-sm scrollarea">
+                            <div className="table-responsive-sm">
                                 <table className="table table-striped table-sm table-transaction">
                                     <thead>
                                         <tr>
-                                            <th scope="col" colSpan={2}>Account</th>
+                                            <th scope="col" className="ps-2" colSpan={2}>Account</th>
                                             <th scope="col" className="text-end">Debit</th>
-                                            <th scope="col" className="text-end">Credit</th>
+                                            <th scope="col" className="text-end pe-2">Credit</th>
                                         </tr>
                                     </thead>
                                     <tbody className="table-group-divider">
@@ -94,8 +94,8 @@ const OpeningBalance = (props) => {
                                                 return (
                                                     <Fragment key={id}>
                                                         <tr>
-                                                            <td className="fw-bold ps-0 pe-0 account-number"><Link to={`account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td>
-                                                            <td className="fw-bold ps-0"><Link to={`account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
+                                                            {/* <td className="fw-bold ps-0 pe-0 account-number"><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td> */}
+                                                            <td className="fw-bold ps-2" colSpan={2}><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
                                                             <td className="text-end fw-bold pe-2"></td>
                                                             <td className="text-end fw-bold pe-2"></td>
                                                         </tr>
@@ -105,9 +105,9 @@ const OpeningBalance = (props) => {
                                                                 amount > 0 ? totalDebit += amount : totalCredit += amount
                                                                 return (
                                                                     <tr key={acc.id}>
-                                                                        <td className="ps-2 pe-0 account-number"><Link to={`account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
-                                                                        <td className="ps-2"><Link to={`account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
-                                                                        <td className="text-end pe-1">
+                                                                        <td className="ps-2 pe-0 account-number"><Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
+                                                                        <td className="ps-2"><Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
+                                                                        <td className="text-end">
                                                                             { getCurrencyAbs(amount > 0 ? amount : 0) }
                                                                         </td>
                                                                         <td className="text-end pe-2">
@@ -121,9 +121,9 @@ const OpeningBalance = (props) => {
                                                 )
                                             })
                                         }
-                                        <tr>
-                                            <td className="ps-2 pe-0 account-number" colSpan={2}>Total Amount</td>
-                                            <td className="text-end pe-1">
+                                        <tr className="fw-bold">
+                                            <td className="ps-2 pe-2" colSpan={2}>Total Amount</td>
+                                            <td className="text-end">
                                                 { getCurrencyAbs(totalDebit) }
                                             </td>
                                             <td className="text-end pe-2">

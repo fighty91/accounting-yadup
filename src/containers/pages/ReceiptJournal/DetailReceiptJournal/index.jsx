@@ -4,7 +4,7 @@ import "./DetailReceiptJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -15,7 +15,7 @@ const DetailReceiptJournal = (props) => {
     const navigate = useNavigate()
 
     const [accounts, setAccounts] = useState([])
-    const [contact, setContact] = useState({ name: ''})
+    const [contact, setContact] = useState({name: ''})
     const [transAccounts, setTransAccounts] = useState([])
     const [receiptAccount, setReceiptAccount] = useState({})
     const [transaction, setTransaction] = useState({
@@ -27,21 +27,23 @@ const DetailReceiptJournal = (props) => {
     })
 
     const getContact = async (contactId) => {
-        let newContact = {}
-        props.contacts.forEach(e => {
-            if(e.id === contactId) newContact = e
-        })
+        let newContact ={name: ''}
+        if(props.contacts.length > 0) {
+            props.contacts.forEach(e => {
+                e.id === contactId && (newContact = e)
+            })
+        } else {
+            newContact = await props.getContactFromAPI(contactId)
+        }
         setContact(newContact)
     }
 
     const getAccount = (dataId) => {
         let newAccount = {}
-        accounts.forEach(acc => {
-            if(acc.id === dataId) newAccount = acc
-        })
-        if(newAccount) {
-            return newAccount 
-        }
+        accounts.forEach(acc =>
+            acc.id === dataId && (newAccount = acc)
+        )
+        if(newAccount) return newAccount 
     }
 
     const handleDeleteTransaction = () => {
@@ -100,9 +102,8 @@ const DetailReceiptJournal = (props) => {
     }
 
     useEffect(() => {
+        getReceiptJournal()
         props.getAccountsFromAPI()
-        props.getContactsFromAPI()
-        props.getReceiptJournalFromAPI()
         props.getUsersFromAPI()
     }, [])
 
@@ -110,28 +111,24 @@ const DetailReceiptJournal = (props) => {
         setAccounts(props.accounts)
     }, [props.accounts])
     
-    useEffect(() => {
-        let tempTransaction = {}
-        let tempTransAccounts = []
-        let tempReceiptAccount = {}
+    const getReceiptJournal = async () => {
+        let tempTrans
+        const propsJournals = props.transactions.receiptJournal
+        propsJournals ?
+        propsJournals.forEach(trans => trans.id === transId && (tempTrans = trans)) :
+        tempTrans = await props.getReceiptJournalFromAPI(transId)
 
-        for(let x in props.transactions) {
-            x === 'receiptJournal' &&
-            props.transactions[x].forEach(trans => {
-                if(trans.id === transId) {
-                    tempTransaction = trans
-                    for(let e of trans.transAccounts) {
-                        e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e)
-                    }
-                }
-            })
+        let tempReceiptAccount, tempTransAccounts = []
+        for(let e of tempTrans.transAccounts) {
+            e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e)
         }
-        
-        setTransaction(tempTransaction)
+                
+        setTransaction(tempTrans)
         setTransAccounts(tempTransAccounts)
         setReceiptAccount(tempReceiptAccount)
-        getContact(tempTransaction.contactId)
-    }, [props.transactions])
+        getContact(tempTrans.contactId)
+    }
+
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
@@ -160,6 +157,7 @@ const DetailReceiptJournal = (props) => {
                                         <div>: &nbsp;</div>
                                         <Link className="contact" to={`/contacts/detail/${contact.id}`}>
                                             {contact.name}
+                                            {/* {getContact(transaction.contactId)} */}
                                         </Link>
                                     </div>
                                 </div>
@@ -290,8 +288,8 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getReceiptJournalFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
+    getReceiptJournalFromAPI: (data) => dispatch(getReceiptJournalFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data))
 })

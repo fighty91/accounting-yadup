@@ -31,6 +31,7 @@ import CreateUpdateReceiptJournal from "../ReceiptJournal/CreateUpdateReceiptJou
 import DetailReceiptJournal from "../ReceiptJournal/DetailReceiptJournal";
 import DetailPaymentJournal from "../PaymentJournal/DetailPaymentJournal";
 import OpeningBalance from "../OpeningBalance";
+import CreateUpdateOpeningBalance from "../OpeningBalance/CreateUpdateOpeningBalance";
 
 class App extends Component {
     render() {
@@ -66,6 +67,8 @@ class App extends Component {
                     <Route path="/journal-entries/edit-transaction/:transId" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/new-transaction" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/transaction-detail/:transId" Component={DetailJournalEntries}/>
+
+                    <Route path="/opening-balance/create-opening-balance" Component={CreateUpdateOpeningBalance}/>
                     
                     <Route path="/reports/balance-sheet" Component={BalanceSheet}/>
 

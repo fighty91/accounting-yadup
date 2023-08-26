@@ -1,0 +1,27 @@
+.create-update-opening-balance {
+    .trans-number-setting {
+        position: relative;
+        margin-left: 5px;
+        color: rgba(118, 118, 118, 0.961);
+        &:hover {
+            cursor: pointer;
+            color: black !important;
+        }
+    }
+    .trans-account {
+        .number-account {
+            min-width: 72px;
+            max-width: 76px;
+        }
+        .column-account {
+            min-width: 265px;
+        }
+        .column-debit, .column-credit {
+            min-width: 125px;
+        }
+    }
+
+    .header-row {
+        border-bottom: 1px;
+    }
+}

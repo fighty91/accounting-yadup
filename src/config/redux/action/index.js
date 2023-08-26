@@ -344,6 +344,24 @@ export const putContactToAPI = (contact) => (dispatch) => {
         })
     })
 }
+export const getContactFromAPI = (id) => () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/contacts/${id}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const tempReceipt = {...snapshot.val(), id}
+                resolve(tempReceipt)
+            } else {
+                resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
 export const getContactsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
         const starCountRef = ref(database, `${corpName}/contacts`);
@@ -374,7 +392,7 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
 export const getTransactionsFromAPI = () => async (dispatch) => {
     await getEntriesFromAPI()(dispatch)
     await getPaymentJournalFromAPI()(dispatch)
-    await getReceiptJournalFromAPI()(dispatch)
+    await getReceiptJournalsFromAPI()(dispatch)
 }
 
 export const postReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
@@ -409,7 +427,25 @@ export const deleteReceiptJournalFromAPI = (transId) => (dispatch) => {
         .catch(err => console.log(err))
     })
 }
-export const getReceiptJournalFromAPI = () => (dispatch) => {
+export const getReceiptJournalFromAPI = (id) => () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/transactions/receiptJournal/${id}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const tempReceipt = {...snapshot.val(), id}
+                resolve(tempReceipt)
+            } else {
+                resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
+export const getReceiptJournalsFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/receiptJournal`);
         onValue(starCountRef, (snapshot) => {
