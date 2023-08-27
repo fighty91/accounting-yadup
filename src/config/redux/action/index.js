@@ -391,7 +391,7 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
 
 export const getTransactionsFromAPI = () => async (dispatch) => {
     await getEntriesFromAPI()(dispatch)
-    await getPaymentJournalFromAPI()(dispatch)
+    await getPaymentJournalsFromAPI()(dispatch)
     await getReceiptJournalsFromAPI()(dispatch)
 }
 
@@ -500,7 +500,25 @@ export const deletePaymentJournalFromAPI = (transId) => (dispatch) => {
         .catch(err => console.log(err))
     })
 }
-export const getPaymentJournalFromAPI = () => (dispatch) => {
+export const getPaymentJournalFromAPI = (id) => () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/transactions/paymentJournal/${id}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const tempPayment = {...snapshot.val(), id}
+                resolve(tempPayment)
+            } else {
+                // resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
+export const getPaymentJournalsFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/paymentJournal`);
         onValue(starCountRef, (snapshot) => {

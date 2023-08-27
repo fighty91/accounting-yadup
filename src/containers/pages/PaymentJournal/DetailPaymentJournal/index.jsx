@@ -4,7 +4,7 @@ import "./DetailPaymentJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getPaymentJournalsFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -102,7 +102,7 @@ const DetailPaymentJournal = (props) => {
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getContactsFromAPI()
-        props.getPaymentJournalFromAPI()
+        props.getPaymentJournalsFromAPI()
         props.getUsersFromAPI()
     }, [])
 
@@ -291,7 +291,7 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getPaymentJournalFromAPI: () => dispatch(getPaymentJournalFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deletePaymentJournalFromAPI: (data) => dispatch(deletePaymentJournalFromAPI(data))
 })

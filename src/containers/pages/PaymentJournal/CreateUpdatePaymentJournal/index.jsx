@@ -7,7 +7,7 @@ import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalC
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, postPaymentJournalToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, getPaymentJournalsFromAPI, postPaymentJournalToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -76,8 +76,7 @@ const CreateUpdatePaymentJournal = (props) => {
         setParentAccounts(newParentAccounts)
     }
 
-    const getResetUpdate = async (newTransactions) => {
-        let dataTransaction = newTransactions.find(e => e.id === transId)
+    const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
             let newTransAccounts = []
@@ -350,8 +349,9 @@ const CreateUpdatePaymentJournal = (props) => {
     }
 
     useEffect(() => {
+        transId && getPaymentJournal()
         props.getContactsFromAPI()
-        props.getPaymentJournalFromAPI()
+        props.getPaymentJournalsFromAPI()
         props.getAccountsFromAPI()
     }, [])
     
@@ -362,18 +362,20 @@ const CreateUpdatePaymentJournal = (props) => {
 
     useEffect(() => {
         let newTransNumbers = []
-        let newTransactions = []
-        for(let x in props.transactions) {
-            if( x === 'paymentJournal' ) {
-                props.transactions[x].forEach(e => {
-                    newTransNumbers.push(e.transNumber)
-                    newTransactions.push(e)
-                })
-            }
+        if(props.transactions.paymentJournal) {
+            props.transactions.paymentJournal.forEach(e =>
+                newTransNumbers.push(e.transNumber)
+            )
+        } else {
+            props.getPaymentJournalsFromAPI()
         }
         setTransNumberList(newTransNumbers)
-        transId && getResetUpdate(newTransactions)
     }, [props.transactions])
+
+    const getPaymentJournal = async () => {
+        let dataTransaction = await props.getPaymentJournalFromAPI(transId)
+        getResetUpdate(dataTransaction)
+    }
 
     useEffect(() => {
         getAccounts()
@@ -553,7 +555,8 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getPaymentJournalFromAPI: () => dispatch(getPaymentJournalFromAPI()),
+    getPaymentJournalFromAPI: (data) => dispatch(getPaymentJournalFromAPI(data)),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postPaymentJournalToAPI: (data) => dispatch(postPaymentJournalToAPI(data)),
     putPaymentJournalToAPI: (data) => dispatch(putPaymentJournalToAPI(data))
