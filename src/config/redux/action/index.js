@@ -574,6 +574,24 @@ export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
         .catch(err => console.log(err))
     })
 }
+export const getJournalEntryFromAPI = (id) => () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/transactions/journalEntries/${id}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const tempEntries = {...snapshot.val(), id}
+                resolve(tempEntries)
+            } else {
+                // resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
 export const getEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);

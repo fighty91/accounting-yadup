@@ -351,7 +351,7 @@ const CreateUpdatePaymentJournal = (props) => {
     useEffect(() => {
         transId && getPaymentJournal()
         props.getContactsFromAPI()
-        props.getPaymentJournalsFromAPI()
+        // props.getPaymentJournalsFromAPI()
         props.getAccountsFromAPI()
     }, [])
     

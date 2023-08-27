@@ -8,7 +8,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getJournalEntryFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -74,30 +74,29 @@ const CreateUpdateEntries = (props) => {
         setParentAccounts(newParentAccounts)
     }
 
-    const getResetUpdate = async (newTransactions) => {
-        let newTransaction = {...transaction}
-        let newTransAccounts = [{ account: "", description: "", debit: "", credit: "" }, { account: "", description: "", debit: "", credit: "" }]
-        
-        if(transId) {
-            let dataTransaction = newTransactions.find(e => e.id === transId)
-            if(dataTransaction) {
-                const {memo, transAccounts, contactId, date, authors} = dataTransaction
-                newTransAccounts = transAccounts
-                updateProps(newTransaction, {contactId, memo, authors})
-    
-                if(duplicate) {
-                    setIsDuplicate(true)
-                } else {
-                    setTransDb(dataTransaction)
-                    setIsUpdate(true)
-                    setTransNumber(dataTransaction.transNumber)
-                    newTransaction.date = date
-                }
+    const getResetUpdate = async (dataTransaction) => {
+        if(dataTransaction) {
+            const {memo, transAccounts, contactId, date, authors} = dataTransaction
+            let newTransAccounts = []
+            transAccounts.forEach(e => newTransAccounts.push(e))
+            let tempTransaction = {...transaction, contactId, memo, authors}
+
+            if(duplicate) {
+                setIsDuplicate(true)
+            } else {
+                setTransDb(dataTransaction)
+                setIsUpdate(true)
+                setTransNumber(dataTransaction.transNumber)
+                tempTransaction.date = date
             }
+            setTransaction(tempTransaction)
+            handleCurrency(newTransAccounts)
         }
-        setTransaction(newTransaction)
-        setAccountTransactions(newTransAccounts)
-        transId && handleCurrency(newTransAccounts)
+    }
+
+    const getJournalEntry = async() => {
+        let dataTransaction = await props.getJournalEntryFromAPI(transId)
+        getResetUpdate(dataTransaction)
     }
 
     const getResetFormIdentical = () => {
@@ -334,8 +333,8 @@ const CreateUpdateEntries = (props) => {
     }
 
     useEffect(() => {
+        transId && getJournalEntry()
         props.getContactsFromAPI()
-        props.getEntriesFromAPI()
         props.getAccountsFromAPI()
     }, [])
     
@@ -346,17 +345,14 @@ const CreateUpdateEntries = (props) => {
 
     useEffect(() => {
         let newTransNumbers = []
-        let newTransactions = []
-        for(let x in props.transactions) {
-            if( x === 'journalEntries' ) {
-                props.transactions[x].forEach(e => {
-                    newTransNumbers.push(e.transNumber)
-                    newTransactions.push(e)
-                })
-            }
+        if(props.transactions.journalEntries) {
+            props.transactions.journalEntries.forEach(e =>
+                newTransNumbers.push(e.transNumber)
+            )
+        } else {
+            props.getEntriesFromAPI()
         }
         setTransNumberList(newTransNumbers)
-        getResetUpdate(newTransactions)
     }, [props.transactions])
 
     useEffect(() => {
@@ -479,6 +475,7 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
+    getJournalEntryFromAPI: (data) => dispatch(getJournalEntryFromAPI(data)),
     getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data)),
