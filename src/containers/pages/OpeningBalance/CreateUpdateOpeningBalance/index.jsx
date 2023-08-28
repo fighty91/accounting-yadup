@@ -17,15 +17,16 @@ const CreateUpdateOpeningBalance = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
-    let {transId} = useParams()
-    transId = transId ? transId : searchParams.get('transId')
+    // let {transId} = useParams()
+    // transId = transId ? transId : searchParams.get('transId')
 
     const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
-    const [accounts, setAccounts] = useState([])
+    // const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
+
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         memo: '',
@@ -33,29 +34,29 @@ const CreateUpdateOpeningBalance = (props) => {
     })
     const [transDb, setTransDb] = useState({})
     const [accountTransactions, setAccountTransactions] = useState([
-        { account: "", debit: "", credit: "" }, { account: "", debit: "", credit: "" }
+        { account: "", debit: "", credit: "", parentId: "", number: '', accountName: '' }
     ])
     
-    const getResetUpdate = async (newTransactions) => {
-        let newTransaction = {...transaction}
-        let newTransAccounts = [{ account: "", debit: "", credit: "" }, { account: "", debit: "", credit: "" }]
+    // const getResetUpdate = async (newTransactions) => {
+    //     let newTransaction = {...transaction}
+    //     let newTransAccounts = [{ account: "", debit: "", credit: "" }, { account: "", debit: "", credit: "" }]
         
-        if(transId) {
-            let dataTransaction = newTransactions.find(e => e.id === transId)
-            if(dataTransaction) {
-                const {memo, transAccounts, date, authors} = dataTransaction
-                newTransAccounts = transAccounts
-                updateProps(newTransaction, {memo, authors})
+    //     if(transId) {
+    //         let dataTransaction = newTransactions.find(e => e.id === transId)
+    //         if(dataTransaction) {
+    //             const {memo, transAccounts, date, authors} = dataTransaction
+    //             newTransAccounts = transAccounts
+    //             updateProps(newTransaction, {memo, authors})
                     
-                setTransDb(dataTransaction)
-                setIsUpdate(true)
-                newTransaction.date = date
-            }
-        }
-        setTransaction(newTransaction)
-        setAccountTransactions(newTransAccounts)
-        transId && handleCurrency(newTransAccounts)
-    }
+    //             setTransDb(dataTransaction)
+    //             setIsUpdate(true)
+    //             newTransaction.date = date
+    //         }
+    //     }
+    //     setTransaction(newTransaction)
+    //     setAccountTransactions(newTransAccounts)
+    //     transId && handleCurrency(newTransAccounts)
+    // }
 
     const handleEntryTransaction = (data) => {
         const {name, value} = data.target
@@ -66,43 +67,60 @@ const CreateUpdateOpeningBalance = (props) => {
         setTransaction(newTransaction)
     }
 
-    const handleAddRow = () => {
-        let newAccountTransactions = [...accountTransactions]
-        const accountTransaction = { account: "", debit: "", credit: "" }
-        newAccountTransactions.push(accountTransaction)
-        setAccountTransactions(newAccountTransactions)
-    }
+    // const handleAddRow = () => {
+    //     let newAccountTransactions = [...accountTransactions]
+    //     const accountTransaction = { account: "", debit: "", credit: "" }
+    //     newAccountTransactions.push(accountTransaction)
+    //     setAccountTransactions(newAccountTransactions)
+    // }
 
-    const handleDeleteRow = (rowIndex) => {
-        let newAccountTransactions = [...accountTransactions]
-        if(accountTransactions.length > 2) {
-            newAccountTransactions.splice(rowIndex, 1)
-            setAccountTransactions(newAccountTransactions)
-        }
-    }
+    // const handleDeleteRow = (rowIndex) => {
+    //     let newAccountTransactions = [...accountTransactions]
+    //     if(accountTransactions.length > 2) {
+    //         newAccountTransactions.splice(rowIndex, 1)
+    //         setAccountTransactions(newAccountTransactions)
+    //     }
+    // }
 
-    const handleEntryAccount = (data) => {
+    const handleChangeDebitCredit = (data) => {
         let newAccountTransactions = [...accountTransactions]
         let {name, value, id} = data.target
         let idNumb = +id.slice(3)
-        name === 'debit' || name === 'credit' ?
-            newAccountTransactions[idNumb][name] = +value :
-            newAccountTransactions[idNumb][name] = value
+        newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
+    }
+
+    const handleFocusInputNumb = (event) => {
+        let {name, id, value} = event.target
+        let target = {name, id, value}
+        value !== '' && (target.value = getNormalNumb(value))
+        handleChangeDebitCredit({target})
+    }
+    const handleEntryInputNumb = (event) => {
+        let {name, id, value} = event.target
+        if(value > -1) {
+            let target = {name, id, value: +value}
+            handleChangeDebitCredit({target})
+        }
+    } 
+    const handleBlurInputNumb = (event) => {
+        // event.target.setAttribute('type', 'text')
+        let {name, id, value} = event.target
+        let target = {name, id, value}
+        value !== '' && (target.value = getCurrency(value))
+        handleChangeDebitCredit({target})
     }
 
     // untuk submit
     const handleNormalNumb = () => {
         let newAccountTransactions = [...accountTransactions]
-        newAccountTransactions.forEach((acc, i) => {
-            const {debit, credit} = acc
-            acc.debit = getNormalNumb(debit)
-            acc.credit = getNormalNumb(credit)
+        newAccountTransactions.forEach(acc => {
+            acc.debit = getNormalNumb(acc.debit)
+            acc.credit = getNormalNumb(acc.credit)
         })
         setAccountTransactions(newAccountTransactions)
         return newAccountTransactions
     }
-
     const handleCurrency = (newAccountTransactions) => {
         newAccountTransactions.forEach((acc, i) => {
             const {debit, credit} = acc
@@ -115,26 +133,28 @@ const CreateUpdateOpeningBalance = (props) => {
     const countValidation = async () => {
         let totalDebit = 0, totalCredit = 0, transCount = 0
         let accountProblem = false
-        let rowValidation = {nominalNull: [], nominalDouble: [], accountNull: []}
-        let newAccountTransactions = await handleNormalNumb()
+        let nominalDouble = []
+        // let rowValidation = {nominalDouble: []}
+        let newAccountTransactions = handleNormalNumb()
         newAccountTransactions.forEach(trans => {
-            let tempCount = {nominalNull: 0, nominalDouble: 0, accountNull: 0}
-            const {account, debit, credit} = trans
-            if(account) {
+            let nominalDouble = 0
+            const {debit, credit} = trans
+            if(debit > 0 || credit > 0) {
                 transCount++
-                if(debit === 0 && credit === 0) { tempCount.nominalNull++; accountProblem = true }
-                else if (debit !== 0 && credit !== 0) { tempCount.nominalDouble++; accountProblem = true }
-                else { totalDebit += debit; totalCredit += credit }
-            } else {
-                if(debit !== 0 || credit !== 0) { tempCount.accountNull++; accountProblem = true }
+                totalDebit += debit; totalCredit += credit
             }
-            for( let x in rowValidation ) { rowValidation[x].push(tempCount[x] > 0 ? true : false) }
+            if(debit !== 0 && credit !== 0) {
+                nominalDouble++
+                accountProblem = true
+            }
+            nominalDouble.push(nominalDouble > 0 ? true : false)
+            // for( let x in rowValidation ) { rowValidation[x].push(tempCount[x] > 0 ? true : false) }
         })
-        return {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions}
+        return {totalDebit, totalCredit, transCount, accountProblem, nominalDouble, newAccountTransactions}
     }
 
     const getAccountValidation = async () => {
-        let {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions} = await countValidation()
+        let {totalDebit, totalCredit, transCount, accountProblem, nominalDouble, newAccountTransactions} = await countValidation()
         let newValidation = {...validation}
 
         if (!accountProblem) {
@@ -164,60 +184,61 @@ const CreateUpdateOpeningBalance = (props) => {
                 })
             }
         } 
-        if(isUpdate) {
-            accountProblem = true
-            newValidation.numberNull = true
-        }
+        // if(isUpdate) {
+        //     accountProblem = true
+        //     newValidation.numberNull = true
+        // }
 
-        accountProblem && await handleCurrency(newAccountTransactions)
+        accountProblem && handleCurrency(newAccountTransactions)
 
-        for( let x in rowValidation ) { newValidation[x] = rowValidation[x] }
+        newValidation.nominalDouble = nominalDouble
+        // for( let x in rowValidation ) { newValidation.nominalDouble = nominalDouble }
         setValidation(newValidation)
         return {accountProblem, newAccountTransactions}
     }
 
-    const postDataToAPI = async (newTransaction) => {
-        let authors = [{
-            createdBy: props.user.uid2,
-            createdAt: Date.now(),
-        }]
-        let dataReadyToPost = {
-            ...newTransaction,
-            authors,
-        }
-        const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
-        if(res) {
-            navigate('/opening-balance')
-            Swal.fire({
-                title: 'Good job!',
-                text: `${dataReadyToPost.transType} created`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-        }
-    }
+    // const postDataToAPI = async (newTransaction) => {
+    //     let authors = [{
+    //         createdBy: props.user.uid2,
+    //         createdAt: Date.now(),
+    //     }]
+    //     let dataReadyToPost = {
+    //         ...newTransaction,
+    //         authors,
+    //     }
+    //     const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
+    //     if(res) {
+    //         navigate('/opening-balance')
+    //         Swal.fire({
+    //             title: 'Good job!',
+    //             text: `${dataReadyToPost.transType} created`,
+    //             icon: 'success',
+    //             confirmButtonColor: '#198754'
+    //         })
+    //     }
+    // }
     
-    const putDataToAPI = async (newTransaction) => {
-        let dataReadyToUpdate = {...newTransaction}
-        dataReadyToUpdate.authors.push({
-            updatedBy: props.user.uid2,
-            updatedAt: Date.now()
-        })
-        const res = await props.putOpeningBalanceToAPI(dataReadyToUpdate)
-        if(res) {
-            navigate('/opening-balance')
-            Swal.fire({
-                title: 'Nice!',
-                text: `${newTransaction.transType} updated`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-        }
-    }
+    // const putDataToAPI = async (newTransaction) => {
+    //     let dataReadyToUpdate = {...newTransaction}
+    //     dataReadyToUpdate.authors.push({
+    //         updatedBy: props.user.uid2,
+    //         updatedAt: Date.now()
+    //     })
+    //     const res = await props.putOpeningBalanceToAPI(dataReadyToUpdate)
+    //     if(res) {
+    //         navigate('/opening-balance')
+    //         Swal.fire({
+    //             title: 'Nice!',
+    //             text: `${newTransaction.transType} updated`,
+    //             icon: 'success',
+    //             confirmButtonColor: '#198754'
+    //         })
+    //     }
+    // }
 
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
-        if(!accountProblem) {
+        // if(!accountProblem) {
             let newTransaction = {
                 ...transaction,
                 transAccounts: newAccountTransactions.filter(e => e.account)
@@ -227,52 +248,55 @@ const CreateUpdateOpeningBalance = (props) => {
             }
             if(isUpdate) {
                 updateProps(newTransaction, {id: transDb.id})
-                await putDataToAPI(newTransaction)
+                // await putDataToAPI(newTransaction)
             } else {
-                await postDataToAPI(newTransaction)
+                // await postDataToAPI(newTransaction)
             }
-        }
+        // }
     }
 
-    useEffect(() => {
-        props.getOpeningBalanceFromAPI()
-        props.getAccountsFromAPI()
-    }, [])
+    // useEffect(() => {
+    //     props.getOpeningBalanceFromAPI()
+    //     props.getAccountsFromAPI()
+    // }, [])
 
     useEffect(() => {
-        let newTransactions = []
-        for(let x in props.transactions) {
-            if( x === 'openingBalance' ) {
-                props.transactions[x].forEach(e => {
-                    newTransactions.push(e)
-                })
-            }
-        }
-        getResetUpdate(newTransactions)
+        // let newTransactions = []
+        // for(let x in props.transactions) {
+        //     if( x === 'openingBalance' ) {
+        //         props.transactions[x].forEach(e => {
+        //             newTransactions.push(e)
+        //         })
+        //     }
+        // }
+        // getResetUpdate(newTransactions)
     }, [props.transactions])
 
     useEffect(() => {
-        let newAccounts = []
-        let newParentAccounts = []
-        props.accounts.forEach(e => {
-            if(e.categoryId < 9) {
-                if(e.isParent) {
-                    newParentAccounts.push(e)
-                } else {
-                    e.isActive && newAccounts.push(e)
+        getAccount()
+    }, [])
+
+    const getAccount = async() => {
+        let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
+        let temp = props.accounts.length > 0 ? props.accounts : await props.getAccountsFromAPI()
+        temp.forEach(e => {
+            const {categoryId, isActive, isParent, id, parentId, number, accountName} = e
+            if(categoryId < 9 && isActive) {
+                if(isParent) newParentAccounts.push(e)
+                else {
+                    newAccounts.push(e)
+                    newAccountTransactions.push({account: id, debit: '', credit: '', parentId, number, accountName})
                 }
             }
         })
-        newParentAccounts.forEach((e, i) => {
-            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
-            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
-        })
-        setAccounts(newAccounts)
+        newParentAccounts.forEach((parent, i) => 
+            !newAccounts.find(acc => parent.id === acc.parentId) && newParentAccounts.splice(i,1)
+        )
+        setAccountTransactions(newAccountTransactions)
         setParentAccounts(newParentAccounts)
-    }, [props.accounts])
+    }
     
-    const {nominalNull, nominalDouble, accountNull} = validation
-
+    // const {nominalDouble} = validation
     return (
         <LayoutsMainContent>
             <ContentHeader name={isUpdate ? 'Edit Transaction' : 'Create Transaction'}/>
@@ -299,56 +323,49 @@ const CreateUpdateOpeningBalance = (props) => {
                                     <th className="text-start column-account" colSpan={2}>Opening Account</th>
                                     <th className="text-end pe-3 column-debit">Debit</th>
                                     <th className="text-end pe-3 column-credit">Credit</th>
-                                    {/* <th>
-                                        <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
-                                    </th> */}
                                 </tr>
                             </thead>
                             <tbody>
                                 {
                                     parentAccounts.map((parent) => 
-                                        <Fragment>
-                                            <tr className="fw-bold" key={parent.id}>
+                                        <Fragment key={parent.id}>
+                                            <tr className="fw-bold" >
                                                 <td className="ps-2 pe-0 number-account">
                                                     {parent.number}
                                                 </td>
                                                 <td colSpan={3}>{parent.accountName}</td>
                                             </tr>
                                             {
-                                                accounts.map((account, i) =>
+                                                accountTransactions.map((account, i) =>
                                                     account.parentId === parent.id &&
-                                                        <tr key={i}>
-                                                            <td className="ps-2 pe-0 number-account">
-                                                                {account.number}
-                                                            </td>
-                                                            <td >
-                                                                {account.accountName}
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="debit" 
-                                                                id={'db-'+i} min={0} className={`form-control form-control-sm text-end debit account-value`}  autoComplete="off" />
-                                                                {/* {nominalDouble && <InputValidation name="nominal double" /> } */}
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="credit" id={'cr-'+i} min={0} className={`form-control form-control-sm credit text-end account-value`} autoComplete="off" />
-                                                                {/* {nominalDouble && <InputValidation name="nominal double" /> } */}
-                                                            </td>
-                                                        </tr>
-                                                    // )
+                                                    <tr key={i}>
+                                                        <td className="ps-2 pe-0 number-account">{account.number}</td>
+                                                        <td>{account.accountName}</td>
+                                                        <td>
+                                                            <input type="text" name="debit" 
+                                                            id={'db-'+i} min={0} className={`form-control form-control-sm text-end debit account-value`}  autoComplete="off" value={account.debit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb}/>
+                                                            {/* {nominalDouble && <InputValidation name="nominal double" /> } */}
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="credit" 
+                                                            id={'cr-'+i} min={0} className={`form-control form-control-sm credit text-end account-value`} autoComplete="off" value={accountTransactions[i].credit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb}/>
+                                                            {/* {nominalDouble && <InputValidation name="nominal double" /> } */}
+                                                        </td>
+                                                    </tr>
                                                 )
                                             }
                                         </Fragment>
                                     )
                                 }
-                                {/* {
-                                    accountTransactions.map((trans, row)=> {
-                                        // const {account, debit, credit} = trans
-                                        const formValidation = [ nominalNull[row], nominalDouble[row], accountNull[row] ]
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
-                                        const data = { row, accounts, formValidation, parentAccounts, accountTransactions }
-                                        return <RowFormOpeningBalance key={row} rowFormFunc={rowFormFunc} data={data}/>
-                                    })
-                                } */}
+                                <tr>
+                                    <td className="ps-2 pe-0 number-account fw-bold" colSpan={2}>Total Amount Opening Balance</td>
+                                    <td className="fw-bold text-end">
+                                        Total Debit
+                                    </td>
+                                    <td className="fw-bold text-end">
+                                        Total Credit
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

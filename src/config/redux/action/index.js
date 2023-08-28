@@ -571,7 +571,7 @@ export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         remove(ref(database, `${corpName}/transactions/journalEntries/${transId}`))
         .then(() => resolve(true))
-        .catch(err => console.log(err))
+        .catch(err => console.log('error',err))
     })
 }
 export const getJournalEntryFromAPI = (id) => () => {

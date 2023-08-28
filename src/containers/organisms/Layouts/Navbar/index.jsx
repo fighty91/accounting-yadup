@@ -8,6 +8,16 @@ import { getCorpNameShow } from "../../MyFunctions/useGeneralFunc"
 const Layouts = (props) => {
     const [user, setUser] = useState({})
     const [userAccess, setUserAccess] = useState([])
+    let [online, isOnline] = useState(navigator.onLine)
+
+    const setOnline = () => {
+        console.log('You are online!');
+        isOnline(true);
+    }
+    const setOffline = () => {
+        console.log('You are offline!');
+        isOnline(false);
+    }
     
     const getAccessName = (accessId) => {
         let temp = ''
@@ -21,6 +31,8 @@ const Layouts = (props) => {
 
     useEffect(() => {
         props.getUserAccessFromAPI()
+        window.addEventListener('offline', setOffline);
+        window.addEventListener('online', setOnline);
     }, [])
 
 
@@ -140,7 +152,7 @@ const Layouts = (props) => {
                         {user && user.name}
                     </h6>
                     <p className="my-0 fw-light user-access-level" >
-                        { user && getAccessName(user.userAccessId) }
+                        { online ? (user && getAccessName(user.userAccessId)) : 'Offline' }
                     </p>
                 </div>
                 <ul className="navbar-nav flex-row d-md-none">
