@@ -657,14 +657,6 @@ export const getOpeningBalanceFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 openingBalance.push(temp[x])
             }
-            openingBalance.sort((a, b) => 
-                a.transNumber < b.transNumber ? 1 :
-                a.transNumber > b.transNumber ? -1 : 0
-            )
-            openingBalance.sort((a, b) => 
-                a.date < b.date ? 1 :
-                a.date > b.date ? -1 : 0
-            )
             dispatch({type: 'SET_OPENING_BALANCE', value: openingBalance})
             resolve(openingBalance)
         });

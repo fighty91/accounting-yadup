@@ -79,6 +79,15 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 transactions: entriesTransactions
             }
+        case 'SET_OPENING_BALANCE' :
+            let openingBalanceTransactions = {
+                ...state.transactions,
+                openingBalance: value
+            }
+            return {
+                ...state,
+                transactions: openingBalanceTransactions
+            }
         case 'SET_IDENTICAL_CODE' :
             return {
                 ...state,

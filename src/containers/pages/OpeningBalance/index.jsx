@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getCategoriesFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getCategoriesFromAPI, getOpeningBalanceFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
 import './OpeningBalance.scss'
 
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
@@ -19,7 +19,7 @@ const OpeningBalance = (props) => {
     const getDataAPI = () => {
         props.getAccountsFromAPI()
         props.getCategoriesFromAPI()
-        props.getTransactionsFromAPI()
+        // props.getTransactionsFromAPI()
     }
 
     const setAccountsFromProps = () => {
@@ -59,10 +59,13 @@ const OpeningBalance = (props) => {
     
     useEffect(() => {
         let temp = []
-        for(let x in props.transactions) {
-            props.transactions[x].forEach(e => temp.push(e))
+        if(props.transactions.openingBalance) {
+            props.transactions.openingBalance.forEach(e => temp.push(e))
+        } else {
+            props.getOpeningBalanceFromAPI()
         }
         setTransactions(temp)
+        console.log(temp)
     }, [props.transactions])
 
     let totalDebit = 0, totalCredit = 0
@@ -94,8 +97,8 @@ const OpeningBalance = (props) => {
                                                 return (
                                                     <Fragment key={id}>
                                                         <tr>
-                                                            {/* <td className="fw-bold ps-0 pe-0 account-number"><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td> */}
-                                                            <td className="fw-bold ps-2" colSpan={2}><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
+                                                            <td className="fw-bold ps-2 pe-0 account-number"><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td>
+                                                            <td className="fw-bold ps-2"><Link to={`/accounts/account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
                                                             <td className="text-end fw-bold pe-2"></td>
                                                             <td className="text-end fw-bold pe-2"></td>
                                                         </tr>
@@ -122,11 +125,11 @@ const OpeningBalance = (props) => {
                                             })
                                         }
                                         <tr className="fw-bold">
-                                            <td className="ps-2 pe-2" colSpan={2}>Total Amount</td>
-                                            <td className="text-end">
+                                            <td className="ps-2 pe-2 text-secondary" colSpan={2}>Total Amount</td>
+                                            <td className="text-end text-primary">
                                                 { getCurrencyAbs(totalDebit) }
                                             </td>
-                                            <td className="text-end pe-2">
+                                            <td className="text-end pe-2 text-primary">
                                                 { getCurrencyAbs(totalCredit) }
                                             </td>
                                         </tr>
@@ -150,7 +153,7 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI())
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(OpeningBalance)
