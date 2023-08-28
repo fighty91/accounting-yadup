@@ -30,7 +30,7 @@ const Layouts = (props) => {
     }
 
     useEffect(() => {
-        props.getUserAccessFromAPI()
+        props.userAccess.length < 1 && props.getUserAccessFromAPI()
         window.addEventListener('offline', setOffline);
         window.addEventListener('online', setOnline);
     }, [])
