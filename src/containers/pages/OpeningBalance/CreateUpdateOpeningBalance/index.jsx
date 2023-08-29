@@ -105,7 +105,6 @@ const CreateUpdateOpeningBalance = (props) => {
         }
     } 
     const handleBlurInputNumb = (event) => {
-        // event.target.setAttribute('type', 'text')
         let {name, id, value} = event.target
         let target = {name, id, value}
         value !== '' && (target.value = getCurrency(value))
@@ -242,12 +241,14 @@ const CreateUpdateOpeningBalance = (props) => {
     //         })
     //     }
     // }
-
+    
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
         if(!accountProblem) {
             let transAccounts = []
-            newAccountTransactions.forEach(e => transAccounts.push(e))
+            newAccountTransactions.forEach(e => {
+                if(e.debit || e.credit) transAccounts.push(e)
+            })
             transAccounts.forEach(e => deleteProps(e, ['parentId', 'number', 'accountName']))
             let newTransaction = {
                 ...transaction,
@@ -265,6 +266,13 @@ const CreateUpdateOpeningBalance = (props) => {
         }
     }
 
+    const handleEnterKey = async (event) => {
+        if(event.key === "Enter") {
+            await event.target.blur()
+            await handleSubmit()
+        }
+    }
+    
     // useEffect(() => {
     //     props.getOpeningBalanceFromAPI()
     //     props.getAccountsFromAPI()
@@ -286,10 +294,7 @@ const CreateUpdateOpeningBalance = (props) => {
         getAccount()
     }, [])
 
-    const test = (event) => {
-        // console.log(event)
-        // event.target.blur()
-    }
+    
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
@@ -311,7 +316,6 @@ const CreateUpdateOpeningBalance = (props) => {
         setParentAccounts(newParentAccounts)
     }
     
-    // const {nominalDouble} = validation
     return (
         <LayoutsMainContent>
             <ContentHeader name={isUpdate ? 'Edit Transaction' : 'Create Transaction'}/>
@@ -358,13 +362,12 @@ const CreateUpdateOpeningBalance = (props) => {
                                                         <td>{account.accountName}</td>
                                                         <td>
                                                             <input type="text" name="debit" 
-                                                            id={'db-'+i} min={0} className={`form-control form-control-sm text-end debit account-value ${validation.nominalDouble[i] && 'border-danger'}`}  autoComplete="off" value={account.debit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb}/>
+                                                            id={'db-'+i} min={0} className={`form-control form-control-sm text-end debit account-value ${validation.nominalDouble[i] && 'border-danger'}`}  autoComplete="off" value={account.debit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleEnterKey} />
                                                             {validation.nominalDouble[i] && <InputValidation name="nominal double"/> }
                                                         </td>
                                                         <td>
                                                             <input type="text" name="credit" 
-                                                            id={'cr-'+i} min={0} className={`form-control form-control-sm credit text-end account-value ${validation.nominalDouble[i] && 'border-danger'}`} autoComplete="off" value={accountTransactions[i].credit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb} onKeyUp={test}/>
-                                                            {/* {nominalDouble && <InputValidation name="nominal double" /> } */}
+                                                            id={'cr-'+i} min={0} className={`form-control form-control-sm credit text-end account-value ${validation.nominalDouble[i] && 'border-danger'}`} autoComplete="off" value={accountTransactions[i].credit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleEnterKey} />
                                                         </td>
                                                     </tr>
                                                 )

@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getCategoriesFromAPI, getOpeningBalanceFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { deleteOpeningBalanceFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getOpeningBalanceFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
 import './OpeningBalance.scss'
 
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import Swal from "sweetalert2";
 
 const OpeningBalance = (props) => {
     const [accounts, setAccounts] = useState([])
@@ -17,9 +18,28 @@ const OpeningBalance = (props) => {
 
     const { getCurrencyAbs } = useGeneralFunc()
     
-    const getDataAPI = () => {
-        props.getAccountsFromAPI()
-        props.getCategoriesFromAPI()
+    const handleDelete = () => {
+        console.log(openingBalance.id)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Would you clear opening balance?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, do it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const successClear = props.deleteOpeningBalanceFromAPI(openingBalance.id)
+                successClear &&
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Opening balance has emptied',
+                    icon: 'success',
+                    confirmButtonColor: '#198754'
+                })
+            }
+        })
     }
 
     const setAccountsFromProps = () => {
@@ -33,11 +53,6 @@ const OpeningBalance = (props) => {
         let childAccounts = accounts.filter(e => e.parentId === accountId)
         childAccounts.forEach(acc => {
             let amount = 0
-            // transactions.forEach((trans, i) => {
-            //     trans.transAccounts.forEach(e => {
-            //         if(e.account === acc.id) amount = amount + e.debit - e.credit
-            //     })
-            // })
             openingBalance && openingBalance.transAccounts.forEach(e => {
                 if(e.account === acc.id) amount = amount + e.debit - e.credit
             })
@@ -49,7 +64,8 @@ const OpeningBalance = (props) => {
     }
 
     useEffect(() => {
-        getDataAPI()
+        props.getAccountsFromAPI()
+        props.getCategoriesFromAPI()
     }, [])
     
     useEffect(() => {
@@ -62,8 +78,7 @@ const OpeningBalance = (props) => {
     
     useEffect(() => {
         let temp
-        props.transactions.openingBalance ?
-        temp = props.transactions.openingBalance[0] : props.getOpeningBalanceFromAPI()
+        props.transactions.openingBalance ? temp = props.transactions.openingBalance[0] : props.getOpeningBalanceFromAPI()
         setOpeningBalance(temp)
     }, [props.transactions])
 
@@ -84,7 +99,7 @@ const OpeningBalance = (props) => {
                                 <ul className="dropdown-menu dropdown-menu-dark">
                                     <li><Link className="dropdown-item" to="#">Update Opening Balance</Link></li>
                                     <li><hr className="dropdown-divider"/></li>
-                                    <li><Link className="dropdown-item" to="#">Clear Opening Balance</Link></li>
+                                    <li><button className="dropdown-item" onClick={handleDelete}>Clear Opening Balance</button></li>
                                 </ul>
                             </div>
                             :
@@ -152,7 +167,7 @@ const OpeningBalance = (props) => {
                                     </table>
                                 </div>
                                 :
-                                <p>There are no transactions on the opening balance...</p>
+                                <p>There are no transactions...</p>
                             }
                         </div>
 
@@ -171,7 +186,8 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
-    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI())
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    deleteOpeningBalanceFromAPI: (data) => dispatch(deleteOpeningBalanceFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(OpeningBalance)
