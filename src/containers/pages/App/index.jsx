@@ -69,6 +69,7 @@ class App extends Component {
                     <Route path="/journal-entries/transaction-detail/:transId" Component={DetailJournalEntries}/>
 
                     <Route path="/opening-balance/create-opening-balance" Component={CreateUpdateOpeningBalance}/>
+                    <Route path="/opening-balance/update-opening-balance" Component={CreateUpdateOpeningBalance}/>
                     
                     <Route path="/reports/balance-sheet" Component={BalanceSheet}/>
 

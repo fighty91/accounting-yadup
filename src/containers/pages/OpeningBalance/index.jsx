@@ -96,7 +96,7 @@ const OpeningBalance = (props) => {
                                     Action
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-dark">
-                                    <li><Link className="dropdown-item" to="#">Update Opening Balance</Link></li>
+                                    <li><Link className="dropdown-item" to="update-opening-balance?isUpdate=true">Update Opening Balance</Link></li>
                                     <li><hr className="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={handleDelete}>Clear Opening Balance</button></li>
                                 </ul>
