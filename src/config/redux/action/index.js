@@ -390,7 +390,7 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
 }
 
 export const getTransactionsFromAPI = () => async (dispatch) => {
-    await getEntriesFromAPI()(dispatch)
+    await getJournalEntriesFromAPI()(dispatch)
     await getPaymentJournalsFromAPI()(dispatch)
     await getReceiptJournalsFromAPI()(dispatch)
 }
@@ -592,7 +592,7 @@ export const getJournalEntryFromAPI = (id) => () => {
         });
     })
 }
-export const getEntriesFromAPI = () => (dispatch) => {
+export const getJournalEntriesFromAPI = () => (dispatch) => {
     return new Promise( async (resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);
         onValue(starCountRef, (snapshot) => {

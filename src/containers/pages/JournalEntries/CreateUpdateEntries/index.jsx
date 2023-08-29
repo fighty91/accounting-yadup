@@ -8,7 +8,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getJournalEntryFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getJournalEntryFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -350,7 +350,7 @@ const CreateUpdateEntries = (props) => {
                 newTransNumbers.push(e.transNumber)
             )
         } else {
-            props.getEntriesFromAPI()
+            props.getJournalEntriesFromAPI()
         }
         setTransNumberList(newTransNumbers)
     }, [props.transactions])
@@ -476,7 +476,7 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getJournalEntryFromAPI: (data) => dispatch(getJournalEntryFromAPI(data)),
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data)),
     putJournalEntryToAPI: (data) => dispatch(putJournalEntryToAPI(data))

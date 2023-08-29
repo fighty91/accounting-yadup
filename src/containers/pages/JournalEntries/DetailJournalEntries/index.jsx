@@ -4,7 +4,7 @@ import "./DetailJournalEntries.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactsFromAPI, getEntriesFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -101,7 +101,7 @@ const DetailJournalEntries = (props) => {
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getContactsFromAPI()
-        props.getEntriesFromAPI()
+        props.getJournalEntriesFromAPI()
         props.getUsersFromAPI()
     }, [])
 
@@ -272,7 +272,7 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getEntriesFromAPI: () => dispatch(getEntriesFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deleteJournalEntryFromAPI: (data) => dispatch(deleteJournalEntryFromAPI(data))
 })

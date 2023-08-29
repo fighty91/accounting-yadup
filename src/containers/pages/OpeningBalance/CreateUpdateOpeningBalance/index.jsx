@@ -7,7 +7,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import RowFormOpeningBalance from "../../../../components/molecules/RowFormOpeningBalance";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getOpeningBalanceFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
@@ -27,6 +27,7 @@ const CreateUpdateOpeningBalance = (props) => {
     // const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
 
+    const [minTransDate, setMinTransDate] = useState('')
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         memo: '',
@@ -182,7 +183,8 @@ const CreateUpdateOpeningBalance = (props) => {
                         icon: 'warning',
                         confirmButtonColor: '#fd7e14'
                     })
-            } else if (totalDebit !== totalCredit) {
+            }
+            else if (totalDebit !== totalCredit) {
                 accountProblem = true
                 Swal.fire({
                     title: 'Pending!',
@@ -190,7 +192,18 @@ const CreateUpdateOpeningBalance = (props) => {
                     icon: 'warning',
                     confirmButtonColor: '#fd7e14'
                 })
-            } else if(!isUpdate) {
+            } 
+            else if(transaction.date > minTransDate) {
+                accountProblem = true
+                newValidation.dateMustSmall = true
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Date must be smaller than the other transaction date!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+            else if(!isUpdate) {
                 const transCheck = await props.getOpeningBalanceFromAPI()
                 if(transCheck.length > 0) {
                     accountProblem = true
@@ -202,7 +215,7 @@ const CreateUpdateOpeningBalance = (props) => {
                     })
                     navigate('/opening-balance')
                 }
-            }
+            } 
         }
         // if(isUpdate) {
         //     accountProblem = true
@@ -304,10 +317,30 @@ const CreateUpdateOpeningBalance = (props) => {
     }, [props.transactions])
 
     useEffect(() => {
-        getAccount()
-    }, [])
+        // let tempTransactions = []
+        let tempDate = []
+        props.transactions.journalEntries ?
+        props.transactions.journalEntries.forEach(e => tempDate.push(e.date)) :
+        props.getJournalEntriesFromAPI()
 
-    
+        props.transactions.paymentJournal ?
+        props.transactions.paymentJournal.forEach(e => tempDate.push(e.date)) :
+        props.getPaymentJournalsFromAPI()
+
+        props.transactions.receiptJournal ?
+        props.transactions.receiptJournal.forEach(e => tempDate.push(e.date)) :
+        props.getReceiptJournalsFromAPI()
+
+        tempDate.sort((a, b) => 
+            a < b ? -1 :
+            a > b ? 1 : 0
+        )
+        tempDate.length > 0 && setMinTransDate(tempDate[0])
+    }, [props.transactions])
+
+    useEffect(() => {
+        getAccount()
+    }, [props.accounts])
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
@@ -341,7 +374,8 @@ const CreateUpdateOpeningBalance = (props) => {
                     <div className="row g-3 mb-4">
                         <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                             <label htmlFor="date" className="form-label mb-0">Date</label>
-                            <input type="date" className="form-control form-control-sm" id="date" name="date" onChange={handleEntryTransaction} value={transaction.date} />
+                            <input type="date" className={`form-control form-control-sm ${validation.dateMustSmall && 'border-danger'}`} id="date" name="date" onChange={handleEntryTransaction} value={transaction.date} />
+                            {validation.dateMustSmall && <InputValidation name="date must be smaller than the other transaction date"/> }
                         </div>
                         <div className="col-sm-6 col-md-8 col-lg-6 col-xl-5">
                             <label htmlFor="memo" className="form-label mb-0">Memo</label>
@@ -416,6 +450,9 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postOpeningBalanceToAPI: (data) => dispatch(postOpeningBalanceToAPI(data)),
     putOpeningBalanceToAPI: (data) => dispatch(putOpeningBalanceToAPI(data))
