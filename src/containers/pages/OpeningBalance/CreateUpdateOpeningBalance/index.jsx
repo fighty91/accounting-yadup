@@ -30,6 +30,7 @@ const CreateUpdateOpeningBalance = (props) => {
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         memo: '',
+        transNumber: '10001',
         transType: "Opening Balance"
     })
     const [transDb, setTransDb] = useState({})
@@ -224,16 +225,16 @@ const CreateUpdateOpeningBalance = (props) => {
             ...newTransaction,
             authors,
         }
-        // const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
-        // if(res) {
-        //     navigate('/opening-balance')
-        //     Swal.fire({
-        //         title: 'Good job!',
-        //         text: `${dataReadyToPost.transType} created`,
-        //         icon: 'success',
-        //         confirmButtonColor: '#198754'
-        //     })
-        // }
+        const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
+        if(res) {
+            navigate('/opening-balance')
+            Swal.fire({
+                title: 'Good job!',
+                text: `${dataReadyToPost.transType} created`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+        }
     }
     
     // const putDataToAPI = async (newTransaction) => {

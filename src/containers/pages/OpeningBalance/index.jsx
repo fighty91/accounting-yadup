@@ -19,7 +19,6 @@ const OpeningBalance = (props) => {
     const { getCurrencyAbs } = useGeneralFunc()
     
     const handleDelete = () => {
-        console.log(openingBalance.id)
         Swal.fire({
             title: 'Are you sure?',
             text: 'Would you clear opening balance?',
