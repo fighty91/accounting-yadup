@@ -189,8 +189,20 @@ const CreateUpdateOpeningBalance = (props) => {
                     icon: 'warning',
                     confirmButtonColor: '#fd7e14'
                 })
+            } else if(!isUpdate) {
+                const transCheck = await props.getOpeningBalanceFromAPI()
+                if(transCheck.length > 0) {
+                    accountProblem = true
+                    Swal.fire({
+                        title: "Can't be Processed!",
+                        text: 'Opening balance already exist!!',
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545'
+                    })
+                    navigate('/opening-balance')
+                }
             }
-        } 
+        }
         // if(isUpdate) {
         //     accountProblem = true
         //     newValidation.numberNull = true
@@ -212,16 +224,16 @@ const CreateUpdateOpeningBalance = (props) => {
             ...newTransaction,
             authors,
         }
-        const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
-        if(res) {
-            navigate('/opening-balance')
-            Swal.fire({
-                title: 'Good job!',
-                text: `${dataReadyToPost.transType} created`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-        }
+        // const res = await props.postOpeningBalanceToAPI(dataReadyToPost)
+        // if(res) {
+        //     navigate('/opening-balance')
+        //     Swal.fire({
+        //         title: 'Good job!',
+        //         text: `${dataReadyToPost.transType} created`,
+        //         icon: 'success',
+        //         confirmButtonColor: '#198754'
+        //     })
+        // }
     }
     
     // const putDataToAPI = async (newTransaction) => {
