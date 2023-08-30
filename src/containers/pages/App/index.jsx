@@ -19,7 +19,7 @@ import NewContact from "../Contacts/NewContact";
 import TransactionsContact from "../Contacts/TransactionsContact";
 import CreateUpdateEntries from "../JournalEntries/CreateUpdateEntries";
 import DetailJournalEntries from "../JournalEntries/DetailJournalEntries";
-import BalanceSheet from "../Reports/BalanceSheet/BalanceSheet";
+import BalanceSheet from "../Reports/BalanceSheet";
 import Dashboard from "../Dashboard";
 import Login from "../Login";
 import Logout from "../Logout";
