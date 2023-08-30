@@ -65,28 +65,27 @@ const OpeningBalance = (props) => {
         let temp = openingBalance && openingBalance.date.split('-').reverse().join('-')
         return temp
     }
-
-    useEffect(() => {
-        props.getAccountsFromAPI()
-        props.getCategoriesFromAPI()
-    }, [])
     
     useEffect(() => {
-        setAccountsFromProps()
+        props.accounts.length > 0 ?
+        setAccountsFromProps() : props.getAccountsFromAPI()
     }, [props.accounts])
 
     useEffect(() => {
-        setCategories(props.categories)
+        let temp = props.categories
+        temp.length > 0 ? setCategories(temp) : props.getCategoriesFromAPI()
     }, [props.categories])
     
     useEffect(() => {
         let temp
-        props.transactions.openingBalance ? temp = props.transactions.openingBalance[0] : props.getOpeningBalanceFromAPI()
-        setOpeningBalance(temp)
+        if(props.transactions.openingBalance) {
+            temp = props.transactions.openingBalance[0]
+            setOpeningBalance(temp)
+        }
+        else props.getOpeningBalanceFromAPI()
     }, [props.transactions])
 
     let totalDebit = 0, totalCredit = 0
-
     return (
         <Fragment>
             <LayoutsMainContent>
