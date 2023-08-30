@@ -5,7 +5,6 @@ import './CreateUpdateOpeningBalance.scss'
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
-import RowFormOpeningBalance from "../../../../components/molecules/RowFormOpeningBalance";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
@@ -17,50 +16,23 @@ const CreateUpdateOpeningBalance = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
-    // let {transId} = useParams()
-    // transId = transId ? transId : searchParams.get('transId')
     let isUpdate = JSON.parse(searchParams.get('isUpdate'))
 
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps, deleteProps } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
-    // const [isUpdate, setIsUpdate] = useState(false)
-    // const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
-
     const [minTransDate, setMinTransDate] = useState('')
+    const [totalAmount, setTotalAmount] = useState({totalDebit: 0, totalCredit: 0})
+    const [accountTransactions, setAccountTransactions] = useState([
+        { account: "", debit: "", credit: "", parentId: "", number: '', accountName: '' }
+    ])
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         memo: '',
         transNumber: '10001',
         transType: "Opening Balance"
     })
-    const [transDb, setTransDb] = useState({})
-    const [totalAmount, setTotalAmount] = useState({totalDebit: 0, totalCredit: 0})
-    const [accountTransactions, setAccountTransactions] = useState([
-        { account: "", debit: "", credit: "", parentId: "", number: '', accountName: '' }
-    ])
-    
-    // const getResetUpdate = async (newTransactions) => {
-    //     let newTransaction = {...transaction}
-    //     let newTransAccounts = [{ account: "", debit: "", credit: "" }, { account: "", debit: "", credit: "" }]
-        
-    //     if(isUpdate) {
-    //         let dataTransaction = newTransactions.find(e => e.id === isUpdate)
-    //         if(dataTransaction) {
-    //             const {memo, transAccounts, date, authors} = dataTransaction
-    //             newTransAccounts = transAccounts
-    //             updateProps(newTransaction, {memo, authors})
-                    
-    //             setTransDb(dataTransaction)
-    //             setIsUpdate(true)
-    //             newTransaction.date = date
-    //         }
-    //     }
-    //     setTransaction(newTransaction)
-    //     setAccountTransactions(newTransAccounts)
-    //     isUpdate && handleCurrency(newTransAccounts)
-    // }
 
     const handleEntryTransaction = (data) => {
         const {name, value} = data.target
@@ -70,21 +42,6 @@ const CreateUpdateOpeningBalance = (props) => {
         }
         setTransaction(newTransaction)
     }
-
-    // const handleAddRow = () => {
-    //     let newAccountTransactions = [...accountTransactions]
-    //     const accountTransaction = { account: "", debit: "", credit: "" }
-    //     newAccountTransactions.push(accountTransaction)
-    //     setAccountTransactions(newAccountTransactions)
-    // }
-
-    // const handleDeleteRow = (rowIndex) => {
-    //     let newAccountTransactions = [...accountTransactions]
-    //     if(accountTransactions.length > 2) {
-    //         newAccountTransactions.splice(rowIndex, 1)
-    //         setAccountTransactions(newAccountTransactions)
-    //     }
-    // }
 
     const handleChangeDebitCredit = (data) => {
         let newAccountTransactions = [...accountTransactions]
@@ -112,11 +69,11 @@ const CreateUpdateOpeningBalance = (props) => {
         let target = {name, id, value}
         value !== '' && (target.value = getCurrency(value))
         handleChangeDebitCredit({target})
-        getTotalAmount()
+        getTotalAmount(accountTransactions)
     }
-    const getTotalAmount = () => {
+    const getTotalAmount = (data) => {
         let totalDebit = 0, totalCredit = 0
-        accountTransactions.forEach(e => {
+        data.forEach(e => {
             totalDebit += getNormalNumb(e.debit)
             totalCredit += getNormalNumb(e.credit)
         })
@@ -166,7 +123,6 @@ const CreateUpdateOpeningBalance = (props) => {
     const getAccountValidation = async () => {
         let {totalDebit, totalCredit, transCount, accountProblem, nominalDouble, newAccountTransactions} = await countValidation()
         let newValidation = {...validation}
-
         if (!accountProblem) {
             if (transCount < 2) {
                 accountProblem = true
@@ -218,9 +174,7 @@ const CreateUpdateOpeningBalance = (props) => {
                 }
             } 
         }
-
         accountProblem && handleCurrency(newAccountTransactions)
-
         newValidation.nominalDouble = nominalDouble
         setValidation(newValidation)
         return {accountProblem, newAccountTransactions}
@@ -297,11 +251,9 @@ const CreateUpdateOpeningBalance = (props) => {
     }
 
     const getOpeningBalance = async(data) => {
-        let temp
-        props.transactions.openingBalance ?
-        temp = props.transactions.openingBalance :
-        temp = await props.getOpeningBalanceFromAPI()
-
+        let temp = props.transactions.openingBalance
+        if(!temp) temp = await props.getOpeningBalanceFromAPI()
+        
         if(temp.length > 0) {
             let newTransAccounts = data
             const {id, date, memo, authors, transAccounts} = temp[0]
@@ -316,32 +268,15 @@ const CreateUpdateOpeningBalance = (props) => {
                     e.credit = getCurrency(res.credit)
                 }
             })
-            setAccountTransactions(newTransAccounts)
             setTransaction(newTransaction)
+            setAccountTransactions(newTransAccounts)
+            getTotalAmount(newTransAccounts)
         } else {
             navigate('/opening-balance')
         }
     }
-    
-    useEffect(() => {
-        // props.getOpeningBalanceFromAPI()
-        // props.getAccountsFromAPI()
-    }, [])
 
     useEffect(() => {
-        // let newTransactions = []
-        // for(let x in props.transactions) {
-        //     if( x === 'openingBalance' ) {
-        //         props.transactions[x].forEach(e => {
-        //             newTransactions.push(e)
-        //         })
-        //     }
-        // }
-        // getResetUpdate(newTransactions)
-    }, [props.transactions])
-
-    useEffect(() => {
-        // let tempTransactions = []
         let tempDate = []
         props.transactions.journalEntries ?
         props.transactions.journalEntries.forEach(e => tempDate.push(e.date)) :
@@ -383,11 +318,7 @@ const CreateUpdateOpeningBalance = (props) => {
             !newAccounts.find(acc => parent.id === acc.parentId) && newParentAccounts.splice(i,1)
         )
         setParentAccounts(newParentAccounts)
-        if(isUpdate) {
-            getOpeningBalance(newAccountTransactions)
-        } else {
-            setAccountTransactions(newAccountTransactions)
-        }
+        isUpdate ? getOpeningBalance(newAccountTransactions) : setAccountTransactions(newAccountTransactions)
     }
     
     return (
