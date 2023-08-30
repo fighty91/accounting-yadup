@@ -13,7 +13,7 @@ const OpeningBalance = (props) => {
     const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
     const [categories, setCategories] = useState([])
-    const [openingBalance, setOpeningBalance] = useState({})
+    const [openingBalance, setOpeningBalance] = useState()
 
     const { getCurrencyAbs } = useGeneralFunc()
     
@@ -61,6 +61,11 @@ const OpeningBalance = (props) => {
         return { childAccounts }
     }
 
+    const getDate = () => {
+        let temp = openingBalance && openingBalance.date.split('-').reverse().join('-')
+        return temp
+    }
+
     useEffect(() => {
         props.getAccountsFromAPI()
         props.getCategoriesFromAPI()
@@ -104,7 +109,9 @@ const OpeningBalance = (props) => {
                             <Link to="create-opening-balance" className="btn btn-secondary btn-sm">Create Opening Balance</Link>
                         }
                     </div>
-                    <p className="my-0 opening-balance-date">Transaction Date: 28/08/2023</p>
+                    {
+                        openingBalance && <p className="my-0 opening-balance-date">Transaction Date: {getDate()}</p>
+                    }
                     <div className="card pb-4">
                         <div className="card-body pt-2">
                             {

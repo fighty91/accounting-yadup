@@ -382,7 +382,7 @@ const CreateUpdateOpeningBalance = (props) => {
                                     )
                                 }
                                 <tr style={{fontSize : '18px'}}>
-                                    <td className="ps-2 pe-0 number-account fw-bold text-secondary" colSpan={2}>Total Amount Opening Balance</td>
+                                    <td className="ps-2 pe-0 number-account fw-bold text-secondary" colSpan={2}>Total Amount</td>
                                     <td className="fw-bold text-end text-primary">
                                         {getCurrencyAbs(totalAmount.totalDebit)}
                                     </td>
