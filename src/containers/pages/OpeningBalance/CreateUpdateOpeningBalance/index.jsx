@@ -19,7 +19,7 @@ const CreateUpdateOpeningBalance = (props) => {
     const searchParams = new URLSearchParams(search)
     // let {transId} = useParams()
     // transId = transId ? transId : searchParams.get('transId')
-    let isUpdate = searchParams.get('isUpdate')
+    let isUpdate = JSON.parse(searchParams.get('isUpdate'))
 
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps, deleteProps } = useGeneralFunc()
 
@@ -218,10 +218,6 @@ const CreateUpdateOpeningBalance = (props) => {
                 }
             } 
         }
-        // if(isUpdate) {
-        //     accountProblem = true
-        //     newValidation.numberNull = true
-        // }
 
         accountProblem && handleCurrency(newAccountTransactions)
 
@@ -244,30 +240,30 @@ const CreateUpdateOpeningBalance = (props) => {
             navigate('/opening-balance')
             Swal.fire({
                 title: 'Good job!',
-                text: `${dataReadyToPost.transType} created`,
+                text: 'Transaction created',
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
         }
     }
     
-    // const putDataToAPI = async (newTransaction) => {
-    //     let dataReadyToUpdate = {...newTransaction}
-    //     dataReadyToUpdate.authors.push({
-    //         updatedBy: props.user.uid2,
-    //         updatedAt: Date.now()
-    //     })
-    //     const res = await props.putOpeningBalanceToAPI(dataReadyToUpdate)
-    //     if(res) {
-    //         navigate('/opening-balance')
-    //         Swal.fire({
-    //             title: 'Nice!',
-    //             text: `${newTransaction.transType} updated`,
-    //             icon: 'success',
-    //             confirmButtonColor: '#198754'
-    //         })
-    //     }
-    // }
+    const putDataToAPI = async (newTransaction) => {
+        let dataReadyToUpdate = {...newTransaction}
+        dataReadyToUpdate.authors.push({
+            updatedBy: props.user.uid2,
+            updatedAt: Date.now()
+        })
+        const res = await props.putOpeningBalanceToAPI(dataReadyToUpdate)
+        if(res) {
+            navigate('/opening-balance')
+            Swal.fire({
+                title: 'Nice!',
+                text: 'Transaction updated',
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+        }
+    }
     
     const handleSubmit = async () => {
         let {accountProblem, newAccountTransactions} = await getAccountValidation()
@@ -285,8 +281,8 @@ const CreateUpdateOpeningBalance = (props) => {
                 !newTransaction[i] && delete newTransaction[i]
             }
             if(isUpdate) {
-                updateProps(newTransaction, {id: transDb.id})
-                // await putDataToAPI(newTransaction)
+                updateProps(newTransaction)
+                await putDataToAPI(newTransaction)
             } else {
                 await postDataToAPI(newTransaction)
             }
@@ -308,9 +304,9 @@ const CreateUpdateOpeningBalance = (props) => {
 
         if(temp.length > 0) {
             let newTransAccounts = data
-            const {id, date, memo, transAccounts} = temp[0]
+            const {id, date, memo, authors, transAccounts} = temp[0]
             let newTransaction = {
-                ...transaction, id, date,
+                ...transaction, id, date, authors,
                 memo: memo ? memo : ''          
             }
             newTransAccounts.forEach(e => {
@@ -320,7 +316,6 @@ const CreateUpdateOpeningBalance = (props) => {
                     e.credit = getCurrency(res.credit)
                 }
             })
-    
             setAccountTransactions(newTransAccounts)
             setTransaction(newTransaction)
         } else {
@@ -329,9 +324,6 @@ const CreateUpdateOpeningBalance = (props) => {
     }
     
     useEffect(() => {
-        // isUpdate && getOpeningBalance()
-        
-
         // props.getOpeningBalanceFromAPI()
         // props.getAccountsFromAPI()
     }, [])
@@ -372,7 +364,7 @@ const CreateUpdateOpeningBalance = (props) => {
 
     useEffect(() => {
         getAccount()
-    }, [props.accounts])
+    }, [])
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
