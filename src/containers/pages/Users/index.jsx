@@ -105,8 +105,8 @@ const Users = (props) => {
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Access Level</th>
-                                        <th scope="col"></th>
-                                        <th scope="col" className="text-end">Action</th>
+                                        <th scope="col">Status</th>
+                                        {/* <th scope="col" className="text-end">Action</th> */}
                                     </tr>
                                 </thead>
                                 <tbody className="table-group-divider">
@@ -122,20 +122,21 @@ const Users = (props) => {
                                                         {i+1}
                                                     </td>
                                                     <td>
-                                                        <Link to={`/users/detail/${user.uid1}`} className="user-name">
+                                                        {/* <Link to={`/users/detail/${user.uid1}`} className="user-name"> */}
+                                                        <Link to='#' className="user-name">
                                                             <p className="mb-0 fw-bold">{user.name}</p>
                                                         </Link>
                                                         <p className="mb-0 fw-light email">{user.email}</p>
                                                     </td>
                                                     <td>{ userAccessName }</td>
                                                     <td>{user.isActive ? 'active' : 'not active'}</td>
-                                                    <td className="text-end">
+                                                    {/* <td className="text-end">
                                                         <div className="btn-group" role="group" aria-label="Basic outlined example">
-                                                            {/* <button type="submit" className="btn btn-outline-danger action" onClick={()=>handleDeleteContact({id, name})}>Delete</button> */}
+                                                            <button type="submit" className="btn btn-outline-danger action" onClick={()=>handleDeleteContact({id, name})}>Delete</button>
                                                             <Link to={`/users/edit-users/${user.id}`} className="btn btn-outline-success action">Edit</Link>
                                                             <Link to={`/users/detail/${user.id}`} className="btn btn-outline-primary action">View</Link>
                                                         </div>
-                                                    </td>
+                                                    </td> */}
                                                 </tr>
                                             )
                                         })
