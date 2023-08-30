@@ -1,43 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import './ReceiptJournal.scss'
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
 import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import './ReceiptJournal.scss'
 
 const ReceiptJournal = (props) => {
     const { getCurrency } = useGeneralFunc()
-
     const [accounts, setAccounts] = useState()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState()
 
-    const getDataAPI = () => {
-        props.getReceiptJournalsFromAPI()
-        props.getContactsFromAPI()
-        props.getAccountsFromAPI()
-    }
-    
-    useEffect (() => {
-        getDataAPI()
-    }, [])
-
     useEffect(() => {
-        setContacts(props.contacts)
+        const temp = props.contacts
+        temp.length > 0 ? setContacts(props.contacts) : props.getContactsFromAPI()
     }, [props.contacts])
 
     useEffect(() => {
-        setAccounts(props.accounts)
+        const temp = props.accounts
+        temp.length > 0 ? setAccounts(temp) : props.getAccountsFromAPI()
     }, [props.accounts])
 
     useEffect(() => {
-        let temp = []
-        for(let x in props.transactions) {
-            if( x === 'receiptJournal' ) props.transactions[x].forEach(e => temp.push(e))
-        }
-        setTransactions(temp)
+        const temp = props.transactions.receiptJournal
+        temp ? setTransactions(temp) : props.getReceiptJournalsFromAPI()
     }, [props.transactions])
     
     return (
