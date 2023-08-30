@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdateOpeningBalance.scss'
-
+import { useLocation, useNavigate } from "react-router-dom";
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
+import './CreateUpdateOpeningBalance.scss'
 
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -91,7 +90,7 @@ const CreateUpdateOpeningBalance = (props) => {
         return newAccountTransactions
     }
     const handleCurrency = (newAccountTransactions) => {
-        newAccountTransactions.forEach((acc, i) => {
+        newAccountTransactions.forEach(acc => {
             const {debit, credit} = acc
             acc.debit = getCurrency(debit)
             acc.credit = getCurrency(credit)
@@ -276,42 +275,43 @@ const CreateUpdateOpeningBalance = (props) => {
         }
     }
 
-    useEffect(() => {
+    const getTransactionsDate = async() => {
         let tempDate = []
-        props.transactions.journalEntries ?
-        props.transactions.journalEntries.forEach(e => tempDate.push(e.date)) :
-        props.getJournalEntriesFromAPI()
 
-        props.transactions.paymentJournal ?
-        props.transactions.paymentJournal.forEach(e => tempDate.push(e.date)) :
-        props.getPaymentJournalsFromAPI()
-
-        props.transactions.receiptJournal ?
-        props.transactions.receiptJournal.forEach(e => tempDate.push(e.date)) :
-        props.getReceiptJournalsFromAPI()
-
+        const temp1 = props.transactions.journalEntries
+        const journalEntries = temp1 ? temp1 : await props.getJournalEntriesFromAPI()
+        journalEntries.forEach(e => tempDate.push(e.date))
+    
+        const temp2 = props.transactions.paymentJournal
+        const paymentJournal = temp2 ? temp2 : await props.getPaymentJournalsFromAPI()
+        paymentJournal.forEach(e => tempDate.push(e.date))
+    
+        const temp3 = props.transactions.receiptJournal
+        const receiptJournal = temp3 ? temp3 : await props.getReceiptJournalsFromAPI()
+        receiptJournal.forEach(e => tempDate.push(e.date))
+    
         tempDate.sort((a, b) => 
             a < b ? -1 :
             a > b ? 1 : 0
         )
         tempDate.length > 0 && setMinTransDate(tempDate[0])
-    }, [props.transactions])
-
+    }
     useEffect(() => {
-        getAccount()
-    }, [])
+        getTransactionsDate()
+    }, [props.transactions])
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
-        let temp = props.accounts.length > 0 ? props.accounts : await props.getAccountsFromAPI()
-        temp.forEach(e => {
+        let temp = props.accounts
+        let accounts = temp.length > 0 ? temp : await props.getAccountsFromAPI()
+        accounts.forEach(e => {
             const {categoryId, isActive, isParent, id, parentId, number, accountName} = e
             if(categoryId < 9 && isActive) {
-                if(isParent) newParentAccounts.push(e)
-                else {
+                if(!isParent) {
                     newAccounts.push(e)
                     newAccountTransactions.push({account: id, debit: '', credit: '', parentId, number, accountName})
                 }
+                else newParentAccounts.push(e)
             }
         })
         newParentAccounts.forEach((parent, i) => 
@@ -320,6 +320,9 @@ const CreateUpdateOpeningBalance = (props) => {
         setParentAccounts(newParentAccounts)
         isUpdate ? getOpeningBalance(newAccountTransactions) : setAccountTransactions(newAccountTransactions)
     }
+    useEffect(() => {
+        getAccount()
+    }, [])
     
     return (
         <LayoutsMainContent>
@@ -352,7 +355,8 @@ const CreateUpdateOpeningBalance = (props) => {
                             </thead>
                             <tbody>
                                 {
-                                    parentAccounts.map((parent) => 
+                                    accountTransactions &&
+                                    parentAccounts.map(parent => 
                                         <Fragment key={parent.id}>
                                             <tr className="fw-bold" >
                                                 <td className="ps-2 pe-0 number-account">

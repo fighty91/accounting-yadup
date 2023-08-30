@@ -4,17 +4,15 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
 import { deleteOpeningBalanceFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getOpeningBalanceFromAPI } from "../../../config/redux/action";
-import './OpeningBalance.scss'
-
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+import './OpeningBalance.scss'
 
 const OpeningBalance = (props) => {
     const [accounts, setAccounts] = useState([])
     const [parentAccounts, setParentAccounts] = useState([])
     const [categories, setCategories] = useState([])
     const [openingBalance, setOpeningBalance] = useState()
-
     const { getCurrencyAbs } = useGeneralFunc()
     
     const handleDelete = () => {
