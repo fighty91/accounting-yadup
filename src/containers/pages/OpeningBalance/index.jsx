@@ -38,12 +38,7 @@ const OpeningBalance = (props) => {
         })
     }
 
-    const setAccountsFromProps = () => {
-        const newParentAccounts = props.accounts.filter(e => e.isParent && e.categoryId < 9)
-        setParentAccounts(newParentAccounts)
-        const newAccounts = props.accounts.filter(e => !e.isParent)
-        setAccounts(newAccounts)
-    }
+    
 
     const accountAmount = (accountId) => {
         let childAccounts = accounts.filter(e => e.parentId === accountId)
@@ -64,6 +59,12 @@ const OpeningBalance = (props) => {
         return temp
     }
     
+    const setAccountsFromProps = () => {
+        const newParentAccounts = props.accounts.filter(e => e.isParent && e.categoryId < 9)
+        setParentAccounts(newParentAccounts)
+        const newAccounts = props.accounts.filter(e => !e.isParent)
+        setAccounts(newAccounts)
+    }
     useEffect(() => {
         props.accounts.length > 0 ?
         setAccountsFromProps() : props.getAccountsFromAPI()

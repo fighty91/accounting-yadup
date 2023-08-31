@@ -15,12 +15,12 @@ const JournalEntries = (props) => {
 
     useEffect(() => {
         const temp = props.contacts
-        temp.length > 0 ? setContacts(props.contacts) : props.getContactsFromAPI()
+        temp.length > 0 ? setContacts(temp) : props.getContactsFromAPI()
     }, [props.contacts])
 
     useEffect(() => {
         const temp = props.accounts
-        temp.length > 0 ? setAccounts(props.accounts) : props.getAccountsFromAPI()
+        temp.length > 0 ? setAccounts(temp) : props.getAccountsFromAPI()
     }, [props.accounts])
 
     useEffect(() => {

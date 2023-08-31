@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getCategoriesFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
-import './Accounts.scss'
-
+import { getAccountsFromAPI, getCategoriesFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import './Accounts.scss'
 
 const Accounts = (props) => {
     const [accounts, setAccounts] = useState([])
@@ -15,13 +14,6 @@ const Accounts = (props) => {
     const [transactions, setTransactions] = useState([])
 
     const { getCurrencyAbs } = useGeneralFunc()
-    
-    const getDataAPI = () => {
-        props.getAccountsFromAPI()
-        props.getCategoriesFromAPI()
-        props.getTransactionsFromAPI()
-    }
-
     const transAmount = (accountId) => {
         let parentAmount = 0
         let childAccounts = accounts.filter(e => e.parentId === accountId)
@@ -41,27 +33,45 @@ const Accounts = (props) => {
         return { childAccounts, parentAmount }
     }
 
-    useEffect(() => {
-        getDataAPI()
-    }, [])
-    
-    useEffect(() => {
+    const setAccountsFromProps = () => {
         const newParentAccounts = props.accounts.filter(e => e.isParent)
         setParentAccounts(newParentAccounts)
         const newAccounts = props.accounts.filter(e => !e.isParent)
         setAccounts(newAccounts)
+    }
+    useEffect(() => {
+        props.accounts.length > 0 ?
+        setAccountsFromProps() : props.getAccountsFromAPI()
     }, [props.accounts])
 
     useEffect(() => {
-        setCategories(props.categories)
+        const temp = props.categories
+        temp.length > 0 ? setCategories(temp) : props.getCategoriesFromAPI()
     }, [props.categories])
     
+    const getTransactions = async() => {
+        const temp1 = props.transactions.journalEntries
+        const journalEntries = temp1 ? temp1 : await props.getJournalEntriesFromAPI()
+    
+        const temp2 = props.transactions.paymentJournal
+        const paymentJournal = temp2 ? temp2 : await props.getPaymentJournalsFromAPI()
+    
+        const temp3 = props.transactions.receiptJournal
+        const receiptJournal = temp3 ? temp3 : await props.getReceiptJournalsFromAPI()
+        
+        const temp4 = props.transactions.openingBalance
+        const openingBalance = temp4 ? temp4 : await props.getOpeningBalanceFromAPI()
+
+        let trans = [
+            ...journalEntries,
+            ...paymentJournal,
+            ...receiptJournal,
+            ...openingBalance
+        ]
+        trans.length > 0 && setTransactions(trans)
+    }
     useEffect(() => {
-        let temp = []
-        for(let x in props.transactions) {
-            props.transactions[x].forEach(e => temp.push(e))
-        }
-        setTransactions(temp)
+        getTransactions()
     }, [props.transactions])
 
     return (
@@ -149,7 +159,10 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI())
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(Accounts)
