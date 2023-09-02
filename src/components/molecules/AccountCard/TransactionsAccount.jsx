@@ -54,18 +54,6 @@ const TransactionsAccount = (props) => {
                 })
             })
         })
-        const temp4 = props.transactions.openingBalance
-        const openingBalance = temp4 ? temp4 : await props.getOpeningBalanceFromAPI()
-        openingBalance.forEach(e => {
-            e.transAccounts.forEach(acc => {
-                acc.account === accountId &&
-                trans.push({
-                    ...e,
-                    surl:'/opening-balance'
-                })
-            })
-        })
-
         trans.sort((a, b) => 
             a.transNumber < b.transNumber ? -1 :
             a.transNumber > b.transNumber ? 1 : 0
@@ -74,6 +62,17 @@ const TransactionsAccount = (props) => {
             a.date < b.date ? -1 :
             a.date > b.date ? 1 : 0
         )
+        const temp4 = props.transactions.openingBalance
+        const openingBalance = temp4 ? temp4 : await props.getOpeningBalanceFromAPI()
+        openingBalance.forEach(e => {
+            e.transAccounts.forEach(acc => {
+                acc.account === accountId &&
+                trans.unshift({
+                    ...e,
+                    surl:'/opening-balance'
+                })
+            })
+        })
         trans.length > 0 && setTransactions(trans)
     }
     useEffect(() => {

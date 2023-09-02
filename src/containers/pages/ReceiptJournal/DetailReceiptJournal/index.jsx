@@ -38,13 +38,7 @@ const DetailReceiptJournal = (props) => {
         setContact(newContact)
     }
 
-    const getAccount = (dataId) => {
-        let newAccount = {}
-        accounts.forEach(acc =>
-            acc.id === dataId && (newAccount = acc)
-        )
-        if(newAccount) return newAccount 
-    }
+    
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -102,32 +96,51 @@ const DetailReceiptJournal = (props) => {
     }
 
     useEffect(() => {
-        getReceiptJournal()
-        props.getAccountsFromAPI()
         props.getUsersFromAPI()
+        // masih bisa diefisiensikan
     }, [])
 
+    const getAccount = (dataId) => {
+        let newAccount = {}
+        accounts.forEach(acc =>
+            acc.id === dataId && (newAccount = acc)
+        )
+        if(newAccount) return newAccount 
+    }
+    
     useEffect(() => {
-        setAccounts(props.accounts)
+        const temp = props.accounts
+        temp.length > 0 ?
+        setAccounts(temp) : props.getAccountsFromAPI()
     }, [props.accounts])
     
-    const getReceiptJournal = async () => {
-        let tempTrans
-        const propsJournals = props.transactions.receiptJournal
-        propsJournals ?
-        propsJournals.forEach(trans => trans.id === transId && (tempTrans = trans)) :
-        tempTrans = await props.getReceiptJournalFromAPI(transId)
+    const getTransactions = async() => {
+        const temps = props.transactions.receiptJournal,
+        temp = temps && await temps.find(e => e.id === transId),
+        tempTrans = temp ? temp :  await props.getReceiptJournalFromAPI(transId)
 
-        let tempReceiptAccount, tempTransAccounts = []
-        for(let e of tempTrans.transAccounts) {
-            e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e)
+        let tempReceiptAccount,
+        tempTransAccounts = []
+
+        if(tempTrans) {
+            tempTrans.transAccounts.forEach(e => e.debit ? tempReceiptAccount = e : tempTransAccounts.push(e))
+            setTransaction(tempTrans)
+            setTransAccounts(tempTransAccounts)
+            setReceiptAccount(tempReceiptAccount)
+            getContact(tempTrans.contactId)
+        } else {
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
+            navigate('/receipt-journal')
         }
-                
-        setTransaction(tempTrans)
-        setTransAccounts(tempTransAccounts)
-        setReceiptAccount(tempReceiptAccount)
-        getContact(tempTrans.contactId)
     }
+    useEffect(() => {
+        getTransactions()
+    }, [props.transactions])
 
     return (
         <LayoutsMainContent>
