@@ -4,7 +4,7 @@ import "./DetailPaymentJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactsFromAPI, getPaymentJournalsFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getPaymentJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -25,24 +25,6 @@ const DetailPaymentJournal = (props) => {
         transType: "Payment Journal",
         transAccounts: []
     })
-
-    const getContact = async (contactId) => {
-        let newContact = {}
-        props.contacts.forEach(e => {
-            if(e.id === contactId) newContact = e
-        })
-        setContact(newContact)
-    }
-
-    const getAccount = (dataId) => {
-        let newAccount = {}
-        accounts.forEach(acc => {
-            if(acc.id === dataId) newAccount = acc
-        })
-        if(newAccount) {
-            return newAccount 
-        }
-    }
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -73,6 +55,16 @@ const DetailPaymentJournal = (props) => {
         }
     }
 
+    const getContact = async (contactId) => {
+        let temp
+        if(props.contacts.length > 0) {
+            props.contacts.find(e => e.id === contactId && (temp = e))
+        } else {
+            temp = await props.getContactFromAPI(contactId)
+        }
+        temp && setContact(temp)
+    }
+
     const getAuthor = () => {
         const authors = transaction.authors
         if(authors) {
@@ -100,37 +92,49 @@ const DetailPaymentJournal = (props) => {
     }
 
     useEffect(() => {
-        props.getAccountsFromAPI()
-        props.getContactsFromAPI()
-        props.getPaymentJournalsFromAPI()
-        props.getUsersFromAPI()
-    }, [])
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [props.users])
+
+    const getAccount = (dataId) => {
+        let newAccount = {name: ''}
+        accounts.forEach(acc =>
+            acc.id === dataId && (newAccount = acc)
+        )
+        return newAccount 
+    }
 
     useEffect(() => {
-        setAccounts(props.accounts)
+        const temp = props.accounts
+        temp.length > 0 ?
+        setAccounts(temp) : props.getAccountsFromAPI()
     }, [props.accounts])
     
-    useEffect(() => {
-        let tempTransaction = {}
-        let tempTransAccounts = []
-        let tempPaymentAccount = {}
+    const getTransactions = async() => {
+        const temps = props.transactions.paymentJournal,
+        temp = temps && await temps.find(e => e.id === transId),
+        tempTrans = temp ? temp :  await props.getPaymentJournalFromAPI(transId)
 
-        for(let x in props.transactions) {
-            x === 'paymentJournal' &&
-            props.transactions[x].forEach(trans => {
-                if(trans.id === transId) {
-                    tempTransaction = trans
-                    for(let e of trans.transAccounts) {
-                        e.credit ? tempPaymentAccount = e : tempTransAccounts.push(e)
-                    }
-                }
+        let tempPaymentAccount,
+        tempTransAccounts = []
+
+        if(tempTrans) {
+            tempTrans.transAccounts.forEach(e => e.credit ? tempPaymentAccount = e : tempTransAccounts.push(e))
+            setTransaction(tempTrans)
+            setTransAccounts(tempTransAccounts)
+            setPaymentAccount(tempPaymentAccount)
+            getContact(tempTrans.contactId)
+        } else {
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
             })
+            navigate('/payment-journal')
         }
-        
-        setTransaction(tempTransaction)
-        setTransAccounts(tempTransAccounts)
-        setPaymentAccount(tempPaymentAccount)
-        getContact(tempTransaction.contactId)
+    }
+    useEffect(() => {
+        getTransactions()
     }, [props.transactions])
     return (
         <LayoutsMainContent>
@@ -290,8 +294,8 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
+    getPaymentJournalFromAPI: (data) => dispatch(getPaymentJournalFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deletePaymentJournalFromAPI: (data) => dispatch(deletePaymentJournalFromAPI(data))
 })

@@ -26,16 +26,6 @@ const DetailReceiptJournal = (props) => {
         transAccounts: []
     })
 
-    const getContact = async (contactId) => {
-        let temp
-        if(props.contacts.length > 0) {
-            props.contacts.find(e => e.id === contactId && (temp = e))
-        } else {
-            temp = await props.getContactFromAPI(contactId)
-        }
-        temp && setContact(temp)
-    }
-
     const deleteTransaction = async() => {
         const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
         if (deleteSuccess) {
@@ -62,6 +52,16 @@ const DetailReceiptJournal = (props) => {
                 deleteTransaction()
             }
         })
+    }
+
+    const getContact = async (contactId) => {
+        let temp
+        if(props.contacts.length > 0) {
+            props.contacts.find(e => e.id === contactId && (temp = e))
+        } else {
+            temp = await props.getContactFromAPI(contactId)
+        }
+        temp && setContact(temp)
     }
 
     const getAuthor = () => {
