@@ -9,15 +9,6 @@ const Layouts = (props) => {
     const [user, setUser] = useState({})
     const [userAccess, setUserAccess] = useState([])
     let [online, isOnline] = useState(navigator.onLine)
-
-    const setOnline = () => {
-        console.log('You are online!');
-        isOnline(true);
-    }
-    const setOffline = () => {
-        console.log('You are offline!');
-        isOnline(false);
-    }
     
     const getAccessName = (accessId) => {
         let temp = ''
@@ -29,6 +20,14 @@ const Layouts = (props) => {
         return temp
     }
 
+    const setOnline = () => {
+        console.log('You are online!');
+        isOnline(true);
+    }
+    const setOffline = () => {
+        console.log('You are offline!');
+        isOnline(false);
+    }
     useEffect(() => {
         props.userAccess.length < 1 && props.getUserAccessFromAPI()
         window.addEventListener('offline', setOffline);

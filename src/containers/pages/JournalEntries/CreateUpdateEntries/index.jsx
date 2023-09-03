@@ -52,6 +52,8 @@ const CreateUpdateEntries = (props) => {
     const [identicalCode, setIdenticalCode] = useState({
         codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
+    let [online, isOnline] = useState(navigator.onLine)
+
 
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
@@ -272,23 +274,33 @@ const CreateUpdateEntries = (props) => {
         }
     }
 
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions} = await getAccountValidation()
-        if(!accountProblem) {
-            let newTransaction = {
-                ...transaction,
-                transAccounts: newAccountTransactions.filter(e => e.account)
-            }
-            for(let i in newTransaction) {
-                !newTransaction[i] && delete newTransaction[i]
-            }
-            if(isUpdate) {
-                updateProps(newTransaction, {transNumber, id: transDb.id})
-                await putDataToAPI(newTransaction)
-            } else {
-                await postDataToAPI(newTransaction)
+        if(online) {
+            const {accountProblem, newAccountTransactions} = await getAccountValidation()
+            if(!accountProblem) {
+                let newTransaction = {
+                    ...transaction,
+                    transAccounts: newAccountTransactions.filter(e => e.account)
+                }
+                for(let i in newTransaction) {
+                    !newTransaction[i] && delete newTransaction[i]
+                }
+                if(isUpdate) {
+                    updateProps(newTransaction, {transNumber, id: transDb.id})
+                    await putDataToAPI(newTransaction)
+                } else {
+                    await postDataToAPI(newTransaction)
+                }
             }
         }
+        else lostConnection()
     }
 
     const getNewTransNumber = async () => {
@@ -318,16 +330,22 @@ const CreateUpdateEntries = (props) => {
         getResetFormIdentical()
     }
 
-    const handleCancel = () => {
-        handleNormalNumb()
-        navigate(isUpdate || isDuplicate ? `/journal-entries/transaction-detail/${transId}` : '/journal-entries')
+    
+
+    const setOnline = () => isOnline(true)
+    const setOffline = () => isOnline(false)
+    useEffect(() => {
+        window.addEventListener('offline', setOffline);
+        window.addEventListener('online', setOnline);
+    }, [])
+
+    const getCancel = () => {
+        const temp = isUpdate || isDuplicate
+        navigate(temp ? `/journal-entries/transaction-detail/${transId}` : '/journal-entries')
     }
 
     const getJournalEntry = async() => {
-        const temps = props.transactions.journalEntries,
-        temp = temps && await temps.find(e => e.id === transId),
-        tempTrans = temp ? temp : await props.getJournalEntryFromAPI(transId)
-
+        const tempTrans = await props.getJournalEntryFromAPI(transId)
         if(tempTrans) getResetUpdate(tempTrans)
         else {
             Swal.fire({
@@ -451,7 +469,7 @@ const CreateUpdateEntries = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonNavigate name="Cancel" handleOnClick={handleCancel} color="outline-danger"/>
+                    <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>
             </div>
 

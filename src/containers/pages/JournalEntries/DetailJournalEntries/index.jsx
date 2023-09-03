@@ -24,6 +24,7 @@ const DetailJournalEntries = (props) => {
         transType: "Journal Entries",
         transAccounts: []
     })
+    let [online, isOnline] = useState(navigator.onLine)
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -39,19 +40,6 @@ const DetailJournalEntries = (props) => {
         )
     }
     
-    const deleteTransaction = async() => {
-        const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
-        if (deleteSuccess) {
-            Swal.fire({
-                title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-            navigate('/journal-entries')
-        }
-    }
-
     const getContact = async (contactId) => {
         let temp
         if(props.contacts.length > 0) {
@@ -87,6 +75,42 @@ const DetailJournalEntries = (props) => {
             return msg
         }
     }
+
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
+    const getEditTrans = () => {
+        // navigate
+    }
+    const getDuplicate = () => {
+        // navigate
+    }
+    const deleteTransaction = async() => {
+        if(online) {
+            const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
+            if (deleteSuccess) {
+                Swal.fire({
+                    title: 'Success Delete!',
+                    text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                    icon: 'success',
+                    confirmButtonColor: '#198754'
+                })
+                navigate('/journal-entries')
+            }
+        }
+        else lostConnection()
+    }
+
+    const setOnline = () => isOnline(true)
+    const setOffline = () => isOnline(false)
+    useEffect(() => {
+        window.addEventListener('offline', setOffline);
+        window.addEventListener('online', setOnline);
+    }, [])
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
