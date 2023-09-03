@@ -96,9 +96,7 @@ const DetailReceiptJournal = (props) => {
 
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
-        accounts.forEach(acc =>
-            acc.id === dataId && (newAccount = acc)
-        )
+        accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
         return newAccount 
     }
     

@@ -4,7 +4,7 @@ import "./DetailJournalEntries.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactFromAPI, getJournalEntryFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -24,24 +24,6 @@ const DetailJournalEntries = (props) => {
         transType: "Journal Entries",
         transAccounts: []
     })
-
-    const getContact = async (contactId) => {
-        let newContact = {}
-        props.contacts.forEach(e => {
-            if(e.id === contactId) newContact = e
-        })
-        setContact(newContact)
-    }
-
-    const getAccount = (dataId) => {
-        let newAccount = {}
-        accounts.forEach(acc => {
-            if(acc.id === dataId) newAccount = acc
-        })
-        if(newAccount) {
-            return newAccount 
-        }
-    }
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -72,6 +54,16 @@ const DetailJournalEntries = (props) => {
         }
     }
 
+    const getContact = async (contactId) => {
+        let temp
+        if(props.contacts.length > 0) {
+            props.contacts.find(e => e.id === contactId && (temp = e))
+        } else {
+            temp = await props.getContactFromAPI(contactId)
+        }
+        temp && setContact(temp)
+    }
+
     const getAuthor = () => {
         const authors = transaction.authors
         if(authors) {
@@ -99,28 +91,42 @@ const DetailJournalEntries = (props) => {
     }
 
     useEffect(() => {
-        props.getAccountsFromAPI()
-        props.getContactsFromAPI()
-        props.getJournalEntriesFromAPI()
-        props.getUsersFromAPI()
-    }, [])
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [props.users])
+
+    const getAccount = (dataId) => {
+        let newAccount = {name: ''}
+        accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
+        return newAccount 
+    }
 
     useEffect(() => {
-        setAccounts(props.accounts)
+        const temp = props.accounts
+        temp.length > 0 ?
+        setAccounts(temp) : props.getAccountsFromAPI()
     }, [props.accounts])
     
-    useEffect(() => {
-        let temp = {}
-        for(let x in props.transactions) {
-            if( x === 'journalEntries' ) {
-                props.transactions[x].forEach(e => {
-                    if(e.id === transId) temp = e
-                })
-            }
+    const getTransactions = async() => {
+        const temps = props.transactions.journalEntries,
+        temp = temps && await temps.find(e => e.id === transId),
+        tempTrans = temp ? temp :  await props.getJournalEntryFromAPI(transId)
+
+        if(tempTrans) {
+            setTransaction(tempTrans)
+            setTransAccounts(tempTrans.transAccounts)
+            getContact(tempTrans.contactId)
+        } else {
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
+            navigate('/journal-entries')
         }
-        setTransaction(temp)
-        setTransAccounts(temp.transAccounts)
-        getContact(temp.contactId)
+    }
+    useEffect(() => {
+        getTransactions()
     }, [props.transactions])
     
     return (
@@ -271,8 +277,8 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
+    getJournalEntryFromAPI: (data) => dispatch(getJournalEntryFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deleteJournalEntryFromAPI: (data) => dispatch(deleteJournalEntryFromAPI(data))
 })

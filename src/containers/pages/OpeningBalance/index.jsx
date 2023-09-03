@@ -76,12 +76,8 @@ const OpeningBalance = (props) => {
     }, [props.categories])
     
     useEffect(() => {
-        let temp
-        if(props.transactions.openingBalance) {
-            temp = props.transactions.openingBalance[0]
-            setOpeningBalance(temp)
-        }
-        else props.getOpeningBalanceFromAPI()
+        let temp = props.transactions.openingBalance
+        temp ? setOpeningBalance(temp[0]) : props.getOpeningBalanceFromAPI()
     }, [props.transactions])
 
     let totalDebit = 0, totalCredit = 0

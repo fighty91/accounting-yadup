@@ -97,9 +97,7 @@ const DetailPaymentJournal = (props) => {
 
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
-        accounts.forEach(acc =>
-            acc.id === dataId && (newAccount = acc)
-        )
+        accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
         return newAccount 
     }
 
@@ -153,7 +151,6 @@ const DetailPaymentJournal = (props) => {
                                             {getAccount(paymentAccount.account).accountName}
                                         </Link>
                                     </div>
-                                    {/* <hr className="mt-0 mb-2 d-none d-sm-block"/> */}
                                     <div className="d-flex mb-2">
                                         <div className="label">Date</div>
                                         <div>: &nbsp;</div>
@@ -174,10 +171,7 @@ const DetailPaymentJournal = (props) => {
                                             <Fragment>
                                                 <div className="amount text-secondary">Amount &nbsp;</div>
                                                 <div className="amount-value text-primary">
-                                                    {
-                                                        getCurrency(paymentAccount.credit)
-                                                        // getCurrency(transAccounts.reduce((accumulator, val) => accumulator + val.credit, 0))
-                                                    }
+                                                    { getCurrency(paymentAccount.credit) }
                                                 </div>
                                             </Fragment>
                                             :
@@ -241,10 +235,7 @@ const DetailPaymentJournal = (props) => {
                                     transAccounts ?
                                     <div className="mb-2 amount text-secondary text-end">
                                         Amount <span className="text-primary">
-                                            { 
-                                                getCurrency(paymentAccount.credit) 
-                                                // getCurrency(transAccounts && transAccounts.reduce((accumulator, val) => accumulator + val.debit, 0)) 
-                                            }
+                                            { getCurrency(paymentAccount.credit) }
                                         </span>
                                     </div>
                                     :
