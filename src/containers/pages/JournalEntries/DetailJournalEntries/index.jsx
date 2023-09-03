@@ -109,7 +109,7 @@ const DetailJournalEntries = (props) => {
     const getTransactions = async() => {
         const temps = props.transactions.journalEntries,
         temp = temps && await temps.find(e => e.id === transId),
-        tempTrans = temp ? temp :  await props.getJournalEntryFromAPI(transId)
+        tempTrans = temp ? temp : await props.getJournalEntryFromAPI(transId)
 
         if(tempTrans) {
             setTransaction(tempTrans)

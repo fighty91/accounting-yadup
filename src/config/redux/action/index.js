@@ -510,7 +510,7 @@ export const getPaymentJournalFromAPI = (id) => () => {
                 const tempPayment = {...snapshot.val(), id}
                 resolve(tempPayment)
             } else {
-                // resolve(snapshot.val())
+                resolve(snapshot.val())
                 console.log("No data available");
             }
         }).catch((error) => {
@@ -584,7 +584,7 @@ export const getJournalEntryFromAPI = (id) => () => {
                 const tempEntries = {...snapshot.val(), id}
                 resolve(tempEntries)
             } else {
-                // resolve(snapshot.val())
+                resolve(snapshot.val())
                 console.log("No data available");
             }
         }).catch((error) => {
