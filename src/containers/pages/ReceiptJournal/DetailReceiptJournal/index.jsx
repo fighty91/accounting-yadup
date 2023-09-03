@@ -95,11 +95,11 @@ const DetailReceiptJournal = (props) => {
     }, [props.users])
 
     const getAccount = (dataId) => {
-        let newAccount = {}
+        let newAccount = {name: ''}
         accounts.forEach(acc =>
             acc.id === dataId && (newAccount = acc)
         )
-        if(newAccount) return newAccount 
+        return newAccount 
     }
     
     useEffect(() => {
@@ -153,7 +153,6 @@ const DetailReceiptJournal = (props) => {
                                             {getAccount(receiptAccount.account).accountName}
                                         </Link>
                                     </div>
-                                    {/* <hr className="mt-0 mb-2 d-none d-sm-block"/> */}
                                     <div className="d-flex mb-2">
                                         <div className="label">Date</div>
                                         <div>: &nbsp;</div>
@@ -164,7 +163,6 @@ const DetailReceiptJournal = (props) => {
                                         <div>: &nbsp;</div>
                                         <Link className="contact" to={`/contacts/detail/${contact.id}`}>
                                             {contact.name}
-                                            {/* {getContact(transaction.contactId)} */}
                                         </Link>
                                     </div>
                                 </div>
@@ -175,10 +173,7 @@ const DetailReceiptJournal = (props) => {
                                             <Fragment>
                                                 <div className="amount text-secondary">Amount &nbsp;</div>
                                                 <div className="amount-value text-primary">
-                                                    {
-                                                        getCurrency(receiptAccount.debit)
-                                                        // getCurrency(transAccounts.reduce((accumulator, val) => accumulator + val.credit, 0))
-                                                    }
+                                                    { getCurrency(receiptAccount.debit) }
                                                 </div>
                                             </Fragment>
                                             :
@@ -242,10 +237,7 @@ const DetailReceiptJournal = (props) => {
                                     transAccounts ?
                                     <div className="mb-2 amount text-secondary text-end">
                                         Amount <span className="text-primary">
-                                            { 
-                                                getCurrency(receiptAccount.debit)
-                                                // getCurrency(transAccounts && transAccounts.reduce((accumulator, val) => accumulator + val.credit, 0)) 
-                                            }
+                                            { getCurrency(receiptAccount.debit) }
                                         </span>
                                     </div>
                                     :
