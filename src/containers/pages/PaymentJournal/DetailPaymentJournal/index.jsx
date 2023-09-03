@@ -35,11 +35,9 @@ const DetailPaymentJournal = (props) => {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteTransaction()
-            }
-        })
+        }).then((result) =>
+            result.isConfirmed && deleteTransaction()
+        )
     }
     
     const deleteTransaction = async() => {

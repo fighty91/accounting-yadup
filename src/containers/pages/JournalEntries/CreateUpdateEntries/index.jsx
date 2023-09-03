@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdateEntries.scss'
-
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
-import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
+import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getJournalEntryFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+import './CreateUpdateEntries.scss'
 
 const CreateUpdateEntries = (props) => {
     const navigate = useNavigate()
@@ -20,7 +18,7 @@ const CreateUpdateEntries = (props) => {
     const searchParams = new URLSearchParams(search)
     let duplicate = searchParams.get('duplicate')
     let {transId} = useParams()
-    transId = transId ? transId : searchParams.get('transId')
+    !transId && (transId = searchParams.get('transId'))
 
     const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
 
@@ -55,25 +53,6 @@ const CreateUpdateEntries = (props) => {
         codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
-    const getAccounts = async () => {
-        let newAccounts = []
-        let newParentAccounts = []
-        props.accounts.forEach(e => {
-            if(e.isParent) {
-                newParentAccounts.push(e)
-            } else {
-                e.isActive && newAccounts.push(e)
-            }
-        })
-        newParentAccounts.forEach((e, i) => {
-            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
-            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
-        })
-
-        setAccounts(newAccounts)
-        setParentAccounts(newParentAccounts)
-    }
-
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
@@ -81,9 +60,8 @@ const CreateUpdateEntries = (props) => {
             transAccounts.forEach(e => newTransAccounts.push(e))
             let tempTransaction = {...transaction, contactId, memo, authors}
 
-            if(duplicate) {
-                setIsDuplicate(true)
-            } else {
+            if(duplicate) setIsDuplicate(true)
+            else {
                 setTransDb(dataTransaction)
                 setIsUpdate(true)
                 setTransNumber(dataTransaction.transNumber)
@@ -92,11 +70,6 @@ const CreateUpdateEntries = (props) => {
             setTransaction(tempTransaction)
             handleCurrency(newTransAccounts)
         }
-    }
-
-    const getJournalEntry = async() => {
-        let dataTransaction = await props.getJournalEntryFromAPI(transId)
-        getResetUpdate(dataTransaction)
     }
 
     const getResetFormIdentical = () => {
@@ -177,19 +150,33 @@ const CreateUpdateEntries = (props) => {
         let totalDebit = 0, totalCredit = 0, transCount = 0
         let accountProblem = false
         let rowValidation = {nominalNull: [], nominalDouble: [], accountNull: []}
-        let newAccountTransactions = await handleNormalNumb()
+        let newAccountTransactions = handleNormalNumb()
         newAccountTransactions.forEach(trans => {
             let tempCount = {nominalNull: 0, nominalDouble: 0, accountNull: 0}
             const {account, debit, credit} = trans
             if(account) {
                 transCount++
-                if(debit === 0 && credit === 0) { tempCount.nominalNull++; accountProblem = true }
-                else if (debit !== 0 && credit !== 0) { tempCount.nominalDouble++; accountProblem = true }
-                else { totalDebit += debit; totalCredit += credit }
+                if(debit === 0 && credit === 0) {
+                    tempCount.nominalNull++
+                    accountProblem = true
+                }
+                else if (debit !== 0 && credit !== 0) {
+                    tempCount.nominalDouble++
+                    accountProblem = true
+                }
+                else {
+                    totalDebit += debit
+                    totalCredit += credit
+                }
             } else {
-                if(debit !== 0 || credit !== 0) { tempCount.accountNull++; accountProblem = true }
+                if(debit !== 0 || credit !== 0) {
+                    tempCount.accountNull++
+                    accountProblem = true
+                }
             }
-            for( let x in rowValidation ) { rowValidation[x].push(tempCount[x] > 0 ? true : false) }
+            for( let x in rowValidation ) {
+                rowValidation[x].push(tempCount[x] > 0 ? true : false)
+            }
         })
         return {totalDebit, totalCredit, transCount, accountProblem, rowValidation, newAccountTransactions}
     }
@@ -228,9 +215,9 @@ const CreateUpdateEntries = (props) => {
         if(transNumber) {
             let numbExist = transNumberList.find(e => e === transNumber)
             if(isUpdate) {
-                if(numbExist === transDb.transNumber) numbExist = undefined
+                numbExist === transDb.transNumber && (numbExist = undefined)
             }
-            if (numbExist) {
+            if(numbExist) {
                 setTransNumberAvailable(false)
                 accountProblem = true
             }
@@ -238,8 +225,7 @@ const CreateUpdateEntries = (props) => {
             accountProblem = true
             newValidation.numberNull = true
         }
-
-        accountProblem && await handleCurrency(newAccountTransactions)
+        accountProblem && handleCurrency(newAccountTransactions)
 
         for( let x in rowValidation ) { newValidation[x] = rowValidation[x] }
         setValidation(newValidation)
@@ -332,32 +318,64 @@ const CreateUpdateEntries = (props) => {
         getResetFormIdentical()
     }
 
+    const handleCancel = () => {
+        handleNormalNumb()
+        navigate(isUpdate || isDuplicate ? `/journal-entries/transaction-detail/${transId}` : '/journal-entries')
+    }
+
+    const getJournalEntry = async() => {
+        const temps = props.transactions.journalEntries,
+        temp = temps && await temps.find(e => e.id === transId),
+        tempTrans = temp ? temp : await props.getJournalEntryFromAPI(transId)
+
+        if(tempTrans) getResetUpdate(tempTrans)
+        else {
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
+            navigate('/journal-entries')
+        }
+    }
     useEffect(() => {
         transId && getJournalEntry()
-        props.getContactsFromAPI()
-        props.getAccountsFromAPI()
     }, [])
     
     useEffect(() => {
-        let temp = props.contacts.filter(e => e.isActive === true)
-        setContacts(temp)
+        const temp = props.contacts
+        let newContacts = []
+        temp.length > 0 ?
+        newContacts = temp.filter(e => e.isActive === true) : props.getContactsFromAPI()
+        setContacts(newContacts)
     }, [props.contacts])
 
+    const getAccounts = () => {
+        let newAccounts = []
+        let newParentAccounts = []
+        props.accounts.forEach(e => {
+            if(e.isParent) newParentAccounts.push(e)
+            else e.isActive && newAccounts.push(e)
+        })
+        newParentAccounts.forEach((e, i) => {
+            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
+            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
+        })
+        setAccounts(newAccounts)
+        setParentAccounts(newParentAccounts)
+    }
     useEffect(() => {
-        let newTransNumbers = []
-        if(props.transactions.journalEntries) {
-            props.transactions.journalEntries.forEach(e =>
-                newTransNumbers.push(e.transNumber)
-            )
-        } else {
-            props.getJournalEntriesFromAPI()
-        }
-        setTransNumberList(newTransNumbers)
-    }, [props.transactions])
+        const temp = props.accounts
+        temp.length > 0 ? getAccounts() : props.getAccountsFromAPI()
+    }, [props.accounts])
 
     useEffect(() => {
-        getAccounts()
-    }, [props.accounts])
+        const temp = props.transactions.journalEntries
+        let newTransNumbers = []
+        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getJournalEntriesFromAPI()
+        setTransNumberList(newTransNumbers)
+    }, [props.transactions])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
@@ -433,7 +451,7 @@ const CreateUpdateEntries = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/journal-entries/transaction-detail/${transId}` : '/journal-entries'} color="outline-danger"/>
+                    <ButtonNavigate name="Cancel" handleOnClick={handleCancel} color="outline-danger"/>
                 </div>
             </div>
 
