@@ -13,7 +13,7 @@ const initialState = {
     transactions: {},
     identicalCode: [],
 }
-  
+
 const reducer = (state = initialState, action)  => {
     const { type, value } = action
     switch (type) {
