@@ -51,12 +51,12 @@ const JournalEntries = (props) => {
                                 {
                                     transactions.map(transaction => {
                                         let contactName = ''
-                                        contacts.find(contact => transaction.contactId === contact.id ? contactName = contact.name : null)
+                                        contacts && contacts.find(contact => transaction.contactId === contact.id ? contactName = contact.name : null)
                                         
                                         let tempDesc = [], total = 0
                                         transaction.transAccounts.forEach(trans => { 
                                             total += trans.debit
-                                            accounts.find(acc => acc.id === trans.account && tempDesc.push(acc.accountName))
+                                            accounts && accounts.find(acc => acc.id === trans.account && tempDesc.push(acc.accountName))
                                         })
                                         transaction.memo && tempDesc.push(transaction.memo)
                                         let description = tempDesc.join(', ')

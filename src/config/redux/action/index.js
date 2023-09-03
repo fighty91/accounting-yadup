@@ -355,7 +355,7 @@ export const getContactFromAPI = (id) => () => {
                 resolve(tempReceipt)
             } else {
                 resolve(snapshot.val())
-                console.log("No data available");
+                console.log("No contact available");
             }
         }).catch((error) => {
             console.error(error);

@@ -27,19 +27,27 @@ const DetailReceiptJournal = (props) => {
     })
 
     const getContact = async (contactId) => {
-        let newContact ={name: ''}
+        let temp
         if(props.contacts.length > 0) {
-            props.contacts.forEach(e => {
-                e.id === contactId && (newContact = e)
-            })
+            props.contacts.find(e => e.id === contactId && (temp = e))
         } else {
-            newContact = await props.getContactFromAPI(contactId)
+            temp = await props.getContactFromAPI(contactId)
         }
-        setContact(newContact)
+        temp && setContact(temp)
     }
 
-    
-
+    const deleteTransaction = async() => {
+        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
+        if (deleteSuccess) {
+            Swal.fire({
+                title: 'Success Delete!',
+                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+            navigate('/receipt-journal')
+        }
+    }
     const handleDeleteTransaction = () => {
         Swal.fire({
             title: 'Are you sure?',
@@ -54,19 +62,6 @@ const DetailReceiptJournal = (props) => {
                 deleteTransaction()
             }
         })
-    }
-    
-    const deleteTransaction = async() => {
-        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
-        if (deleteSuccess) {
-            Swal.fire({
-                title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-            navigate('/receipt-journal')
-        }
     }
 
     const getAuthor = () => {
@@ -96,9 +91,8 @@ const DetailReceiptJournal = (props) => {
     }
 
     useEffect(() => {
-        props.getUsersFromAPI()
-        // masih bisa diefisiensikan
-    }, [])
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [props.users])
 
     const getAccount = (dataId) => {
         let newAccount = {}
