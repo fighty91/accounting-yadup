@@ -506,9 +506,12 @@ export const putPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
 }
 export const deletePaymentJournalFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/transactions/paymentJournal/${transId}`))
-        .then(() => resolve(true))
-        .catch(err => console.log(err))
+        if(window.navigator.onLine) {
+            remove(ref(database, `${corpName}/transactions/paymentJournal/${transId}`))
+            .then(() => resolve(true))
+            .catch(err => console.log(err))
+        }
+        else lostConnection()
     })
 }
 export const getPaymentJournalFromAPI = (id) => () => {
@@ -580,9 +583,12 @@ export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
 }
 export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/transactions/journalEntries/${transId}`))
-        .then(() => resolve(true))
-        .catch(err => console.log('error',err))
+        if(window.navigator.onLine) {
+            remove(ref(database, `${corpName}/transactions/journalEntries/${transId}`))
+            .then(() => resolve(true))
+            .catch(err => console.log('error',err))
+        }
+        else lostConnection()
     })
 }
 export const getJournalEntryFromAPI = (id) => () => {

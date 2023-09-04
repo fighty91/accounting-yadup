@@ -43,13 +43,13 @@ const DetailPaymentJournal = (props) => {
     const deleteTransaction = async() => {
         const deleteSuccess = await props.deletePaymentJournalFromAPI(transaction.id)
         if (deleteSuccess) {
+            navigate('/payment-journal')
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-            navigate('/payment-journal')
         }
     }
 
@@ -120,18 +120,18 @@ const DetailPaymentJournal = (props) => {
             setPaymentAccount(tempPaymentAccount)
             getContact(tempTrans.contactId)
         } else {
+            navigate('/payment-journal')
             Swal.fire({
                 title: 'No Available!',
                 text: 'You are trying to access unavailable data',
                 icon: 'warning',
                 confirmButtonColor: '#fd7e14'
             })
-            navigate('/payment-journal')
         }
     }
     useEffect(() => {
         getTransactions()
-    }, [props.transactions])
+    }, [])
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
