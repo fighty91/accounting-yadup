@@ -6,10 +6,9 @@ import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonA
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import './CreateUpdateOpeningBalance.scss'
-
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+import './CreateUpdateOpeningBalance.scss'
 
 const CreateUpdateOpeningBalance = (props) => {
     const navigate = useNavigate()
@@ -17,7 +16,7 @@ const CreateUpdateOpeningBalance = (props) => {
     const searchParams = new URLSearchParams(search)
     let isUpdate = JSON.parse(searchParams.get('isUpdate'))
 
-    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps, deleteProps } = useGeneralFunc()
+    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, deleteProps } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [parentAccounts, setParentAccounts] = useState([])
@@ -201,6 +200,7 @@ const CreateUpdateOpeningBalance = (props) => {
     }
     
     const putDataToAPI = async (newTransaction) => {
+        console.log(newTransaction)
         let dataReadyToUpdate = {...newTransaction}
         dataReadyToUpdate.authors.push({
             updatedBy: props.user.uid2,
@@ -218,28 +218,30 @@ const CreateUpdateOpeningBalance = (props) => {
         }
     }
     
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions} = await getAccountValidation()
-        if(!accountProblem) {
-            let transAccounts = []
-            newAccountTransactions.forEach(e => {
-                if(e.debit || e.credit) transAccounts.push(e)
-            })
-            transAccounts.forEach(e => deleteProps(e, ['parentId', 'number', 'accountName']))
-            let newTransaction = {
-                ...transaction,
-                transAccounts
-            }
-            for(let i in newTransaction) {
-                !newTransaction[i] && delete newTransaction[i]
-            }
-            if(isUpdate) {
-                updateProps(newTransaction)
-                await putDataToAPI(newTransaction)
-            } else {
-                await postDataToAPI(newTransaction)
+        if(window.navigator.onLine) {
+            let {accountProblem, newAccountTransactions} = await getAccountValidation()
+            if(!accountProblem) {
+                let transAccounts = newAccountTransactions.filter(e => e.debit || e.credit)
+                transAccounts.forEach(e => deleteProps(e, ['parentId', 'number', 'accountName']))
+                let newTransaction = {
+                    ...transaction, transAccounts
+                }
+                for(let i in newTransaction) {
+                    !newTransaction[i] && delete newTransaction[i]
+                }
+                isUpdate ?
+                await putDataToAPI(newTransaction) : await postDataToAPI(newTransaction)
             }
         }
+        else lostConnection()
     }
 
     const handleEnterKey = async (event) => {
@@ -251,7 +253,7 @@ const CreateUpdateOpeningBalance = (props) => {
 
     const getOpeningBalance = async(data) => {
         let temp = props.transactions.openingBalance
-        if(!temp) temp = await props.getOpeningBalanceFromAPI()
+        !temp && (temp = await props.getOpeningBalanceFromAPI())
         
         if(temp.length > 0) {
             let newTransAccounts = data
@@ -261,18 +263,16 @@ const CreateUpdateOpeningBalance = (props) => {
                 memo: memo ? memo : ''          
             }
             newTransAccounts.forEach(e => {
-                const res = transAccounts.find(a => a.account === e.account)
-                if(res) {
-                    e.debit = getCurrency(res.debit)
-                    e.credit = getCurrency(res.credit)
-                }
+                transAccounts.find(a => a.account === e.account && (
+                    e.debit = getCurrency(a.debit),
+                    e.credit = getCurrency(a.credit)
+                ))
             })
             setTransaction(newTransaction)
             setAccountTransactions(newTransAccounts)
             getTotalAmount(newTransAccounts)
-        } else {
-            navigate('/opening-balance')
         }
+        else navigate('/opening-balance')
     }
 
     const getTransactionsDate = async() => {
