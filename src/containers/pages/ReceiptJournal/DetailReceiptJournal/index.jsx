@@ -25,19 +25,9 @@ const DetailReceiptJournal = (props) => {
         transType: "Receipt Journal",
         transAccounts: []
     })
+    let [online, isOnline] = useState(navigator.onLine)
 
-    const deleteTransaction = async() => {
-        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
-        if (deleteSuccess) {
-            Swal.fire({
-                title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-            navigate('/receipt-journal')
-        }
-    }
+    
     const handleDeleteTransaction = () => {
         Swal.fire({
             title: 'Are you sure?',
@@ -87,6 +77,42 @@ const DetailReceiptJournal = (props) => {
             return msg
         }
     }
+
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
+    const getEditTrans = () => {
+        // navigate
+    }
+    const getDuplicate = () => {
+        // navigate
+    }
+    const deleteTransaction = async() => {
+        if(online) {
+            const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
+            if (deleteSuccess) {
+                Swal.fire({
+                    title: 'Success Delete!',
+                    text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                    icon: 'success',
+                    confirmButtonColor: '#198754'
+                })
+                navigate('/receipt-journal')
+            }
+        }
+        else lostConnection()
+    }
+
+    const setOnline = () => isOnline(true)
+    const setOffline = () => isOnline(false)
+    useEffect(() => {
+        window.addEventListener('offline', setOffline);
+        window.addEventListener('online', setOnline);
+    }, [])
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
