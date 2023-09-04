@@ -84,13 +84,13 @@ const DetailJournalEntries = (props) => {
     const deleteTransaction = async() => {
         const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
         if (deleteSuccess) {
+            navigate('/journal-entries')
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-            navigate('/journal-entries')
         }
     }
 
@@ -120,13 +120,13 @@ const DetailJournalEntries = (props) => {
             setTransAccounts(tempTrans.transAccounts)
             getContact(tempTrans.contactId)
         } else {
+            navigate('/journal-entries')
             Swal.fire({
                 title: 'No Available!',
                 text: 'You are trying to access unavailable data',
                 icon: 'warning',
                 confirmButtonColor: '#fd7e14'
             })
-            navigate('/journal-entries')
         }
     }
     useEffect(() => {

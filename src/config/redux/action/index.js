@@ -659,9 +659,12 @@ export const putOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
 }
 export const deleteOpeningBalanceFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/transactions/openingBalance/${transId}`))
-        .then(() => resolve(true))
-        .catch(err => console.log(err))
+        if(window.navigator.onLine) {
+            remove(ref(database, `${corpName}/transactions/openingBalance/${transId}`))
+            .then(() => resolve(true))
+            .catch(err => console.log(err))
+        }
+        else lostConnection()
     })
 }
 export const getOpeningBalanceFromAPI = () => (dispatch) => {

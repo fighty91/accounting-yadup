@@ -15,6 +15,16 @@ const OpeningBalance = (props) => {
     const [openingBalance, setOpeningBalance] = useState()
     const { getCurrencyAbs } = useGeneralFunc()
     
+    const deleteTransaction = async() => {
+        const successClear = await props.deleteOpeningBalanceFromAPI(openingBalance.id)
+        successClear && 
+        Swal.fire({
+            title: 'Success',
+            text: 'Opening balance has emptied',
+            icon: 'success',
+            confirmButtonColor: '#198754'
+        })
+    }
     const handleDelete = () => {
         Swal.fire({
             title: 'Are you sure?',
@@ -25,20 +35,9 @@ const OpeningBalance = (props) => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, do it!'
         }).then((result) => {
-            if (result.isConfirmed) {
-                const successClear = props.deleteOpeningBalanceFromAPI(openingBalance.id)
-                successClear &&
-                Swal.fire({
-                    title: 'Success',
-                    text: 'Opening balance has emptied',
-                    icon: 'success',
-                    confirmButtonColor: '#198754'
-                })
-            }
+            result.isConfirmed && deleteTransaction()
         })
     }
-
-    
 
     const accountAmount = (accountId) => {
         let childAccounts = accounts.filter(e => e.parentId === accountId)
@@ -170,7 +169,6 @@ const OpeningBalance = (props) => {
                                 <p>There are no transactions...</p>
                             }
                         </div>
-
                     </div>
             </LayoutsMainContent>
         </Fragment>
