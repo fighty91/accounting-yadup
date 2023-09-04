@@ -54,7 +54,6 @@ const CreateUpdateEntries = (props) => {
     })
     let [online, isOnline] = useState(navigator.onLine)
 
-
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
@@ -330,8 +329,6 @@ const CreateUpdateEntries = (props) => {
         getResetFormIdentical()
     }
 
-    
-
     const setOnline = () => isOnline(true)
     const setOffline = () => isOnline(false)
     useEffect(() => {
@@ -348,12 +345,12 @@ const CreateUpdateEntries = (props) => {
         const tempTrans = await props.getJournalEntryFromAPI(transId)
         if(tempTrans) getResetUpdate(tempTrans)
         else {
-            // Swal.fire({
-            //     title: 'No Available!',
-            //     text: 'You are trying to access unavailable data',
-            //     icon: 'warning',
-            //     confirmButtonColor: '#fd7e14'
-            // })
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
             navigate('/journal-entries')
         }
     }

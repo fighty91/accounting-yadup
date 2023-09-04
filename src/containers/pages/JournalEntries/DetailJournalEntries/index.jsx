@@ -24,7 +24,6 @@ const DetailJournalEntries = (props) => {
         transType: "Journal Entries",
         transAccounts: []
     })
-    // let [online, isOnline] = useState(navigator.onLine)
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -76,13 +75,6 @@ const DetailJournalEntries = (props) => {
         }
     }
 
-    // const lostConnection = () => Swal.fire({
-    //     title: 'Offline!',
-    //     text: 'Sorry, your internet connection is lost!!',
-    //     icon: 'warning',
-    //     confirmButtonColor: '#fd7e14'
-    // })
-
     const getEditTrans = () => {
         // navigate
     }
@@ -101,13 +93,6 @@ const DetailJournalEntries = (props) => {
             navigate('/journal-entries')
         }
     }
-
-    // const setOnline = () => isOnline(true)
-    // const setOffline = () => isOnline(false)
-    // useEffect(() => {
-    //     window.addEventListener('offline', setOffline);
-    //     window.addEventListener('online', setOnline);
-    // }, [])
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
@@ -146,7 +131,7 @@ const DetailJournalEntries = (props) => {
     }
     useEffect(() => {
         getTransactions()
-    }, [props.transactions])
+    }, [])
     
     return (
         <LayoutsMainContent>

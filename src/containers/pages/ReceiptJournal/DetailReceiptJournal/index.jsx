@@ -25,7 +25,6 @@ const DetailReceiptJournal = (props) => {
         transType: "Receipt Journal",
         transAccounts: []
     })
-    // let [online, isOnline] = useState(window.navigator.onLine)
     
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -95,17 +94,6 @@ const DetailReceiptJournal = (props) => {
             })
         }
     }
-
-    // const setOnline = () => {
-    //     isOnline(true)
-    // }
-    // const setOffline = () => {
-    //     isOnline(false)
-    // }
-    // useEffect(() => {
-    //     window.addEventListener('online', setOnline);
-    //     window.addEventListener('offline', setOffline);
-    // }, [])
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
