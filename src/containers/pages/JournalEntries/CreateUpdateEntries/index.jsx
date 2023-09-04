@@ -348,12 +348,12 @@ const CreateUpdateEntries = (props) => {
         const tempTrans = await props.getJournalEntryFromAPI(transId)
         if(tempTrans) getResetUpdate(tempTrans)
         else {
-            Swal.fire({
-                title: 'No Available!',
-                text: 'You are trying to access unavailable data',
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
+            // Swal.fire({
+            //     title: 'No Available!',
+            //     text: 'You are trying to access unavailable data',
+            //     icon: 'warning',
+            //     confirmButtonColor: '#fd7e14'
+            // })
             navigate('/journal-entries')
         }
     }

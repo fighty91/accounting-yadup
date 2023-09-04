@@ -102,7 +102,7 @@ const DetailJournalEntries = (props) => {
                 navigate('/journal-entries')
             }
         }
-        else lostConnection()
+        // else lostConnection()
     }
 
     const setOnline = () => isOnline(true)

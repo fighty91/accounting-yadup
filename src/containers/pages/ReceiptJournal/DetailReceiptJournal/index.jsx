@@ -25,8 +25,7 @@ const DetailReceiptJournal = (props) => {
         transType: "Receipt Journal",
         transAccounts: []
     })
-    let [online, isOnline] = useState(navigator.onLine)
-
+    // let [online, isOnline] = useState(window.navigator.onLine)
     
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -37,9 +36,9 @@ const DetailReceiptJournal = (props) => {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
-        }).then((result) =>
+        }).then((result) => {
             result.isConfirmed && deleteTransaction()
-        )
+        })
     }
 
     const getContact = async (contactId) => {
@@ -69,7 +68,7 @@ const DetailReceiptJournal = (props) => {
             
             let authorName = ''
             for(let e of props.users) {
-                if(e.uid2 === authorId) authorName = e.name
+                e.uid2 === authorId && (authorName = e.name)
             }
             
             let dateMsg = dateTemp.toLocaleString()
@@ -78,13 +77,6 @@ const DetailReceiptJournal = (props) => {
         }
     }
 
-    const lostConnection = () => Swal.fire({
-        title: 'Offline!',
-        text: 'Sorry, your internet connection is lost!!',
-        icon: 'warning',
-        confirmButtonColor: '#fd7e14'
-    })
-
     const getEditTrans = () => {
         // navigate
     }
@@ -92,27 +84,28 @@ const DetailReceiptJournal = (props) => {
         // navigate
     }
     const deleteTransaction = async() => {
-        if(online) {
-            const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
-            if (deleteSuccess) {
-                Swal.fire({
-                    title: 'Success Delete!',
-                    text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
-                    icon: 'success',
-                    confirmButtonColor: '#198754'
-                })
-                navigate('/receipt-journal')
-            }
+        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
+        if (deleteSuccess) {
+            navigate('/receipt-journal')
+            Swal.fire({
+                title: 'Success Delete!',
+                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
         }
-        else lostConnection()
     }
 
-    const setOnline = () => isOnline(true)
-    const setOffline = () => isOnline(false)
-    useEffect(() => {
-        window.addEventListener('offline', setOffline);
-        window.addEventListener('online', setOnline);
-    }, [])
+    // const setOnline = () => {
+    //     isOnline(true)
+    // }
+    // const setOffline = () => {
+    //     isOnline(false)
+    // }
+    // useEffect(() => {
+    //     window.addEventListener('online', setOnline);
+    //     window.addEventListener('offline', setOffline);
+    // }, [])
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
@@ -145,18 +138,18 @@ const DetailReceiptJournal = (props) => {
             setReceiptAccount(tempReceiptAccount)
             getContact(tempTrans.contactId)
         } else {
+            navigate('/receipt-journal')
             Swal.fire({
                 title: 'No Available!',
                 text: 'You are trying to access unavailable data',
                 icon: 'warning',
                 confirmButtonColor: '#fd7e14'
             })
-            navigate('/receipt-journal')
         }
     }
     useEffect(() => {
         getTransactions()
-    }, [props.transactions])
+    }, [])
 
     return (
         <LayoutsMainContent>

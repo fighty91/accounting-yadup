@@ -2,9 +2,17 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getDatabase, push as pushData, ref, onValue, set, child, get, remove } from "firebase/database";
 import { database } from "../../firebase";
 import { corporation } from "../../corporation";
+import Swal from "sweetalert2";
 
 const corpName = corporation.name
 // const yadupauid = JSON.parse(localStorage.getItem(`${corpName}uid`))
+
+const lostConnection = () => Swal.fire({
+    title: 'Offline!',
+    text: 'Sorry, your internet connection is lost!!',
+    icon: 'warning',
+    confirmButtonColor: '#fd7e14'
+})
 
 const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
@@ -422,9 +430,12 @@ export const putReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
 }
 export const deleteReceiptJournalFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/transactions/receiptJournal/${transId}`))
-        .then(() => resolve(true))
-        .catch(err => console.log(err))
+        if(window.navigator.onLine) {
+            remove(ref(database, `${corpName}/transactions/receiptJournal/${transId}`))
+            .then(() => resolve(true))
+            .catch(err => console.log(err))
+        }
+        else lostConnection()
     })
 }
 export const getReceiptJournalFromAPI = (id) => () => {
