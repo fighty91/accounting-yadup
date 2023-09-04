@@ -52,7 +52,6 @@ const CreateUpdateEntries = (props) => {
     const [identicalCode, setIdenticalCode] = useState({
         codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
-    let [online, isOnline] = useState(navigator.onLine)
 
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
@@ -281,7 +280,7 @@ const CreateUpdateEntries = (props) => {
     })
 
     const handleSubmit = async () => {
-        if(online) {
+        if(window.navigator.onLine) {
             const {accountProblem, newAccountTransactions} = await getAccountValidation()
             if(!accountProblem) {
                 let newTransaction = {
@@ -328,13 +327,6 @@ const CreateUpdateEntries = (props) => {
         setFirstInitialSpace(false)
         getResetFormIdentical()
     }
-
-    const setOnline = () => isOnline(true)
-    const setOffline = () => isOnline(false)
-    useEffect(() => {
-        window.addEventListener('offline', setOffline);
-        window.addEventListener('online', setOnline);
-    }, [])
 
     const getCancel = () => {
         const temp = isUpdate || isDuplicate
