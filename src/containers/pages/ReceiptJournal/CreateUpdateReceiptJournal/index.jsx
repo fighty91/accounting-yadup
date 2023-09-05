@@ -18,7 +18,6 @@ const CreateUpdateReceiptJournal = (props) => {
     const searchParams = new URLSearchParams(search)
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
-    // transId = transId ? transId : searchParams.get('transId')
     !transId && (transId = searchParams.get('transId'))
 
 
@@ -171,11 +170,10 @@ const CreateUpdateReceiptJournal = (props) => {
                 } else { 
                     totalCredit += credit
                 }
-            } else {
-                if(credit !== 0) { 
-                    tempCount.accountNull++
-                    accountProblem = true 
-                }
+            }
+            else if(credit !== 0) { 
+                tempCount.accountNull++
+                accountProblem = true 
             }
             for( let x in rowValidation ) {
                 rowValidation[x].push(
@@ -361,18 +359,23 @@ const CreateUpdateReceiptJournal = (props) => {
     }, [])
 
     useEffect(() => {
+        props.contacts.length === 0 && props.getContactsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.contacts
         if(temp.length > 0) {
             const newContacts = temp.filter(e => e.isActive)
             setContacts(newContacts)
         }
-        else props.getContactsFromAPI()
     }, [props.contacts])
 
     useEffect(() => {
+        !props.transactions.receiptJournal && props.getReceiptJournalsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.transactions.receiptJournal
         let newTransNumbers = []
-        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getReceiptJournalsFromAPI()
+        temp && temp.forEach(e => newTransNumbers.push(e.transNumber))
         setTransNumberList(newTransNumbers)
     }, [props.transactions])
 
@@ -391,8 +394,10 @@ const CreateUpdateReceiptJournal = (props) => {
         setParentAccounts(newParentAccounts)
     }
     useEffect(() => {
-        props.accounts.length > 0 ?
-        getAccounts() : props.getAccountsFromAPI()
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && getAccounts()
     }, [props.accounts])
     
     const {initialCode} = identicalCode

@@ -96,15 +96,15 @@ const DetailReceiptJournal = (props) => {
         }
     }
 
-    useEffect(() => {
-        props.users.length < 1 && props.getUsersFromAPI()
-    }, [])
-
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
         accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
         return newAccount 
     }
+    
+    useEffect(() => {
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [])
     
     useEffect(() => {
         props.accounts.length === 0 && props.getAccountsFromAPI()
