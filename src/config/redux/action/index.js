@@ -293,6 +293,24 @@ export const setActiveAccount = (data) => (dispatch) => {
         .catch(err => console.log(err))
     })
 }
+export const getAccountFromAPI = (id) => () => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/accounts/${id}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const temp = {...snapshot.val(), id}
+                resolve(temp)
+            } else {
+                resolve(snapshot.val())
+                console.log("No account available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
 export const getAccountsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
         const starCountRef = ref(database, `${corpName}/accounts`);
@@ -359,8 +377,8 @@ export const getContactFromAPI = (id) => () => {
         get(child(dbRef, `${corpName}/contacts/${id}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
-                const tempReceipt = {...snapshot.val(), id}
-                resolve(tempReceipt)
+                const temp = {...snapshot.val(), id}
+                resolve(temp)
             } else {
                 resolve(snapshot.val())
                 console.log("No contact available");

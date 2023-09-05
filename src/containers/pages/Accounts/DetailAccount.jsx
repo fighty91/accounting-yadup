@@ -22,7 +22,7 @@ const DetailAccount = (props) => {
     
     const [navbarActive, setNavbarActive] = useState({})
 
-    const [account, setAccount] = useState()
+    const [account, setAccount] = useState({isActive: false})
     const [category, setCategory] = useState()
     const [parent, setParent] = useState()
     const [masterAccum, setMasterAccum] = useState()
@@ -78,15 +78,6 @@ const DetailAccount = (props) => {
         })
     }
 
-    
-
-    const handleActiveAccount = (e) => {
-        let newAccount = {...account}
-        newAccount.isActive = e.target.checked
-        setAccount(newAccount)
-        putAccountToAPI(newAccount.isActive)
-    }
-
     const putAccountToAPI = async (isActive) => {
         const res = await props.setActiveAccount({accountId, isActive})
         if(res) {
@@ -104,36 +95,22 @@ const DetailAccount = (props) => {
         }
     }
 
-    const setData = async () => {
-        const newAccount = props.accounts.find(e => e.id === accountId)
-        setAccount(newAccount)
-        const newCategory = await getCategory(newAccount)
-        setCategory(newCategory.name)
-        
-        const newParent = props.accounts.find(e => e.id === newAccount.parentId)
-        setParent(newParent)
-        const newMasterAccum = props.accounts.find(e => e.id === newAccount.masterId)
-        setMasterAccum(newMasterAccum)
-    }
+    
 
-    const getCategory = (newAccount) => {
-        return new Promise(async (resolve) => {
-            if(newAccount !== undefined) {
-                const categories = await props.getCategoriesFromAPI()
-                const newCategory = categories.find(e => e.id === newAccount.categoryId)
-                resolve(newCategory)
-            }
-        })
-    }
+    
 
     useEffect(() => {
-        props.getAccountsFromAPI()
-        // props.getContactsFromAPI()
+        props.getContactsFromAPI()
     }, [accountId])
     
-    useEffect(() => {
-        setData()
-    }, [props.accounts])
+    
+    const handleActiveAccount = (e) => {
+        let newAccount = {...account}
+        newAccount.isActive = e.target.checked
+        putAccountToAPI(newAccount.isActive)
+    }
+    
+    
 
 
 
@@ -182,7 +159,37 @@ const DetailAccount = (props) => {
     useEffect(() => {
         handleNavbarActive()
     }, [activePage])
-    
+
+    const getCategory = (newAccount) => {
+        return new Promise(async (resolve) => {
+            let temp = props.categories
+            if(temp.length === 0) temp = await props.getCategoriesFromAPI()
+            const newCategory = await temp.find(e => e.id === newAccount.categoryId)
+            resolve(newCategory)
+        })
+    }
+    const setData = async () => {
+        const temp = props.accounts,
+        newAccount = await temp.find(e => e.id === accountId)
+        
+        if(newAccount) {
+            setAccount(newAccount)
+            const newParent = await temp.find(e => e.id === newAccount.parentId),
+            newMasterAccum = await temp.find(e => e.id === newAccount.masterId),
+            newCategory = await getCategory(newAccount)
+            
+            setParent(newParent)
+            setMasterAccum(newMasterAccum)
+            setCategory(newCategory.name)
+        }
+    }
+    useEffect(() => {
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && setData()
+    }, [props.accounts, accountId])
+
     const {profileActive, transActive, subListActive} = navbarActive
     return(
         <LayoutsMainContent>

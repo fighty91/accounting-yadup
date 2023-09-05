@@ -27,7 +27,6 @@ const TransactionsAccount = (props) => {
     useEffect(() => {
         getTransactionsProps()
     }, [])
-
     const getTransactions = async() => {
         let trans = []
         const temp1 = props.transactions.openingBalance,
@@ -64,6 +63,8 @@ const TransactionsAccount = (props) => {
     let total = 0
     return (
         <Fragment>
+            {
+                transactions.length > 0 ?
             <div className="table-responsive-sm">
                 <table className="table table-striped table-sm table-transaction-account">
                     <thead>
@@ -122,6 +123,9 @@ const TransactionsAccount = (props) => {
                     </tbody>
                 </table>
             </div>
+            :
+            <p>There is no transaction...</p>
+            }
         </Fragment>
     )
 }
