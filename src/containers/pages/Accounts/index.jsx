@@ -40,9 +40,14 @@ const Accounts = (props) => {
         setAccounts(newAccounts)
     }
     useEffect(() => {
-        props.accounts.length > 0 ?
-        setAccountsFromProps() : props.getAccountsFromAPI()
+        props.accounts.length > 0 &&
+        setAccountsFromProps()
     }, [props.accounts])
+
+    useEffect(() => {
+        props.accounts.length === 0 &&
+        props.getAccountsFromAPI()
+    }, [])
 
     useEffect(() => {
         const temp = props.categories
@@ -84,64 +89,69 @@ const Accounts = (props) => {
                     </div>
                     <div className="card pb-4">
                         <div className="card-body">
-                            <div className="table-responsive-sm scrollarea">
-                                <table className="table table-striped table-sm table-transaction">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" colSpan={2}>Account</th>
-                                            <th scope="col" className="text-start"></th>
-                                            <th scope="col" className="text-center"></th>
-                                            <th scope="col" className="text-end">Debit (Credit)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="table-group-divider">
-                                        {
-                                            parentAccounts.map((parentAccount, i) => {
-                                                let { id, number, accountName, isActive, categoryId } = parentAccount
-                                                const {childAccounts, parentAmount} = transAmount(id)
-                                                const category = categories.find(e => e.id === categoryId)
-                                                const categoryName = category && category.name
-                                                return (
-                                                    <Fragment key={id}>
-                                                        <tr>
-                                                            <td className="fw-bold ps-0 pe-0 account-number"><Link to={`account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td>
-                                                            <td className="fw-bold ps-0"><Link to={`account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
-                                                            <td className="text-start fw-bold">{categoryName}</td>
-                                                            <td className="text-center fw-bold"> { isActive === true ? 'active' : 'not active' } </td>
-                                                            {
-                                                                parentAmount < 0 ?
-                                                                <td className="text-end fw-bold pe-2">{`(${getCurrencyAbs(parentAmount)})`}</td>
-                                                                :
-                                                                <td className="text-end fw-bold pe-2">{getCurrencyAbs(parentAmount)}</td>
+                            {
+                                accounts.length > 0 ?
+                                <div className="table-responsive-sm scrollarea">
+                                    <table className="table table-striped table-sm table-transaction">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" colSpan={2}>Account</th>
+                                                <th scope="col" className="text-start"></th>
+                                                <th scope="col" className="text-center"></th>
+                                                <th scope="col" className="text-end">Debit (Credit)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="table-group-divider">
+                                            {
+                                                parentAccounts.map((parentAccount, i) => {
+                                                    let { id, number, accountName, isActive, categoryId } = parentAccount
+                                                    const {childAccounts, parentAmount} = transAmount(id)
+                                                    const category = categories.find(e => e.id === categoryId)
+                                                    const categoryName = category && category.name
+                                                    return (
+                                                        <Fragment key={id}>
+                                                            <tr>
+                                                                <td className="fw-bold ps-0 pe-0 account-number"><Link to={`account-detail/${id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ number }</Link></td>
+                                                                <td className="fw-bold ps-0"><Link to={`account-detail/${id}?page=profile`} className="account-name pe-0 me-0">{ accountName }</Link></td>
+                                                                <td className="text-start fw-bold">{categoryName}</td>
+                                                                <td className="text-center fw-bold"> { isActive === true ? 'active' : 'not active' } </td>
+                                                                {
+                                                                    parentAmount < 0 ?
+                                                                    <td className="text-end fw-bold pe-2">{`(${getCurrencyAbs(parentAmount)})`}</td>
+                                                                    :
+                                                                    <td className="text-end fw-bold pe-2">{getCurrencyAbs(parentAmount)}</td>
 
+                                                                }
+                                                            </tr>
+                                                            {
+                                                                childAccounts.map(acc => {
+                                                                    return (
+                                                                        <tr key={acc.id}>
+                                                                            <td className="ps-2 pe-0 me-0 account-number"><Link to={`account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
+                                                                            <td className="ps-2 ps-0 ms-0"><Link to={`account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
+                                                                            <td className="text-start">{acc.categoryName}</td>
+                                                                            <td className="text-center"> { acc.isActive === true ? 'active' : 'not active' } </td>
+                                                                            {
+                                                                                acc.amount < 0 ?
+                                                                                <td className="text-end pe-1">
+                                                                                    {`(${getCurrencyAbs(acc.amount)})`}
+                                                                                </td> :
+                                                                                <td className="text-end pe-2">{getCurrencyAbs(acc.amount)}</td>
+                                                                            }
+                                                                        </tr>
+                                                                    )
+                                                                })
                                                             }
-                                                        </tr>
-                                                        {
-                                                            childAccounts.map(acc => {
-                                                                return (
-                                                                    <tr key={acc.id}>
-                                                                        <td className="ps-2 pe-0 me-0 account-number"><Link to={`account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
-                                                                        <td className="ps-2 ps-0 ms-0"><Link to={`account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
-                                                                        <td className="text-start">{acc.categoryName}</td>
-                                                                        <td className="text-center"> { acc.isActive === true ? 'active' : 'not active' } </td>
-                                                                        {
-                                                                            acc.amount < 0 ?
-                                                                            <td className="text-end pe-1">
-                                                                                {`(${getCurrencyAbs(acc.amount)})`}
-                                                                            </td> :
-                                                                            <td className="text-end pe-2">{getCurrencyAbs(acc.amount)}</td>
-                                                                        }
-                                                                    </tr>
-                                                                )
-                                                            })
-                                                        }
-                                                    </Fragment>
-                                                )
-                                            })
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        </Fragment>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                :
+                                <p>There is no account...</p>
+                            }
                         </div>
 
                     </div>
@@ -155,7 +165,6 @@ const reduxState = (state) => ({
     categories: state.categories,
     transactions: state.transactions
 })
-
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
