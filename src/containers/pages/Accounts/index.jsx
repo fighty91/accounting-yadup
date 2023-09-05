@@ -65,17 +65,14 @@ const Accounts = (props) => {
     }, [])
     const getTransactions = async() => {
         let trans = []
-
         const temp1 = props.transactions.openingBalance
-        temp1 && temp1.length > 0 && temp1.forEach(e => trans.push(e))
-        
         const temp2 = props.transactions.paymentJournal
-        temp2 && temp2.length > 0 && temp2.forEach(e => trans.push(e))
-        
         const temp3 = props.transactions.receiptJournal
-        temp3 && temp3.length > 0 && temp3.forEach(e => trans.push(e))
-        
         const temp4 = props.transactions.journalEntries
+
+        temp1 && temp1.length > 0 && temp1.forEach(e => trans.push(e))
+        temp2 && temp2.length > 0 && temp2.forEach(e => trans.push(e))
+        temp3 && temp3.length > 0 && temp3.forEach(e => trans.push(e))
         temp4 && temp4.length > 0 && temp4.forEach(e => trans.push(e))
 
         trans.length > 0 && setTransactions(trans)

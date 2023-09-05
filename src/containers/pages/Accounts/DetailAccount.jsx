@@ -8,7 +8,7 @@ import TransactionsAccount from "../../../components/molecules/AccountCard/Trans
 import SubAccountList from "../../../components/molecules/AccountCard/SubAccountList";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getTransactionsFromAPI, setActiveAccount } from "../../../config/redux/action";
+import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI, setActiveAccount } from "../../../config/redux/action";
 
 import { confirmDeleteAccount } from "../../organisms/MyFunctions/useAccountFunc";
 
@@ -20,11 +20,7 @@ const DetailAccount = (props) => {
     const searchParams = new URLSearchParams(search)
     let activePage = searchParams.get('page')
     
-    const [navbarActive, setNavbarActive] = useState({
-        transActive: activePage === 'transactions' ? true : false,
-        subListActive: activePage === 'sub-account-list' ? true : false,
-        profileActive: activePage === 'profile' ? true : false,
-    })
+    const [navbarActive, setNavbarActive] = useState({})
 
     const [account, setAccount] = useState()
     const [category, setCategory] = useState()
@@ -82,20 +78,7 @@ const DetailAccount = (props) => {
         })
     }
 
-    const handleNavbarActive = () => {
-        let newNavbarActive = {...navbarActive}
-        let temp = {
-            profileActive: 'profile',
-            transActive: 'transactions',
-            subListActive: 'sub-account-list'
-        }
-        if (activePage) {
-            for( let x in temp ) {
-                activePage === temp[x] ? newNavbarActive[x] = true : delete newNavbarActive[x]
-            }
-        }
-        setNavbarActive(newNavbarActive)
-    }
+    
 
     const handleActiveAccount = (e) => {
         let newAccount = {...account}
@@ -121,12 +104,6 @@ const DetailAccount = (props) => {
         }
     }
 
-    const getDataAPI = () => {
-        props.getAccountsFromAPI()
-        props.getContactsFromAPI()
-        props.getTransactionsFromAPI()
-    }
-
     const setData = async () => {
         const newAccount = props.accounts.find(e => e.id === accountId)
         setAccount(newAccount)
@@ -150,21 +127,58 @@ const DetailAccount = (props) => {
     }
 
     useEffect(() => {
+        props.getAccountsFromAPI()
+        // props.getContactsFromAPI()
+    }, [accountId])
+    
+    useEffect(() => {
         setData()
     }, [props.accounts])
 
-    useEffect(() => {
-        let temp = []
-        for(let x in props.transactions) {
-            props.transactions[x].forEach(e => temp.push(e))
-        }
-        setTransactions(temp)
-    }, [props.transactions])
-    
-    useEffect(() => {
-        getDataAPI()
-    }, [accountId])
 
+
+
+    // digunakan ketika menghapus data
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        // getTransactionsProps()
+    }, [])
+    const getTransactions = async() => {
+        let newTrans = []
+        const temp1 = props.transactions.openingBalance
+        const temp2 = props.transactions.receiptJournal
+        const temp3 = props.transactions.paymentJournal
+        const temp4 = props.transactions.journalEntries
+        
+        temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
+        temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
+        temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
+
+        temp1 && temp1.length > 0 && temp1.forEach(e => newTrans.unshift(e))
+        newTrans.length > 0 && setTransactions(newTrans)
+    }
+    useEffect(() => {
+        getTransactions()
+    }, [props.transactions])
+
+    const handleNavbarActive = () => {
+        let newNavbarActive = {...navbarActive}
+        let temp = {
+            profileActive: 'profile',
+            transActive: 'transactions',
+            subListActive: 'sub-account-list'
+        }
+        for(let x in temp) {
+            temp[x] === activePage ?
+            newNavbarActive[x] = true : delete newNavbarActive[x]
+        }
+        setNavbarActive(newNavbarActive)
+    }
     useEffect(() => {
         handleNavbarActive()
     }, [activePage])
@@ -174,7 +188,6 @@ const DetailAccount = (props) => {
         <LayoutsMainContent>
             <ContentHeader name={ account && account.accountName || 'Loading...' } subName={ account && account.number || 'Loading...'}/>
             <AccountCard navbarActive={navbarActive} dataCard={{accountId, isParent: account && account.isParent}}>
-                
                 {
                     profileActive &&
                     <ProfileAccount 
@@ -212,7 +225,11 @@ const reduxDispatch = (dispatch) => ({
     setActiveAccount: (data) => dispatch(setActiveAccount(data)),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
-    deleteAccountFromAPI: (data) => dispatch(deleteAccountFromAPI(data))
+    deleteAccountFromAPI: (data) => dispatch(deleteAccountFromAPI(data)),
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(DetailAccount)

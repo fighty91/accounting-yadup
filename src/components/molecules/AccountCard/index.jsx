@@ -11,17 +11,15 @@ const AccountCard = (props) => {
             <div className="card-header d-inline-flex">
                 <ul className="nav nav-tabs card-header-tabs">
                     <li className="nav-item">
-                        {/* <Link className={`nav-link ${profileActive && 'active'}`} aria-current="true" onClick={()=>handleNavbarActive('profile')}>Profile</Link> */}
                         <Link className={`nav-link ${profileActive && 'active'}`} aria-current="true" to={`/accounts/account-detail/${accountId}?page=profile`}>Profile</Link>
                     </li>
                     {
                         isParent ?
                         <li className="nav-item">
-                            {/* <Link className={`nav-link ${subListActive && 'active'}`} onClick={()=>handleNavbarActive('sub-account-list')}>Sub Account</Link> */}
                             <Link className={`nav-link ${subListActive && 'active'}`} to={`/accounts/account-detail/${accountId}?page=sub-account-list`}>Sub Account</Link>
-                        </li>:
+                        </li>
+                        :
                         <li className="nav-item">
-                            {/* <Link className={`nav-link ${transActive && 'active'}`} onClick={()=>handleNavbarActive('trans')} >Transactions</Link> */}
                             <Link className={`nav-link ${transActive && 'active'}`} to={`/accounts/account-detail/${accountId}?page=transactions`}>Transactions</Link>
                         </li>
                     }

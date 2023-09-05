@@ -2,77 +2,58 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 
 const TransactionsAccount = (props) => {
     const {accountId} = useParams()
     const { getCurrency } = useGeneralFunc()
-
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState([])
 
     useEffect(() => {
-        setContacts(props.contacts)
-    }, [props.contacts])
-    
+        props.contacts.length === 0 && props.getContactsFromAPI()
+    }, [])
     useEffect(() => {
-        props.getContactsFromAPI()
+        const temp = props.contacts
+        temp.length > 0 && setContacts(temp)
+    }, [props.contacts])
+
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        getTransactionsProps()
     }, [])
 
     const getTransactions = async() => {
         let trans = []
-        const temp1 = props.transactions.journalEntries
-        const journalEntries = temp1 ? temp1 : await props.getJournalEntriesFromAPI()
-        journalEntries.forEach(e => {
-            e.transAccounts.forEach(acc => {
-                acc.account === accountId &&
-                trans.push({
-                    ...e,
-                    surl:`/journal-entries/transaction-detail/${e.id}`
-                })
-            })
-        })
-        const temp2 = props.transactions.paymentJournal
-        const paymentJournal = temp2 ? temp2 : await props.getPaymentJournalsFromAPI()
-        paymentJournal.forEach(e => {
-            e.transAccounts.forEach(acc => {
-                acc.account === accountId &&
-                trans.push({
-                    ...e,
-                    surl:`/payment-journal/transaction-detail/${e.id}`
-                })
-            })
-        })
-        const temp3 = props.transactions.receiptJournal
-        const receiptJournal = temp3 ? temp3 : await props.getReceiptJournalsFromAPI()
-        receiptJournal.forEach(e => {
-            e.transAccounts.forEach(acc => {
-                acc.account === accountId &&
-                trans.push({
-                    ...e,
-                    surl:`/receipt-journal/transaction-detail/${e.id}`
-                })
-            })
-        })
-        trans.sort((a, b) => 
-            a.transNumber < b.transNumber ? -1 :
-            a.transNumber > b.transNumber ? 1 : 0
+        const temp1 = props.transactions.openingBalance,
+        temp2 = props.transactions.receiptJournal,
+        temp3 = props.transactions.paymentJournal,
+        temp4 = props.transactions.journalEntries,
+        temp1url = '/opening-balance',
+        temp2url = '/receipt-journal/transaction-detail/',
+        temp3url = '/payment-journal/transaction-detail/',
+        temp4url = '/journal-entries/transaction-detail/'
+
+        temp2 && temp2.forEach(e =>
+            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp2url + e.id}))
         )
-        trans.sort((a, b) => 
-            a.date < b.date ? -1 :
-            a.date > b.date ? 1 : 0
+        temp3 && temp3.forEach(e =>
+            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp3url + e.id}))
         )
-        const temp4 = props.transactions.openingBalance
-        const openingBalance = temp4 ? temp4 : await props.getOpeningBalanceFromAPI()
-        openingBalance.forEach(e => {
-            e.transAccounts.forEach(acc => {
-                acc.account === accountId &&
-                trans.unshift({
-                    ...e,
-                    surl:'/opening-balance'
-                })
-            })
-        })
+        temp4 && temp4.forEach(e =>
+            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp4url + e.id}))
+        )
+        trans.sort((a, b) => a.transNumber < b.transNumber ? -1 : a.transNumber > b.transNumber ? 1 : 0)
+        trans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
+
+        temp1 && temp1.forEach(e =>
+            e.transAccounts.forEach(acc => acc.account === accountId && trans.unshift({...e, surl: temp1url}))
+        )
         trans.length > 0 && setTransactions(trans)
     }
     useEffect(() => {
@@ -99,9 +80,10 @@ const TransactionsAccount = (props) => {
                         {
                             transactions.map(transaction => {
                                 let { id, contactId, transAccounts, memo, date, transNumber, transType, surl } = transaction
-                                contactId = contactId
                                 let contact = contacts.find(e => contactId === e.id)
                                 let debit = 0, credit = 0
+                                
+                                // transAccounts.length > 0 &&
                                 transAccounts.forEach(trans => {
                                     if(trans.account === accountId) {
                                         debit += trans.debit
@@ -137,7 +119,6 @@ const TransactionsAccount = (props) => {
                                 )
                             })
                         }
-                        
                     </tbody>
                 </table>
             </div>
@@ -151,7 +132,6 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
