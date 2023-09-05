@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdatePaymentJournal.scss'
-
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
-import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
+import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalFromAPI, getPaymentJournalsFromAPI, postPaymentJournalToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 import RowFormPaymentJournal from "../../../../components/molecules/RowFormPaymentJournal";
+import './CreateUpdatePaymentJournal.scss'
 
 const CreateUpdatePaymentJournal = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
-    let duplicate = searchParams.get('duplicate')
+    let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
-    transId = transId ? transId : searchParams.get('transId')
+    // transId = transId ? transId : searchParams.get('transId')
+    !transId && (transId = searchParams.get('transId'))
 
-    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
+    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
@@ -57,25 +56,6 @@ const CreateUpdatePaymentJournal = (props) => {
         codeFor: "paymentJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
-    const getAccounts = async () => {
-        let newAccounts = []
-        let newParentAccounts = []
-        props.accounts.forEach(e => {
-            if(e.isParent) {
-                newParentAccounts.push(e)
-            } else {
-                e.isActive && newAccounts.push(e)
-            }
-        })
-        newParentAccounts.forEach((e, i) => {
-            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
-            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
-        })
-
-        setAccounts(newAccounts)
-        setParentAccounts(newParentAccounts)
-    }
-
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
@@ -83,9 +63,8 @@ const CreateUpdatePaymentJournal = (props) => {
             transAccounts.forEach(e => e.credit ? setPaymentAccount(e) : newTransAccounts.push(e))
             let tempTransaction = {...transaction, contactId, memo, authors}
 
-            if(duplicate) {
-                setIsDuplicate(true)
-            } else {
+            if(duplicate) setIsDuplicate(true)
+            else {
                 setTransDb(dataTransaction)
                 setIsUpdate(true)
                 setTransNumber(dataTransaction.transNumber)
@@ -151,17 +130,17 @@ const CreateUpdatePaymentJournal = (props) => {
         let {name, value, id} = e.target
         let idNumb = +id.slice(3)
         name === 'debit' ?
-            newAccountTransactions[idNumb][name] = +value :
-            newAccountTransactions[idNumb][name] = value
+        newAccountTransactions[idNumb][name] = +value :
+        newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
     }
 
     // untuk submit
     const handleNormalNumb = () => {
         let newAccountTransactions = [...accountTransactions]
-        newAccountTransactions.forEach((acc) => {
+        newAccountTransactions.forEach((acc) =>
             acc.debit = getNormalNumb(acc.debit)
-        })
+        )
         setAccountTransactions(newAccountTransactions)
         return newAccountTransactions
     }
@@ -232,7 +211,7 @@ const CreateUpdatePaymentJournal = (props) => {
             if(isUpdate) {
                 if(numbExist === transDb.transNumber) numbExist = undefined
             }
-            if (numbExist) {
+            if(numbExist) {
                 setTransNumberAvailable(false)
                 accountProblem = true
             }
@@ -240,10 +219,9 @@ const CreateUpdatePaymentJournal = (props) => {
             accountProblem = true
             newValidation.numberNull = true
         }
-        
         accountProblem && handleCurrency(newAccountTransactions)
 
-        for( let x in rowValidation ) {
+        for(let x in rowValidation) {
             newValidation[x] = rowValidation[x]
         }
         setValidation(newValidation)
@@ -257,8 +235,7 @@ const CreateUpdatePaymentJournal = (props) => {
             createdAt: Date.now(),
         }]
         let dataReadyToPost = {
-            ...newTransaction,
-            authors,
+            ...newTransaction, authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postPaymentJournalToAPI(dataReadyToPost)
@@ -308,21 +285,15 @@ const CreateUpdatePaymentJournal = (props) => {
                     credit: totalDebit
                 }
                 transAccounts.push(newPaymentAccount)
-    
                 let newTransaction = {
-                    ...transaction,
-                    transAccounts
+                    ...transaction, transAccounts
                 }
                 for(let i in newTransaction) {
                     !newTransaction[i] && delete newTransaction[i]
                 }
-    
-                if(isUpdate) {
-                    updateProps(newTransaction, {transNumber, id: transDb.id})
-                    await putDataToAPI(newTransaction)
-                } else {
-                    await postDataToAPI(newTransaction)
-                }
+                isUpdate ?
+                await putDataToAPI({...newTransaction, transNumber, id: transDb.id}) :
+                await postDataToAPI(newTransaction)
             }
         }
         else lostConnection()
@@ -331,13 +302,12 @@ const CreateUpdatePaymentJournal = (props) => {
     const getNewTransNumber = async () => {
         const {initialCode, startFrom} = identicalCode
         let numberList = []
-        if(initialCode) {
-            transNumberList.forEach(e => {
-                let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-                if(e.startsWith(initialCode)) { temp % 1 === 0 && numberList.push(temp) }
-            })
-        }
-        if(!initialCode) transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber) )
+        initialCode ?
+        transNumberList.forEach(e => {
+            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
+            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
+        }) :
+        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
 
         let lastOrder = Math.max(...numberList)
         let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
@@ -355,46 +325,16 @@ const CreateUpdatePaymentJournal = (props) => {
         getResetFormIdentical()
     }
 
-    useEffect(() => {
-        transId && getPaymentJournal()
-        props.getContactsFromAPI()
-        // props.getPaymentJournalsFromAPI()
-        props.getAccountsFromAPI()
-    }, [])
-    
-    useEffect(() => {
-        let temp = props.contacts.filter(e => e.isActive === true)
-        setContacts(temp)
-    }, [props.contacts])
-
-    useEffect(() => {
-        let newTransNumbers = []
-        if(props.transactions.paymentJournal) {
-            props.transactions.paymentJournal.forEach(e =>
-                newTransNumbers.push(e.transNumber)
-            )
-        } else {
-            props.getPaymentJournalsFromAPI()
-        }
-        setTransNumberList(newTransNumbers)
-    }, [props.transactions])
-
-    const getPaymentJournal = async () => {
-        let dataTransaction = await props.getPaymentJournalFromAPI(transId)
-        getResetUpdate(dataTransaction)
+    const getCancel = () => {
+        const temp = isUpdate || isDuplicate
+        navigate(temp ? `/payment-journal/transaction-detail/${transId}` : '/payment-journal')
     }
-
-    useEffect(() => {
-        getAccounts()
-    }, [props.accounts])
 
     const handleTotalAmount = () => {
         let totalAmount = 0
         accountTransactions.forEach(trans => {
             let debit = getNormalNumb(trans.debit)
-            if (debit > 0) { 
-                totalAmount += debit 
-            }
+            if(debit > 0) totalAmount += debit
         })
         const newPaymentAccount = {
             ...paymentAccount,
@@ -402,14 +342,56 @@ const CreateUpdatePaymentJournal = (props) => {
         }
         setPaymentAccount(newPaymentAccount)
     }
-
     useEffect(() => {
         let pendingCount = 0
-        accountTransactions.forEach(trans => {
+        accountTransactions.forEach(trans =>
             typeof trans.debit === 'number' && pendingCount++
-        })
+        )
         pendingCount < 1 && handleTotalAmount()
     }, [accountTransactions])
+
+    const getPaymentJournal = async () => {
+        let dataTransaction = await props.getPaymentJournalFromAPI(transId)
+        getResetUpdate(dataTransaction)
+    }
+    useEffect(() => {
+        transId && getPaymentJournal()
+    }, [])
+
+    useEffect(() => {
+        const temp = props.contacts
+        if(temp.length > 0) {
+            const newContacts = temp.filter(e => e.isActive)
+            setContacts(newContacts)
+        }
+        else props.getContactsFromAPI()
+    }, [props.contacts])
+
+    useEffect(() => {
+        const temp = props.transactions.paymentJournal
+        let newTransNumbers = []
+        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getPaymentJournalsFromAPI()
+        setTransNumberList(newTransNumbers)
+    }, [props.transactions])
+
+    const getAccounts = () => {
+        let newAccounts = []
+        let newParentAccounts = []
+        props.accounts.forEach(e => e.isParent ?
+            newParentAccounts.push(e) :
+            e.isActive && newAccounts.push(e)
+        )
+        newParentAccounts.forEach((e, i) => {
+            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
+            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
+        })
+        setAccounts(newAccounts)
+        setParentAccounts(newParentAccounts)
+    }
+    useEffect(() => {
+        props.accounts.length > 0 ?
+        getAccounts() : props.getAccountsFromAPI()
+    }, [props.accounts])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
@@ -519,7 +501,7 @@ const CreateUpdatePaymentJournal = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/payment-journal/transaction-detail/${transId}` : '/payment-journal'} color="outline-danger"/>
+                    <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>
             </div>
 

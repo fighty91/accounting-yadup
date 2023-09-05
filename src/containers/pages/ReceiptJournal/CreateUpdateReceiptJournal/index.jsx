@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import './CreateUpdateReceiptJournal.scss'
-
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalCode";
 import InputValidation from "../../../../components/atoms/InputValidation";
-import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
+import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 import RowFormReceiptJournal from "../../../../components/molecules/RowFormReceiptJournal";
+import './CreateUpdateReceiptJournal.scss'
 
 const CreateUpdateReceiptJournal = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
-    let duplicate = searchParams.get('duplicate')
+    let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
-    transId = transId ? transId : searchParams.get('transId')
+    // transId = transId ? transId : searchParams.get('transId')
+    !transId && (transId = searchParams.get('transId'))
+
 
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
 
@@ -57,37 +57,15 @@ const CreateUpdateReceiptJournal = (props) => {
         codeFor: "receiptJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
-    const getAccounts = async () => {
-        let newAccounts = []
-        let newParentAccounts = []
-        props.accounts.forEach(e => {
-            if(e.isParent) {
-                newParentAccounts.push(e)
-            } else {
-                e.isActive && newAccounts.push(e)
-            }
-        })
-        newParentAccounts.forEach((e, i) => {
-            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
-            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
-        })
-
-        setAccounts(newAccounts)
-        setParentAccounts(newParentAccounts)
-    }
-
     const getResetUpdate = async (dataTransaction) => {
-        // let dataTransaction = await props.getReceiptJournalFromAPI(transId)
-        // let dataTransaction = newTransactions.find(e => e.id === transId)
         if(dataTransaction) {
             const {memo, transAccounts, contactId, date, authors} = dataTransaction
             let newTransAccounts = []
             transAccounts.forEach(e => e.debit ? setReceiptAccount(e) : newTransAccounts.push(e))
             let tempTransaction = {...transaction, contactId, memo, authors}
 
-            if(duplicate) {
-                setIsDuplicate(true)
-            } else {
+            if(duplicate) setIsDuplicate(true)
+            else {
                 setTransDb(dataTransaction)
                 setIsUpdate(true)
                 setTransNumber(dataTransaction.transNumber)
@@ -153,17 +131,17 @@ const CreateUpdateReceiptJournal = (props) => {
         let {name, value, id} = e.target
         let idNumb = +id.slice(3)
         name === 'credit' ?
-            newAccountTransactions[idNumb][name] = +value :
-            newAccountTransactions[idNumb][name] = value
+        newAccountTransactions[idNumb][name] = +value :
+        newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
     }
 
     // untuk submit
     const handleNormalNumb = () => {
         let newAccountTransactions = [...accountTransactions]
-        newAccountTransactions.forEach((acc) => {
+        newAccountTransactions.forEach((acc) =>
             acc.credit = getNormalNumb(acc.credit)
-        })
+        )
         setAccountTransactions(newAccountTransactions)
         return newAccountTransactions
     }
@@ -233,7 +211,7 @@ const CreateUpdateReceiptJournal = (props) => {
             if(isUpdate) {
                 if(numbExist === transDb.transNumber) numbExist = undefined
             }
-            if (numbExist) {
+            if(numbExist) {
                 setTransNumberAvailable(false)
                 accountProblem = true
             }
@@ -243,7 +221,7 @@ const CreateUpdateReceiptJournal = (props) => {
         }
         accountProblem && handleCurrency(newAccountTransactions)
 
-        for( let x in rowValidation ) {
+        for(let x in rowValidation) {
             newValidation[x] = rowValidation[x]
         }
         setValidation(newValidation)
@@ -257,8 +235,7 @@ const CreateUpdateReceiptJournal = (props) => {
             createdAt: Date.now(),
         }]
         let dataReadyToPost = {
-            ...newTransaction,
-            authors,
+            ...newTransaction, authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postReceiptJournalToAPI(dataReadyToPost)
@@ -291,45 +268,48 @@ const CreateUpdateReceiptJournal = (props) => {
         }
     }
 
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions, totalCredit} = await getAccountValidation()
-        if(!accountProblem) {
-            let newReceiptAccount = {
-                ...receiptAccount,
-                debit: totalCredit
-            }
-            let transAccounts = [newReceiptAccount]
-            for( let e of newAccountTransactions) {
-                e.account && e.credit > 0 && transAccounts.push(e)
-            }
-
-            let newTransaction = {
-                ...transaction,
-                transAccounts
-            }
-            for(let i in newTransaction) {
-                !newTransaction[i] && delete newTransaction[i]
-            }
-
-            if(isUpdate) {
-                updateProps(newTransaction, {transNumber, id: transDb.id})
-                await putDataToAPI(newTransaction)
-            } else {
+        if(window.navigator.onLine) {
+            let {accountProblem, newAccountTransactions, totalCredit} = await getAccountValidation()
+            if(!accountProblem) {
+                let newReceiptAccount = {
+                    ...receiptAccount,
+                    debit: totalCredit
+                }
+                let transAccounts = [newReceiptAccount]
+                newAccountTransactions.forEach(e =>
+                    e.account && e.credit > 0 && transAccounts.push(e)
+                )
+                let newTransaction = {
+                    ...transaction, transAccounts
+                }
+                for(let i in newTransaction) {
+                    !newTransaction[i] && delete newTransaction[i]
+                }
+                isUpdate ?
+                await putDataToAPI({...newTransaction, transNumber, id: transDb.id}) :
                 await postDataToAPI(newTransaction)
             }
         }
+        else lostConnection()
     }
 
     const getNewTransNumber = async () => {
         const {initialCode, startFrom} = identicalCode
         let numberList = []
-        if(initialCode) {
-            transNumberList.forEach(e => {
-                let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-                if(e.startsWith(initialCode)) { temp % 1 === 0 && numberList.push(temp) }
-            })
-        }
-        if(!initialCode) transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber) )
+        initialCode ?
+        transNumberList.forEach(e => {
+            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
+            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
+        }) :
+        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
 
         let lastOrder = Math.max(...numberList)
         let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
@@ -347,45 +327,16 @@ const CreateUpdateReceiptJournal = (props) => {
         getResetFormIdentical()
     }
 
-    useEffect(() => {
-        transId && getReceiptJournal()
-        props.getContactsFromAPI()
-        props.getAccountsFromAPI()
-    }, [])
-    
-    useEffect(() => {
-        let temp = props.contacts.filter(e => e.isActive === true)
-        setContacts(temp)
-    }, [props.contacts])
-
-    useEffect(() => {
-        let newTransNumbers = []
-        if(props.transactions.receiptJournal) {
-            props.transactions.receiptJournal.forEach(e => {
-                newTransNumbers.push(e.transNumber)
-            })
-        } else {
-            props.getReceiptJournalsFromAPI()
-        }
-        setTransNumberList(newTransNumbers)
-    }, [props.transactions])
-
-    const getReceiptJournal = async () => {
-        let dataTransaction = await props.getReceiptJournalFromAPI(transId)
-        getResetUpdate(dataTransaction)
+    const getCancel = () => {
+        const temp = isUpdate || isDuplicate
+        navigate(temp ? `/receipt-journal/transaction-detail/${transId}` : '/receipt-journal')
     }
-
-    useEffect(() => {
-        getAccounts()
-    }, [props.accounts])
 
     const handleTotalAmount = () => {
         let totalAmount = 0
         accountTransactions.forEach(trans => {
             let credit = getNormalNumb(trans.credit)
-            if (credit > 0) { 
-                totalAmount += credit 
-            }
+            if(credit > 0) totalAmount += credit 
         })
         const newReceiptAccount = {
             ...receiptAccount,
@@ -393,14 +344,56 @@ const CreateUpdateReceiptJournal = (props) => {
         }
         setReceiptAccount(newReceiptAccount)
     }
-
     useEffect(() => {
         let pendingCount = 0
-        accountTransactions.forEach(trans => {
+        accountTransactions.forEach(trans =>
             typeof trans.credit === 'number' && pendingCount++
-        })
+        )
         pendingCount < 1 && handleTotalAmount()
     }, [accountTransactions])
+
+    const getReceiptJournal = async () => {
+        let dataTransaction = await props.getReceiptJournalFromAPI(transId)
+        getResetUpdate(dataTransaction)
+    }
+    useEffect(() => {
+        transId && getReceiptJournal()
+    }, [])
+
+    useEffect(() => {
+        const temp = props.contacts
+        if(temp.length > 0) {
+            const newContacts = temp.filter(e => e.isActive)
+            setContacts(newContacts)
+        }
+        else props.getContactsFromAPI()
+    }, [props.contacts])
+
+    useEffect(() => {
+        const temp = props.transactions.receiptJournal
+        let newTransNumbers = []
+        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getReceiptJournalsFromAPI()
+        setTransNumberList(newTransNumbers)
+    }, [props.transactions])
+
+    const getAccounts = () => {
+        let newAccounts = []
+        let newParentAccounts = []
+        props.accounts.forEach(e => e.isParent ?
+            newParentAccounts.push(e) :
+            e.isActive && newAccounts.push(e)
+        )
+        newParentAccounts.forEach((e, i) => {
+            let childAccount = newAccounts.find(acc => e.id === acc.parentId)
+            if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
+        })
+        setAccounts(newAccounts)
+        setParentAccounts(newParentAccounts)
+    }
+    useEffect(() => {
+        props.accounts.length > 0 ?
+        getAccounts() : props.getAccountsFromAPI()
+    }, [props.accounts])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
@@ -487,7 +480,6 @@ const CreateUpdateReceiptJournal = (props) => {
                                     <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
                                     <th className="text-end pe-3 column-credit">Amount</th>
-                                    {/* <th className="text-end pe-3 column-credit">Credit</th> */}
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
                                     </th>
@@ -511,7 +503,7 @@ const CreateUpdateReceiptJournal = (props) => {
                     </div>
                     <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
                     &nbsp;&nbsp;&nbsp;
-                    <ButtonLinkTo name="Cancel" linkTo={isUpdate || isDuplicate? `/receipt-journal/transaction-detail/${transId}` : '/receipt-journal'} color="outline-danger"/>
+                    <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>
             </div>
 

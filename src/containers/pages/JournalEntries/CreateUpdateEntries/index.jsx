@@ -20,7 +20,7 @@ const CreateUpdateEntries = (props) => {
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
 
-    const { getCurrency, getFullDateNow, getNormalNumb, updateProps } = useGeneralFunc()
+    const { getCurrency, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
@@ -120,8 +120,8 @@ const CreateUpdateEntries = (props) => {
         let {name, value, id} = data.target
         let idNumb = +id.slice(3)
         name === 'debit' || name === 'credit' ?
-            newAccountTransactions[idNumb][name] = +value :
-            newAccountTransactions[idNumb][name] = value
+        newAccountTransactions[idNumb][name] = +value :
+        newAccountTransactions[idNumb][name] = value
         setAccountTransactions(newAccountTransactions)
     }
 
@@ -238,8 +238,7 @@ const CreateUpdateEntries = (props) => {
             createdAt: Date.now(),
         }]
         let dataReadyToPost = {
-            ...newTransaction,
-            authors,
+            ...newTransaction, authors,
             transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postJournalEntryToAPI(dataReadyToPost)
@@ -290,12 +289,9 @@ const CreateUpdateEntries = (props) => {
                 for(let i in newTransaction) {
                     !newTransaction[i] && delete newTransaction[i]
                 }
-                if(isUpdate) {
-                    updateProps(newTransaction, {transNumber, id: transDb.id})
-                    await putDataToAPI(newTransaction)
-                } else {
-                    await postDataToAPI(newTransaction)
-                }
+                isUpdate ?
+                await putDataToAPI({...newTransaction, transNumber, id: transDb.id}) :
+                await postDataToAPI(newTransaction)
             }
         }
         else lostConnection()
@@ -304,13 +300,12 @@ const CreateUpdateEntries = (props) => {
     const getNewTransNumber = async () => {
         const {initialCode, startFrom} = identicalCode
         let numberList = []
-        if(initialCode) {
-            transNumberList.forEach(e => {
-                let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-                if(e.startsWith(initialCode)) { temp % 1 === 0 && numberList.push(temp) }
-            })
-        }
-        if(!initialCode) transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber) )
+        initialCode ?
+        transNumberList.forEach(e => {
+            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
+            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
+        }) :
+        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
 
         let lastOrder = Math.max(...numberList)
         let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
@@ -352,19 +347,27 @@ const CreateUpdateEntries = (props) => {
     
     useEffect(() => {
         const temp = props.contacts
-        let newContacts = []
-        temp.length > 0 ?
-        newContacts = temp.filter(e => e.isActive === true) : props.getContactsFromAPI()
-        setContacts(newContacts)
+        if(temp.length > 0) {
+            const newContacts = temp.filter(e => e.isActive)
+            setContacts(newContacts)
+        }
+        else props.getContactsFromAPI()
     }, [props.contacts])
+
+    useEffect(() => {
+        const temp = props.transactions.journalEntries
+        let newTransNumbers = []
+        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getJournalEntriesFromAPI()
+        setTransNumberList(newTransNumbers)
+    }, [props.transactions])
 
     const getAccounts = () => {
         let newAccounts = []
         let newParentAccounts = []
-        props.accounts.forEach(e => {
-            if(e.isParent) newParentAccounts.push(e)
-            else e.isActive && newAccounts.push(e)
-        })
+        props.accounts.forEach(e => e.isParent ?
+            newParentAccounts.push(e) :
+            e.isActive && newAccounts.push(e)
+        )
         newParentAccounts.forEach((e, i) => {
             let childAccount = newAccounts.find(acc => e.id === acc.parentId)
             if(!childAccount || !e.isActive) newParentAccounts.splice(i,1)
@@ -373,16 +376,8 @@ const CreateUpdateEntries = (props) => {
         setParentAccounts(newParentAccounts)
     }
     useEffect(() => {
-        const temp = props.accounts
-        temp.length > 0 ? getAccounts() : props.getAccountsFromAPI()
+        props.accounts.length > 0 ? getAccounts() : props.getAccountsFromAPI()
     }, [props.accounts])
-
-    useEffect(() => {
-        const temp = props.transactions.journalEntries
-        let newTransNumbers = []
-        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getJournalEntriesFromAPI()
-        setTransNumberList(newTransNumbers)
-    }, [props.transactions])
     
     const {initialCode} = identicalCode
     let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
