@@ -14,8 +14,11 @@ const JournalEntries = (props) => {
     const [contacts, setContacts] = useState()
 
     useEffect(() => {
+        props.contacts.length === 0 && props.getContactsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.contacts
-        temp.length > 0 ? setContacts(temp) : props.getContactsFromAPI()
+        temp.length > 0 && setContacts(temp)
     }, [props.contacts])
 
     useEffect(() => {
@@ -27,8 +30,11 @@ const JournalEntries = (props) => {
     }, [props.accounts])
 
     useEffect(() => {
+        !props.transactions.journalEntries && props.getJournalEntriesFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.transactions.journalEntries
-        temp ? setTransactions(temp) : props.getJournalEntriesFromAPI()
+        temp && setTransactions(temp)
     }, [props.transactions])
     
     return (

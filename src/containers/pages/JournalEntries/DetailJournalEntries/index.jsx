@@ -95,10 +95,6 @@ const DetailJournalEntries = (props) => {
         }
     }
 
-    useEffect(() => {
-        props.users.length < 1 && props.getUsersFromAPI()
-    }, [props.users])
-
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
         accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
@@ -106,9 +102,15 @@ const DetailJournalEntries = (props) => {
     }
 
     useEffect(() => {
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [])
+
+    useEffect(() => {
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.accounts
-        temp.length > 0 ?
-        setAccounts(temp) : props.getAccountsFromAPI()
+        temp.length > 0 && setAccounts(temp)
     }, [props.accounts])
     
     const getTransactions = async() => {

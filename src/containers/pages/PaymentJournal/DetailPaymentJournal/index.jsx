@@ -92,7 +92,7 @@ const DetailPaymentJournal = (props) => {
 
     useEffect(() => {
         props.users.length < 1 && props.getUsersFromAPI()
-    }, [props.users])
+    }, [])
 
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
@@ -101,9 +101,11 @@ const DetailPaymentJournal = (props) => {
     }
 
     useEffect(() => {
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.accounts
-        temp.length > 0 ?
-        setAccounts(temp) : props.getAccountsFromAPI()
+        temp.length > 0 && setAccounts(temp)
     }, [props.accounts])
     
     const getTransactions = async() => {
