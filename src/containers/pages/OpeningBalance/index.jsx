@@ -50,7 +50,7 @@ const OpeningBalance = (props) => {
             const category = categories.find(e => e.id === acc.categoryId)
             acc.categoryName = category && category.name
         })
-        return { childAccounts }
+        return {childAccounts}
     }
 
     const getDate = () => {
@@ -72,13 +72,19 @@ const OpeningBalance = (props) => {
     }, [props.accounts])
 
     useEffect(() => {
-        let temp = props.categories
-        temp.length > 0 ? setCategories(temp) : props.getCategoriesFromAPI()
+        props.categories.length === 0 && props.getCategoriesFromAPI()
+    }, [])
+    useEffect(() => {
+        const temp = props.categories
+        temp.length > 0 && setCategories(temp)
     }, [props.categories])
     
     useEffect(() => {
-        let temp = props.transactions.openingBalance
-        temp ? setOpeningBalance(temp[0]) : props.getOpeningBalanceFromAPI()
+        !props.transactions.openingBalance && props.getOpeningBalanceFromAPI()
+    }, [])
+    useEffect(() => {
+        const temp = props.transactions.openingBalance
+        temp && setOpeningBalance(temp[0])
     }, [props.transactions])
 
     let totalDebit = 0, totalCredit = 0

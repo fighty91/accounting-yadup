@@ -298,7 +298,7 @@ const CreateUpdateOpeningBalance = (props) => {
     }
     useEffect(() => {
         getTransactionsDate()
-    }, [props.transactions])
+    }, [])
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
