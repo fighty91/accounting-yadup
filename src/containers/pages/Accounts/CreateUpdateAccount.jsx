@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
-
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import InputValidation from "../../../components/atoms/InputValidation";
 import FormSubAccount from "../../../components/molecules/SubAccountForm";
@@ -10,11 +9,9 @@ import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndL
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getTransactionsFromAPI, postAccountToAPI, putAccountToAPI } from "../../../config/redux/action";
 import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
-
-import { useAccountFunc, useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const CreateUpdateAccount = (props) => {
-    const { emptyAcc } = useAccountFunc()
     const { deleteProps, updateProps } = useGeneralFunc()
     const {accountId} = useParams()
     const navigate = useNavigate()
@@ -23,7 +20,14 @@ const CreateUpdateAccount = (props) => {
     const [masterDepreciaton, setMasterDepreciaton] = useState([])
     const [numberAccounts, setNumberAccounts] = useState([])
     const [masterAmortization, setMasterAmortization] = useState([])
-    const [account, setAccount] = useState({})
+    const [account, setAccount] = useState({
+        accountName: '',
+        number: '',
+        categoryId: '',
+        balance: '',
+        isParent: false,
+        isActive: true
+    })
     const [accountDb, setAccountDb] = useState()
     const [categories, setCategories] = useState([])
     const [accountType, setAccountType] = useState('subAccount')
@@ -73,28 +77,6 @@ const CreateUpdateAccount = (props) => {
         }
     }
     
-    const getAccountCollect = async () => {
-        const accGroup = await getAccGroup(accountId)
-        const {newParentAccounts, newMasterDepreciaton, newMasterAmortization, numberData} = accGroup
-
-        setParentAccounts(newParentAccounts)
-        setMasterDepreciaton(newMasterDepreciaton)
-        setMasterAmortization(newMasterAmortization)
-        setNumberAccounts(numberData)
-
-        if(accountId) {
-            let newAccountDb = {...accGroup.accountDb}
-            const { isParent, isAmortization, isDepreciation } = newAccountDb
-            isParent && setAccountType('isParent')
-            if(isAmortization || isDepreciation) setAccountType('isAccumulation')
-            isAmortization && setAccumulationType('isAmortization')
-            isDepreciation && setAccumulationType('isDepreciation')
-            setAccount(newAccountDb)
-            setAccountDb(newAccountDb)
-            checkMapping(newAccountDb)
-        }
-    }
-
     // update
     const checkMapping = async (newAccount) => {
         const { isParent, isAmortization, isDepreciation} = newAccount
@@ -178,9 +160,7 @@ const CreateUpdateAccount = (props) => {
         }
     }
 
-    const getResetForm = () => {
-        setAccount(emptyAcc)
-    }
+    
 
     const getNumberValid = async (data) => {
         let newNullValid = data.newNullValid
@@ -313,21 +293,46 @@ const CreateUpdateAccount = (props) => {
         setIsUpdate(true)
         props.getContactsFromAPI()
         props.getTransactionsFromAPI()
+        // dicek kembali lagi
     }
-        
     useEffect(() => {
-        !accountId && getResetForm()
         accountId && setUpdate()
-        props.getAccountsFromAPI()
-        props.getCategoriesFromAPI()
     }, [])
-    
+        
+    const getAccountCollect = async () => {
+        const accGroup = await getAccGroup(accountId)
+        const {newParentAccounts, newMasterDepreciaton, newMasterAmortization, numberData} = accGroup
+
+        setParentAccounts(newParentAccounts)
+        setMasterDepreciaton(newMasterDepreciaton)
+        setMasterAmortization(newMasterAmortization)
+        setNumberAccounts(numberData)
+
+        if(accountId) {
+            let newAccountDb = {...accGroup.accountDb}
+            const { isParent, isAmortization, isDepreciation } = newAccountDb
+            isParent && setAccountType('isParent')
+            if(isAmortization || isDepreciation) setAccountType('isAccumulation')
+            isAmortization && setAccumulationType('isAmortization')
+            isDepreciation && setAccumulationType('isDepreciation')
+            setAccount(newAccountDb)
+            setAccountDb(newAccountDb)
+            checkMapping(newAccountDb)
+        }
+    }
     useEffect(() => {
-        getAccountCollect()
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && getAccountCollect()
     }, [props.accounts])
 
     useEffect(() => {
-        setCategories(props.categories)
+        props.categories.length === 0 && props.getCategoriesFromAPI()
+    }, [])
+    useEffect(() => {
+        const temp = props.categories
+        temp.length > 0 && setCategories(temp)
     }, [props.categories])
 
     useEffect(() => {
@@ -375,9 +380,7 @@ const CreateUpdateAccount = (props) => {
                             { nullValid.balance && <InputValidation name="balance null" /> }
                         </div>
                     </div>
-
                     <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} mappingRole={mappingRole} />
-                    
                     <div>
                         <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} isUpdate={isUpdate}/>
                         &nbsp;&nbsp;&nbsp;

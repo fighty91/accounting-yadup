@@ -12,8 +12,8 @@ const Accounts = (props) => {
     const [parentAccounts, setParentAccounts] = useState([])
     const [categories, setCategories] = useState([])
     const [transactions, setTransactions] = useState([])
-
     const { getCurrencyAbs } = useGeneralFunc()
+
     const transAmount = (accountId) => {
         let parentAmount = 0
         let childAccounts = accounts.filter(e => e.parentId === accountId)
@@ -40,39 +40,44 @@ const Accounts = (props) => {
         setAccounts(newAccounts)
     }
     useEffect(() => {
-        props.accounts.length > 0 &&
-        setAccountsFromProps()
-    }, [props.accounts])
-
-    useEffect(() => {
-        props.accounts.length === 0 &&
-        props.getAccountsFromAPI()
+        props.accounts.length === 0 && props.getAccountsFromAPI()
     }, [])
-
+    useEffect(() => {
+        props.accounts.length > 0 && setAccountsFromProps()
+    }, [props.accounts])
+    
+    useEffect(() => {
+        props.categories.length === 0 && props.getCategoriesFromAPI()
+    }, [])
     useEffect(() => {
         const temp = props.categories
-        temp.length > 0 ? setCategories(temp) : props.getCategoriesFromAPI()
+        temp.length > 0 && setCategories(temp)
     }, [props.categories])
     
+    const getTransactionsCheck = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        getTransactionsCheck()
+    }, [])
     const getTransactions = async() => {
-        const temp1 = props.transactions.journalEntries
-        const journalEntries = temp1 ? temp1 : await props.getJournalEntriesFromAPI()
-    
-        const temp2 = props.transactions.paymentJournal
-        const paymentJournal = temp2 ? temp2 : await props.getPaymentJournalsFromAPI()
-    
-        const temp3 = props.transactions.receiptJournal
-        const receiptJournal = temp3 ? temp3 : await props.getReceiptJournalsFromAPI()
-        
-        const temp4 = props.transactions.openingBalance
-        const openingBalance = temp4 ? temp4 : await props.getOpeningBalanceFromAPI()
+        let trans = []
 
-        let trans = [
-            ...journalEntries,
-            ...paymentJournal,
-            ...receiptJournal,
-            ...openingBalance
-        ]
+        const temp1 = props.transactions.openingBalance
+        temp1 && temp1.length > 0 && temp1.forEach(e => trans.push(e))
+        
+        const temp2 = props.transactions.paymentJournal
+        temp2 && temp2.length > 0 && temp2.forEach(e => trans.push(e))
+        
+        const temp3 = props.transactions.receiptJournal
+        temp3 && temp3.length > 0 && temp3.forEach(e => trans.push(e))
+        
+        const temp4 = props.transactions.journalEntries
+        temp4 && temp4.length > 0 && temp4.forEach(e => trans.push(e))
+
         trans.length > 0 && setTransactions(trans)
     }
     useEffect(() => {
