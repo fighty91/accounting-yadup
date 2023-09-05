@@ -18,7 +18,6 @@ const CreateUpdatePaymentJournal = (props) => {
     const searchParams = new URLSearchParams(search)
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
-    // transId = transId ? transId : searchParams.get('transId')
     !transId && (transId = searchParams.get('transId'))
 
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } = useGeneralFunc()
@@ -359,18 +358,23 @@ const CreateUpdatePaymentJournal = (props) => {
     }, [])
 
     useEffect(() => {
+        props.contacts.length === 0 && props.getContactsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.contacts
         if(temp.length > 0) {
             const newContacts = temp.filter(e => e.isActive)
             setContacts(newContacts)
         }
-        else props.getContactsFromAPI()
     }, [props.contacts])
 
     useEffect(() => {
+        !props.transactions.paymentJournal && props.getPaymentJournalsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.transactions.paymentJournal
         let newTransNumbers = []
-        temp ? temp.forEach(e => newTransNumbers.push(e.transNumber)) : props.getPaymentJournalsFromAPI()
+        temp && temp.forEach(e => newTransNumbers.push(e.transNumber))
         setTransNumberList(newTransNumbers)
     }, [props.transactions])
 
@@ -389,8 +393,10 @@ const CreateUpdatePaymentJournal = (props) => {
         setParentAccounts(newParentAccounts)
     }
     useEffect(() => {
-        props.accounts.length > 0 ?
-        getAccounts() : props.getAccountsFromAPI()
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && getAccounts()
     }, [props.accounts])
     
     const {initialCode} = identicalCode

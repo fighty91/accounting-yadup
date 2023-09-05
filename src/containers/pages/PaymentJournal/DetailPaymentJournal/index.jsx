@@ -78,27 +78,25 @@ const DetailPaymentJournal = (props) => {
                 authorId = authors[0].createdBy
                 dateTemp = new Date(authors[0].createdAt)
             }
-            
             let authorName = ''
             for(let e of props.users) {
                 if(e.uid2 === authorId) authorName = e.name
             }
-            
             let dateMsg = dateTemp.toLocaleString()
             const msg = `${initialMsg} ${authorName} ${dateMsg}`
             return msg
         }
     }
 
-    useEffect(() => {
-        props.users.length < 1 && props.getUsersFromAPI()
-    }, [])
-
     const getAccount = (dataId) => {
         let newAccount = {name: ''}
         accounts.forEach(acc => acc.id === dataId && (newAccount = acc))
         return newAccount 
     }
+    
+    useEffect(() => {
+        props.users.length < 1 && props.getUsersFromAPI()
+    }, [])
 
     useEffect(() => {
         props.accounts.length === 0 && props.getAccountsFromAPI()
@@ -137,6 +135,7 @@ const DetailPaymentJournal = (props) => {
     useEffect(() => {
         getTransactions()
     }, [props.transactions])
+
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
