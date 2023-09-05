@@ -16,7 +16,7 @@ const CreateUpdateEntries = (props) => {
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
-    let duplicate = searchParams.get('duplicate')
+    let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
 

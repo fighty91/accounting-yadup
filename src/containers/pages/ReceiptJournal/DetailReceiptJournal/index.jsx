@@ -25,6 +25,7 @@ const DetailReceiptJournal = (props) => {
         transType: "Receipt Journal",
         transAccounts: []
     })
+    const [dataReady, setDataReady] = useState(false)
     
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -114,7 +115,7 @@ const DetailReceiptJournal = (props) => {
     const getTransactions = async() => {
         const temps = props.transactions.receiptJournal,
         temp = temps && await temps.find(e => e.id === transId),
-        tempTrans = temp ? temp :  await props.getReceiptJournalFromAPI(transId)
+        tempTrans = temp ? temp : await props.getReceiptJournalFromAPI(transId)
 
         let tempReceiptAccount,
         tempTransAccounts = []
@@ -125,7 +126,9 @@ const DetailReceiptJournal = (props) => {
             setTransAccounts(tempTransAccounts)
             setReceiptAccount(tempReceiptAccount)
             getContact(tempTrans.contactId)
-        } else {
+            setDataReady(true)
+        }
+        else if(!dataReady) {
             navigate('/receipt-journal')
             Swal.fire({
                 title: 'No Available!',
@@ -137,7 +140,7 @@ const DetailReceiptJournal = (props) => {
     }
     useEffect(() => {
         getTransactions()
-    }, [])
+    }, [props.transactions])
 
     return (
         <LayoutsMainContent>

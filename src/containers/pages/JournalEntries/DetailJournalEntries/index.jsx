@@ -24,6 +24,7 @@ const DetailJournalEntries = (props) => {
         transType: "Journal Entries",
         transAccounts: []
     })
+    const [dataReady, setDataReady] = useState(false)
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -119,7 +120,9 @@ const DetailJournalEntries = (props) => {
             setTransaction(tempTrans)
             setTransAccounts(tempTrans.transAccounts)
             getContact(tempTrans.contactId)
-        } else {
+            setDataReady(true)
+        }
+        else if(!dataReady) {
             navigate('/journal-entries')
             Swal.fire({
                 title: 'No Available!',
@@ -131,7 +134,7 @@ const DetailJournalEntries = (props) => {
     }
     useEffect(() => {
         getTransactions()
-    }, [])
+    }, [props.transactions])
     
     return (
         <LayoutsMainContent>

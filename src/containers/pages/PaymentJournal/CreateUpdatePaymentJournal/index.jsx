@@ -291,34 +291,41 @@ const CreateUpdatePaymentJournal = (props) => {
         }
     }
 
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
     const handleSubmit = async () => {
-        let {accountProblem, newAccountTransactions, totalDebit} = await getAccountValidation()
-        if(!accountProblem) {
-            let transAccounts = []
-            for( let e of newAccountTransactions) {
-                e.account && e.debit > 0 && transAccounts.push(e)
-            }
-            let newPaymentAccount = {
-                ...paymentAccount,
-                credit: totalDebit
-            }
-            transAccounts.push(newPaymentAccount)
-
-            let newTransaction = {
-                ...transaction,
-                transAccounts
-            }
-            for(let i in newTransaction) {
-                !newTransaction[i] && delete newTransaction[i]
-            }
-
-            if(isUpdate) {
-                updateProps(newTransaction, {transNumber, id: transDb.id})
-                await putDataToAPI(newTransaction)
-            } else {
-                await postDataToAPI(newTransaction)
+        if(window.navigator.onLine) {
+            let {accountProblem, newAccountTransactions, totalDebit} = await getAccountValidation()
+            if(!accountProblem) {
+                let transAccounts = newAccountTransactions.filter(e => e.account && e.debit > 0)
+                let newPaymentAccount = {
+                    ...paymentAccount,
+                    credit: totalDebit
+                }
+                transAccounts.push(newPaymentAccount)
+    
+                let newTransaction = {
+                    ...transaction,
+                    transAccounts
+                }
+                for(let i in newTransaction) {
+                    !newTransaction[i] && delete newTransaction[i]
+                }
+    
+                if(isUpdate) {
+                    updateProps(newTransaction, {transNumber, id: transDb.id})
+                    await putDataToAPI(newTransaction)
+                } else {
+                    await postDataToAPI(newTransaction)
+                }
             }
         }
+        else lostConnection()
     }
 
     const getNewTransNumber = async () => {
@@ -489,7 +496,6 @@ const CreateUpdatePaymentJournal = (props) => {
                                     <th className="text-start column-account">Account</th>
                                     <th className="text-start ps-3">Description</th>
                                     <th className="text-end pe-3 column-debit">Amount</th>
-                                    {/* <th className="text-end pe-3 column-credit">Credit</th> */}
                                     <th>
                                         <button className="btn btn-outline-success btn-sm delete-row add-row" onClick={handleAddRow}>+</button>
                                     </th>

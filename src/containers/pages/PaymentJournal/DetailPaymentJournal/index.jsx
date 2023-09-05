@@ -25,6 +25,7 @@ const DetailPaymentJournal = (props) => {
         transType: "Payment Journal",
         transAccounts: []
     })
+    const [dataReady, setDataReady] = useState(false)
 
     const handleDeleteTransaction = () => {
         Swal.fire({
@@ -108,7 +109,7 @@ const DetailPaymentJournal = (props) => {
     const getTransactions = async() => {
         const temps = props.transactions.paymentJournal,
         temp = temps && await temps.find(e => e.id === transId),
-        tempTrans = temp ? temp :  await props.getPaymentJournalFromAPI(transId)
+        tempTrans = temp ? temp : await props.getPaymentJournalFromAPI(transId)
 
         let tempPaymentAccount,
         tempTransAccounts = []
@@ -119,7 +120,9 @@ const DetailPaymentJournal = (props) => {
             setTransAccounts(tempTransAccounts)
             setPaymentAccount(tempPaymentAccount)
             getContact(tempTrans.contactId)
-        } else {
+            setDataReady(true)
+        }
+        else if(!dataReady) {
             navigate('/payment-journal')
             Swal.fire({
                 title: 'No Available!',
@@ -131,7 +134,7 @@ const DetailPaymentJournal = (props) => {
     }
     useEffect(() => {
         getTransactions()
-    }, [])
+    }, [props.transactions])
     return (
         <LayoutsMainContent>
             <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
