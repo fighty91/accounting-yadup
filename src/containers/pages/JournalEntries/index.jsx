@@ -19,8 +19,11 @@ const JournalEntries = (props) => {
     }, [props.contacts])
 
     useEffect(() => {
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
         const temp = props.accounts
-        temp.length > 0 ? setAccounts(temp) : props.getAccountsFromAPI()
+        temp.length > 0 && setAccounts(temp)
     }, [props.accounts])
 
     useEffect(() => {

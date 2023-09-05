@@ -65,8 +65,10 @@ const OpeningBalance = (props) => {
         setAccounts(newAccounts)
     }
     useEffect(() => {
-        props.accounts.length > 0 ?
-        setAccountsFromProps() : props.getAccountsFromAPI()
+        props.accounts.length === 0 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && setAccountsFromProps()
     }, [props.accounts])
 
     useEffect(() => {
