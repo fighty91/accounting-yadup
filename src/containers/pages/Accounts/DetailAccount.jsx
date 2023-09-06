@@ -9,7 +9,6 @@ import SubAccountList from "../../../components/molecules/AccountCard/SubAccount
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
 import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, setActiveAccount } from "../../../config/redux/action";
-
 import { confirmDeleteAccount } from "../../organisms/MyFunctions/useAccountFunc";
 
 const DetailAccount = (props) => {
@@ -24,6 +23,7 @@ const DetailAccount = (props) => {
     const [category, setCategory] = useState()
     const [parent, setParent] = useState()
     const [masterAccum, setMasterAccum] = useState()
+    const [dataReady, setDataReady] = useState(false)
 
     const Toast = Swal.mixin({
         toast: true,
@@ -44,6 +44,11 @@ const DetailAccount = (props) => {
         confirmButtonColor: '#fd7e14'
     })
 
+    const getContacts = async() => {
+        let temp = props.contacts
+        if(temp.length === 0) temp = await props.getContactsFromAPI()
+        return temp
+    }
     const getTransactions = async() => {
         let newTrans = [],
         temp1 = props.transactions.openingBalance,
@@ -51,39 +56,35 @@ const DetailAccount = (props) => {
         temp3 = props.transactions.paymentJournal,
         temp4 = props.transactions.journalEntries
 
-        !temp1 && (temp1 = await props.getOpeningBalanceFromAPI())
-        !temp2 && (temp2 = await props.getReceiptJournalsFromAPI())
-        !temp3 && (temp3 = await props.getPaymentJournalsFromAPI())
-        !temp4 && (temp4 = await props.getJournalEntriesFromAPI())
+        if(!temp1) temp1 = await props.getOpeningBalanceFromAPI()
+        if(!temp2) temp2 = await props.getReceiptJournalsFromAPI()
+        if(!temp3) temp3 = await props.getPaymentJournalsFromAPI()
+        if(!temp4) temp4 = await props.getJournalEntriesFromAPI()
 
         temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
         temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
         temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
         temp1 && temp1.length > 0 && newTrans.unshift(temp1[0])
-
-        temp1 && temp1.length > 0 && temp1.forEach(e => newTrans.unshift(e))
         return newTrans
     }
-    
     const getConfirmDelete = async () => {
         if(window.navigator.onLine) {
             const transactions = await getTransactions(),
+            contacts = await getContacts(),
             data = {
-                account, 
-                transactions,
-                contacts: props.contacts,
+                account, transactions, contacts,
                 accounts: props.accounts,
             }
             const deleteApproval = await confirmDeleteAccount(data)
-    
+
             let deleteSuccess = false
             if(deleteApproval) deleteSuccess = await props.deleteAccountFromAPI(accountId)
             if(deleteSuccess) {
+                navigate('/accounts')
                 Toast.fire({
                     icon: 'success',
                     title: `Success Delete (${account.number})\n${account.accountName}`
                 })
-                navigate('/accounts')
             }
         }
         else lostConnection()
@@ -98,7 +99,7 @@ const DetailAccount = (props) => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            if (result.isConfirmed) {
+            if(result.isConfirmed) {
                 getConfirmDelete()
             }
         })
@@ -111,7 +112,8 @@ const DetailAccount = (props) => {
             Toast.fire({
                 icon: 'success',
                 title: 'Account Active'
-            }) :
+            })
+            :
             Toast.fire({
                 icon: 'warning',
                 title: 'Account not Actived'
@@ -123,18 +125,9 @@ const DetailAccount = (props) => {
         putActiveAccount(e.target.checked) : lostConnection()
     }
 
-
-    
-
-    useEffect(() => {
-        props.getContactsFromAPI()
-    }, [accountId])
-    
-    
-
     const handleNavbarActive = () => {
-        let newNavbarActive = {...navbarActive}
-        let temp = {
+        let newNavbarActive = {...navbarActive},
+        temp = {
             profileActive: 'profile',
             transActive: 'transactions',
             subListActive: 'sub-account-list'
@@ -158,25 +151,34 @@ const DetailAccount = (props) => {
         })
     }
     const setData = async () => {
-        const temp = props.accounts,
-        newAccount = await temp.find(e => e.id === accountId)
+        const temp = props.accounts
+        let newAccount,
+        tempAccounts = temp.length > 0 ? temp : await props.getAccountsFromAPI()
         
+        if(tempAccounts.length > 0) newAccount = await tempAccounts.find(e => e.id === accountId)
         if(newAccount) {
-            setAccount(newAccount)
-            const newParent = await temp.find(e => e.id === newAccount.parentId),
-            newMasterAccum = await temp.find(e => e.id === newAccount.masterId),
+            const newParent = await tempAccounts.find(e => e.id === newAccount.parentId),
+            newMasterAccum = await tempAccounts.find(e => e.id === newAccount.masterId),
             newCategory = await getCategory(newAccount)
             
+            setAccount(newAccount)
             setParent(newParent)
             setMasterAccum(newMasterAccum)
             setCategory(newCategory.name)
+            setDataReady(true)
+        }
+        else if(!dataReady) {
+            navigate('/accounts')
+            Swal.fire({
+                title: 'No Available!',
+                text: 'You are trying to access unavailable data',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
     }
     useEffect(() => {
-        props.accounts.length === 0 && props.getAccountsFromAPI()
-    }, [])
-    useEffect(() => {
-        props.accounts.length > 0 && setData()
+        setData()
     }, [props.accounts, accountId])
 
     const {profileActive, transActive, subListActive} = navbarActive
