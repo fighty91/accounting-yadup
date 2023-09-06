@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
@@ -58,63 +58,71 @@ const SubAccountList = (props) => {
     const {balance} = account
     let totalAmount = 0
     return (
-        <div className="table-responsive-sm">
-            <table className="table table-striped table-sm table-sub-account-list">
-                <thead>
-                    <tr>
-                        <th scope="col" colSpan={2} className="ps-2">Account</th>
-                        <th scope="col" className="text-center">Status</th>
-                        <th scope="col" className="text-end pe-2">Amount</th>
-                    </tr>
-                </thead>
-                <tbody className="table-group-divider">
-                    {
-                        subAccounts.map(acc => {
-                            const {number, accountName, isActive, id} = acc
-                            const amount = transAmount(id)
-                            totalAmount += amount
-                            return (
-                                <tr key={id}>
-                                    <td className="ps-2 pe-0 account-number">
-                                        <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-number">
-                                            {number}
-                                        </Link>
+        <Fragment>
+            {
+                subAccounts.length > 0 ?
+                <div className="table-responsive-sm">
+                    <table className="table table-striped table-sm table-sub-account-list">
+                        <thead>
+                            <tr>
+                                <th scope="col" colSpan={2} className="ps-2">Account</th>
+                                <th scope="col" className="text-center">Status</th>
+                                <th scope="col" className="text-end pe-2">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody className="table-group-divider">
+                            {
+                                subAccounts.map(acc => {
+                                    const {number, accountName, isActive, id} = acc
+                                    const amount = transAmount(id)
+                                    totalAmount += amount
+                                    return (
+                                        <tr key={id}>
+                                            <td className="ps-2 pe-0 account-number">
+                                                <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-number">
+                                                    {number}
+                                                </Link>
+                                            </td>
+                                            <td className="ps-2">
+                                                <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">
+                                                    {accountName}
+                                                </Link>
+                                            </td>
+                                            <td className="text-center"> {isActive === true ? 'active' : 'not active'} </td>
+                                            {
+                                                amount < 0 ?
+                                                <td className="text-end pe-1">{`(${getCurrencyAbs(amount)})`}</td>
+                                                :
+                                                <td className="text-end pe-2">{getCurrencyAbs(amount)}</td>
+                                            }
+                                        </tr>
+                                    )
+                                })
+                            }
+                            {
+                                totalAmount < 0 ?
+                                <tr>
+                                    <td className="ps-2 fw-bold" colSpan={3}>
+                                        Total Amount 
                                     </td>
-                                    <td className="ps-2">
-                                        <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">
-                                            {accountName}
-                                        </Link>
-                                    </td>
-                                    <td className="text-center"> {isActive === true ? 'active' : 'not active'} </td>
-                                    {
-                                        amount < 0 ?
-                                        <td className="text-end pe-1">{`(${getCurrencyAbs(amount)})`}</td>
-                                        :
-                                        <td className="text-end pe-2">{getCurrencyAbs(amount)}</td>
-                                    }
+                                    <td className="text-end fw-bold pe-1">{`(${getCurrencyAbs(totalAmount)})`}</td>
                                 </tr>
-                            )
-                        })
-                    }
-                    {
-                        totalAmount < 0 ?
-                        <tr>
-                            <td className="ps-2 fw-bold" colSpan={3}>
-                                Total Amount 
-                            </td>
-                            <td className="text-end fw-bold pe-1">{`(${getCurrencyAbs(totalAmount)})`}</td>
-                        </tr>
-                        :
-                        <tr>
-                            <td className="ps-2 fw-bold" colSpan={3}>
-                                {balance === 'credit' ? 'Credit' : 'Debit'} Amount
-                            </td>
-                            <td className="text-end fw-bold pe-2">{getCurrencyAbs(totalAmount)}</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                                :
+                                <tr>
+                                    <td className="ps-2 fw-bold" colSpan={3}>
+                                        {balance === 'credit' ? 'Credit' : 'Debit'} Amount
+                                    </td>
+                                    <td className="text-end fw-bold pe-2">{getCurrencyAbs(totalAmount)}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                <p className="pt-3">There is no account...</p>
+            }
+        </Fragment>
+
     )
 }
 

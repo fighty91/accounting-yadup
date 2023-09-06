@@ -124,7 +124,7 @@ const TransactionsAccount = (props) => {
                 </table>
             </div>
             :
-            <p>There is no transaction...</p>
+            <p className="pt-3">There is no transaction...</p>
             }
         </Fragment>
     )
