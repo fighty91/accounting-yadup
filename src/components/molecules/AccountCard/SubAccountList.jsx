@@ -2,54 +2,60 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 
 const SubAccountList = (props) => {
-    const { accountId } = useParams()
-    const { getCurrencyAbs } = useGeneralFunc()
-
+    const {accountId} = useParams()
+    const {getCurrencyAbs} = useGeneralFunc()
     const [subAccounts, setSubAccounts] = useState([])
     const [transactions, setTransactions] = useState([])
 
-    const getAccountsAPI = async () => {
-        const newAccounts = props.accounts.filter(e => e.parentId === accountId)
-        setSubAccounts(newAccounts)
-        if(newAccounts.length > 0) {
-            props.getTransactionsFromAPI()
-        }
-    }
-    
     const transAmount = (id) => {
         let total = 0
         transactions.forEach(trans => {
             trans.transAccounts.forEach(e => {
-                const { debit, credit } = e
+                const {debit, credit} = e
                 if(e.account === id) {
-                    total = balance === 'debit' ? total + debit - credit : total - debit + credit
+                    total = balance === 'debit' ?
+                    total + debit - credit : total - debit + credit
                 } 
             })
         })
         return total
     }
     
+    const getTransactions = async() => {
+        let newTrans = [],
+        temp1 = props.transactions.openingBalance,
+        temp2 = props.transactions.receiptJournal,
+        temp3 = props.transactions.paymentJournal,
+        temp4 = props.transactions.journalEntries
+
+        if(!temp1) temp1 = await props.getOpeningBalanceFromAPI()
+        if(!temp2) temp2 = await props.getReceiptJournalsFromAPI()
+        if(!temp3) temp3 = await props.getPaymentJournalsFromAPI()
+        if(!temp4) temp4 = await props.getJournalEntriesFromAPI()
+
+        temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
+        temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
+        temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
+        temp1 && temp1.length > 0 && newTrans.unshift(temp1[0])
+        setTransactions(newTrans)
+    }
     useEffect(() => {
-        getAccountsAPI()
-    }, [props.accounts])
-    
-    useEffect(() => {
-        let temp = []
-        for(let x in props.transactions) {
-            props.transactions[x].forEach(e => temp.push(e))
-        }
-        setTransactions(temp)
+        getTransactions()
     }, [props.transactions])
 
+    const getAccountsAPI = async () => {
+        const newAccounts = props.accounts.filter(e => e.parentId === accountId)
+        setSubAccounts(newAccounts)
+    }
     useEffect(() => {
-        props.getAccountsFromAPI()
-    }, [])
+        props.accounts.length > 0 && getAccountsAPI() // get api dilakukan induk
+    }, [props.accounts])
 
-    const { account } = props.dataSub
-    const { balance } = account
+    const {account} = props.dataSub
+    const {balance} = account
     let totalAmount = 0
     return (
         <div className="table-responsive-sm">
@@ -70,33 +76,28 @@ const SubAccountList = (props) => {
                             return (
                                 <tr key={id}>
                                     <td className="ps-2 pe-0 account-number">
-                                        {/* <Link to={`/accounts/account-detail/${acc.id}?page=transactions``} className="account-number ps-0 pe-0 ms-0 me-0"> */}
-                                            { number }
-                                        {/* </Link> */}
-                                    </td>
-                                    <td className="ps-2">
-                                        <Link to={`/accounts/account-detail/${acc.id}?page=transactions`} className="account-name pe-0 me-0">
-                                            { accountName }
+                                        <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-number">
+                                            {number}
                                         </Link>
                                     </td>
-                                    <td className="text-center"> { isActive === true ? 'active' : 'not active' } </td>
-                                        {
-                                            amount < 0 ?
-                                            <td className="text-end pe-1">{`(${getCurrencyAbs(amount)})`}</td> :
-                                            <td className="text-end pe-2">{getCurrencyAbs(amount)}</td>
-                                        }
-                                    {/* <td className="text-end pe-2">
-                                        {
-                                            amount < 0 ? `(${getCurrencyAbs(amount)})` : getCurrencyAbs(amount)
-                                        }
-                                    </td> */}
+                                    <td className="ps-2">
+                                        <Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">
+                                            {accountName}
+                                        </Link>
+                                    </td>
+                                    <td className="text-center"> {isActive === true ? 'active' : 'not active'} </td>
+                                    {
+                                        amount < 0 ?
+                                        <td className="text-end pe-1">{`(${getCurrencyAbs(amount)})`}</td>
+                                        :
+                                        <td className="text-end pe-2">{getCurrencyAbs(amount)}</td>
+                                    }
                                 </tr>
                             )
                         })
                     }
                     <tr>
                         <td className="ps-2 fw-bold" colSpan={3}>
-                                Total { account.accountName }
                         </td>
                         {
                             totalAmount < 0 ?
@@ -116,7 +117,10 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI())
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(SubAccountList)
