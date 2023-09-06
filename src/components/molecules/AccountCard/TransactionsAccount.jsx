@@ -69,12 +69,12 @@ const TransactionsAccount = (props) => {
                 <table className="table table-striped table-sm table-transaction-account">
                     <thead>
                         <tr>
-                            <th scope="col" className="tabel-date">Date</th>
+                            <th scope="col" className="tabel-date ps-2">Date</th>
                             <th scope="col">Contact</th>
                             <th scope="col">Description</th>
                             <th scope="col" className="text-end">Debit</th>
                             <th scope="col" className="text-end">Credit</th>
-                            <th scope="col" className="text-end">Total</th>
+                            <th scope="col" className="text-end pe-2">Total</th>
                         </tr>
                     </thead>
                     <tbody className="table-group-divider">

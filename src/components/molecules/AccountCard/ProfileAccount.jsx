@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import { ButtonLinkTo, ButtonDelete } from "../../atoms/ButtonAndLink";
+import { Link } from "react-router-dom";
 
 const ProfileAccount = (props) => {
     const {handleActiveAccount, handleDeleteAccount} = props.handleProfileFunc
@@ -77,9 +78,14 @@ const ProfileAccount = (props) => {
                                     <td><p>Sub Account From&nbsp;</p></td>
                                     <td><p>:</p></td>
                                     <td>
-                                        <p>
-                                            {parent && parent.number}&nbsp; {parent && parent.accountName}
-                                        </p>
+                                        {
+                                            parent &&
+                                            <p>
+                                                <Link to={`/accounts/account-detail/${parent.id}?page=profile`} className="account-name">
+                                                    {parent.number}&nbsp; {parent.accountName}
+                                                </Link>
+                                            </p>
+                                        }
                                     </td>
                                 </tr>
                             ) : (
@@ -94,9 +100,14 @@ const ProfileAccount = (props) => {
                                 <td><p>Depreciation From&nbsp;</p></td>
                                 <td><p>:</p></td>
                                 <td>
-                                    <p>
-                                        {masterAccum && masterAccum.number}&nbsp; {masterAccum && masterAccum.accountName}
-                                    </p>
+                                    {
+                                        masterAccum &&
+                                        <p>
+                                            <Link to={`/accounts/account-detail/${masterAccum.id}?page=profile`} className="account-name">
+                                                {masterAccum.number}&nbsp; {masterAccum.accountName}
+                                            </Link>
+                                        </p>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -120,7 +131,6 @@ const ProfileAccount = (props) => {
                     account ?
                     <Fragment>
                         <ButtonLinkTo color="outline-primary" name="Edit" linkTo={`/accounts/edit-account/${account && account.id}`} />
-                        {/* <ButtonLinkTo color="outline-primary" name="Edit" linkTo='/accounts/account-detail/4?page=profile' /> */}
                         &nbsp;&nbsp;&nbsp;
                         <ButtonDelete color="outline-danger" handleOnClick={()=>handleDeleteAccount()}/>
                     </Fragment>

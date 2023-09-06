@@ -100,7 +100,7 @@ const Accounts = (props) => {
                                                 <th scope="col" colSpan={2}>Account</th>
                                                 <th scope="col" className="text-start"></th>
                                                 <th scope="col" className="text-center"></th>
-                                                <th scope="col" className="text-end">Debit (Credit)</th>
+                                                <th scope="col" className="text-end pe-1">Debit (Credit)</th>
                                             </tr>
                                         </thead>
                                         <tbody className="table-group-divider">
@@ -119,7 +119,7 @@ const Accounts = (props) => {
                                                                 <td className="text-center fw-bold"> { isActive === true ? 'active' : 'not active' } </td>
                                                                 {
                                                                     parentAmount < 0 ?
-                                                                    <td className="text-end fw-bold pe-2">{`(${getCurrencyAbs(parentAmount)})`}</td>
+                                                                    <td className="text-end fw-bold pe-1">{`(${getCurrencyAbs(parentAmount)})`}</td>
                                                                     :
                                                                     <td className="text-end fw-bold pe-2">{getCurrencyAbs(parentAmount)}</td>
 
