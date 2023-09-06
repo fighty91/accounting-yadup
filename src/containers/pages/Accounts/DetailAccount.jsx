@@ -8,25 +8,22 @@ import TransactionsAccount from "../../../components/molecules/AccountCard/Trans
 import SubAccountList from "../../../components/molecules/AccountCard/SubAccountList";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI, setActiveAccount } from "../../../config/redux/action";
+import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, setActiveAccount } from "../../../config/redux/action";
 
 import { confirmDeleteAccount } from "../../organisms/MyFunctions/useAccountFunc";
 
 const DetailAccount = (props) => {
     let { accountId } = useParams()
     const navigate = useNavigate()
-    
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
     let activePage = searchParams.get('page')
     
     const [navbarActive, setNavbarActive] = useState({})
-
     const [account, setAccount] = useState({isActive: false})
     const [category, setCategory] = useState()
     const [parent, setParent] = useState()
     const [masterAccum, setMasterAccum] = useState()
-    const [transactions, setTransactions] = useState([])
 
     const Toast = Swal.mixin({
         toast: true,
@@ -40,28 +37,57 @@ const DetailAccount = (props) => {
         }
     })
 
-    const getConfirmDelete = async () => {
-        const data = {
-            account, 
-            transactions,
-            contacts: props.contacts,
-            accounts: props.accounts,
-        }
-        const deleteApproval = await confirmDeleteAccount(data)
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
 
-        let deleteSuccess = false
-        if(deleteApproval) {
-            deleteSuccess = await props.deleteAccountFromAPI(accountId)
-        }
-        if(deleteSuccess) {
-            Toast.fire({
-                icon: 'success',
-                title: `Success Delete (${account.number})\n${account.accountName}`
-            })
-            navigate('/accounts')
-        }
+    const getTransactions = async() => {
+        let newTrans = [],
+        temp1 = props.transactions.openingBalance,
+        temp2 = props.transactions.receiptJournal,
+        temp3 = props.transactions.paymentJournal,
+        temp4 = props.transactions.journalEntries
+
+        !temp1 && (temp1 = await props.getOpeningBalanceFromAPI())
+        !temp2 && (temp2 = await props.getReceiptJournalsFromAPI())
+        !temp3 && (temp3 = await props.getPaymentJournalsFromAPI())
+        !temp4 && (temp4 = await props.getJournalEntriesFromAPI())
+
+        temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
+        temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
+        temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
+        temp1 && temp1.length > 0 && newTrans.unshift(temp1[0])
+
+        temp1 && temp1.length > 0 && temp1.forEach(e => newTrans.unshift(e))
+        return newTrans
     }
-
+    
+    const getConfirmDelete = async () => {
+        if(window.navigator.onLine) {
+            const transactions = await getTransactions(),
+            data = {
+                account, 
+                transactions,
+                contacts: props.contacts,
+                accounts: props.accounts,
+            }
+            const deleteApproval = await confirmDeleteAccount(data)
+    
+            let deleteSuccess = false
+            if(deleteApproval) deleteSuccess = await props.deleteAccountFromAPI(accountId)
+            if(deleteSuccess) {
+                Toast.fire({
+                    icon: 'success',
+                    title: `Success Delete (${account.number})\n${account.accountName}`
+                })
+                navigate('/accounts')
+            }
+        }
+        else lostConnection()
+    }
     const handleDeleteAccount = () => {
         Swal.fire({
             title: 'Are you sure?',
@@ -77,25 +103,26 @@ const DetailAccount = (props) => {
             }
         })
     }
-
-    const putAccountToAPI = async (isActive) => {
+    
+    const putActiveAccount = async (isActive) => {
         const res = await props.setActiveAccount({accountId, isActive})
         if(res) {
-            if(isActive) {
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Account Active'
-                })
-            } else {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Account not Actived'
-                })
-            }
+            isActive ?
+            Toast.fire({
+                icon: 'success',
+                title: 'Account Active'
+            }) :
+            Toast.fire({
+                icon: 'warning',
+                title: 'Account not Actived'
+            })
         }
     }
+    const handleActiveAccount = (e) => {
+        window.navigator.onLine ?
+        putActiveAccount(e.target.checked) : lostConnection()
+    }
 
-    
 
     
 
@@ -104,44 +131,6 @@ const DetailAccount = (props) => {
     }, [accountId])
     
     
-    const handleActiveAccount = (e) => {
-        let newAccount = {...account}
-        newAccount.isActive = e.target.checked
-        putAccountToAPI(newAccount.isActive)
-    }
-    
-    
-
-
-
-
-    // digunakan ketika menghapus data
-    const getTransactionsProps = async() => {
-        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
-        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
-        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
-        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
-    }
-    useEffect(() => {
-        // getTransactionsProps()
-    }, [])
-    const getTransactions = async() => {
-        let newTrans = []
-        const temp1 = props.transactions.openingBalance
-        const temp2 = props.transactions.receiptJournal
-        const temp3 = props.transactions.paymentJournal
-        const temp4 = props.transactions.journalEntries
-        
-        temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
-        temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
-        temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
-
-        temp1 && temp1.length > 0 && temp1.forEach(e => newTrans.unshift(e))
-        newTrans.length > 0 && setTransactions(newTrans)
-    }
-    useEffect(() => {
-        getTransactions()
-    }, [props.transactions])
 
     const handleNavbarActive = () => {
         let newNavbarActive = {...navbarActive}
@@ -231,7 +220,6 @@ const reduxDispatch = (dispatch) => ({
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
     setActiveAccount: (data) => dispatch(setActiveAccount(data)),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     deleteAccountFromAPI: (data) => dispatch(deleteAccountFromAPI(data)),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
