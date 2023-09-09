@@ -3,6 +3,7 @@ import './IdenticalCodeList.css'
 
 const IdenticalCodeList = (props) => {
     const [spinner, setSpinner] = useState(false)
+
     const callSpinner = () => {
         setSpinner(true)
         setTimeout(()=> {

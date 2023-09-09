@@ -4,7 +4,7 @@ import "./DetailReceiptJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteNLReceiptJournalFromAPI, deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getReceiptJournalFromAPI, getTNReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -19,27 +19,16 @@ const DetailReceiptJournal = (props) => {
     const [transAccounts, setTransAccounts] = useState([])
     const [receiptAccount, setReceiptAccount] = useState({})
     const [transaction, setTransaction] = useState({
-        transNumber: "",
+        tNId: "",
         date: '',
         memo: "",
         transType: "Receipt Journal",
         transAccounts: []
     })
+    const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
     
-    const handleDeleteTransaction = () => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `${transaction.transType} #${transaction.transNumber} will be removed from transactions list!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            result.isConfirmed && deleteTransaction()
-        })
-    }
+    
 
     const getContact = async (contactId) => {
         let temp
@@ -50,6 +39,16 @@ const DetailReceiptJournal = (props) => {
         }
         temp && setContact(temp)
     }
+
+    // const getTransNumberAPI = (id) => {
+    //     let temp = props.getTNReceiptJournalFromAPI(id)
+    //     if(temp) {
+    //         return temp.transNumber
+    //     }
+    // }
+    // useEffect(() => {
+    //     getTransNumberAPI()
+    // })
 
     const getAuthor = () => {
         const authors = transaction.authors
@@ -77,23 +76,31 @@ const DetailReceiptJournal = (props) => {
         }
     }
 
-    const getEditTrans = () => {
-        // navigate
-    }
-    const getDuplicate = () => {
-        // navigate
-    }
     const deleteTransaction = async() => {
         const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             navigate('/receipt-journal')
+            await props.deleteNLReceiptJournalFromAPI(transaction.tNId, transaction.tNParams)
             Swal.fire({
                 title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                text: `${transaction.transType} #${transNumber} has been deleted`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
         }
+    }
+    const handleDeleteTransaction = () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `${transaction.transType} #${transNumber} will be removed from transactions list!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            result.isConfirmed && deleteTransaction()
+        })
     }
 
     const getAccount = (dataId) => {
@@ -129,6 +136,9 @@ const DetailReceiptJournal = (props) => {
             setReceiptAccount(tempReceiptAccount)
             getContact(tempTrans.contactId)
             setDataReady(true)
+
+            let tempNumber = await props.getTNReceiptJournalFromAPI(tempTrans.tNId, tempTrans.tNParams)
+            setTransNumber(tempNumber.transNumber)
         }
         else if(!dataReady) {
             navigate('/receipt-journal')
@@ -144,9 +154,17 @@ const DetailReceiptJournal = (props) => {
         getTransactions()
     }, [props.transactions])
 
+    // useEffect(() => )
+    // useEffect(() => {
+    //     setTransNumber(
+    //         props.getTNReceiptJournalFromAPI(transaction.tNId, transaction.tNParams)
+    //         )
+    // }, [transaction.tNId])
+
     return (
         <LayoutsMainContent>
-            <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
+            <ContentHeader name={transNumber ? `${transaction.transType} #${transNumber}` : 'Loading...'}/>
+            {/* <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/> */}
             {/* Entry Content */}
             <div className="card pb-5 detail-receipt-journal">
                 <div className="card-body">
@@ -292,13 +310,16 @@ const reduxState = (state) => ({
     accounts: state.accounts,
     contacts: state.contacts,
     transactions: state.transactions,
+    nLPaymentJournal: state.nLPaymentJournal
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getReceiptJournalFromAPI: (data) => dispatch(getReceiptJournalFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
-    deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data))
+    deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data)),
+    getTNReceiptJournalFromAPI: (data) => dispatch(getTNReceiptJournalFromAPI(data)),
+    deleteNLReceiptJournalFromAPI: (data) => dispatch(deleteNLReceiptJournalFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(DetailReceiptJournal)

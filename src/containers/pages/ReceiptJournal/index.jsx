@@ -4,7 +4,7 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getAllNLReceiptJournalFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import './ReceiptJournal.scss'
 
 const ReceiptJournal = (props) => {
@@ -12,6 +12,18 @@ const ReceiptJournal = (props) => {
     const [accounts, setAccounts] = useState()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState()
+    const [transNumber, setTransNumber] = useState({})
+
+    const getTransNumber = (id, tNParams) => {
+        const params = tNParams || 'defaultCode'
+        const temp = transNumber[params]
+        if(temp) {
+            const temp2 = temp.find(e => e.id === id)
+            if(temp2) {
+                return temp2.transNumber
+            }
+        }
+    }
 
     useEffect(() => {
         props.contacts.length === 0 && props.getContactsFromAPI()
@@ -37,6 +49,17 @@ const ReceiptJournal = (props) => {
         temp && setTransactions(temp)
     }, [props.transactions])
     
+    useEffect(() => {
+        const temp = props.nLReceiptJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp < 1 && props.getAllNLReceiptJournalFromAPI()
+    }, [])
+    useEffect(() => {
+        const temp = props.nLReceiptJournal
+        temp && setTransNumber(temp)
+    }, [props.nLReceiptJournal])
+
     return (
         <LayoutsMainContent>
             <ContentHeader name="Receipt Journal"/>
@@ -81,7 +104,7 @@ const ReceiptJournal = (props) => {
                                                     <td className="pb-2">
                                                         <p className="mb-0 fw-normal">
                                                             <Link to={`transaction-detail/${transaction.id}`} className="number-transaction">
-                                                                {transaction.transType} #{transaction.transNumber}
+                                                                {transaction.transType} #{getTransNumber(transaction.tNId, transaction.tNParams)}
                                                             </Link>
                                                         </p>
                                                         <p className="mb-0 fw-light description">{description}</p>
@@ -106,12 +129,14 @@ const ReceiptJournal = (props) => {
 const reduxState = (state) => ({
     transactions: state.transactions,
     contacts: state.contacts,
-    accounts: state.accounts
+    accounts: state.accounts,
+    nLReceiptJournal: state.nLReceiptJournal
 })
 const reduxDispatch = (dispatch) => ({
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
+    getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
+    getAllNLReceiptJournalFromAPI: () => dispatch(getAllNLReceiptJournalFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(ReceiptJournal)

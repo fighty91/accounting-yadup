@@ -11,7 +11,10 @@ const initialState = {
     categories: [],
     contacts: [],
     transactions: {},
-    identicalCode: [],
+    identicalCode: {},
+    nLReceiptJournal: {},
+    nLPaymentJournal: {},
+    nLJournalEntries: {},
 }
 
 const reducer = (state = initialState, action)  => {
@@ -92,6 +95,11 @@ const reducer = (state = initialState, action)  => {
             return {
                 ...state,
                 identicalCode: value
+            }
+        case 'SET_NUMBER_LIST_RECEIPT_JOURNAL' :
+            return {
+                ...state,
+                nLReceiptJournal: value
             }
         case 'SET_USER' :
             return {

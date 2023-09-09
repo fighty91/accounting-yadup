@@ -5,7 +5,7 @@ import ModalIdenticalCode from "../../../../components/molecules/ModalIdenticalC
 import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI, getNLReceiptJournalFromAPI, postNLReceiptJournalToAPI, putNLReceiptJournalToAPI, incrementLastOrderTNFromAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI, getNumberListFromAPI, postNumberListToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -19,6 +19,8 @@ const CreateUpdateReceiptJournal = (props) => {
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
+
+
     const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], accountNull: []})
@@ -51,8 +53,7 @@ const CreateUpdateReceiptJournal = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        codeFor: "receiptJournal", lastCode: '',
-        initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        codeFor: "receiptJournal", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getResetUpdate = async (dataTransaction) => {
@@ -76,7 +77,6 @@ const CreateUpdateReceiptJournal = (props) => {
 
     const getResetFormIdentical = () => {
         setFormIdentical({ initialCode:'', startFrom:'' })
-        // periksa kembali
     }
 
     const handleChangeReceiptAccount = (e) => {
@@ -227,60 +227,25 @@ const CreateUpdateReceiptJournal = (props) => {
         return {accountProblem, newAccountTransactions, totalCredit}
     }
 
-    const getIncrement = async (tNParams) => {
-        let tempStart = 0
-        identicalCode.codeList.find(e => {
-            if(e.initialCode === tNParams) {
-                tempStart = e.startFrom
-            }
-        })
-
-        const tempTime = Math.floor(Math.random() * 2001)
-        return new Promise(resolve => {
-            setTimeout(async() => {
-                let tempNumber = await props.incrementLastOrderTNFromAPI(tempStart, tNParams)
-                resolve(tempNumber)
-            }, tempTime)
-        })
-    }
     const postDataToAPI = async (newTransaction) => {
-        const tNParams = identicalCode.lastCode
-        let tempNumber = await getIncrement(tNParams)
-        const numberId = await props.postNLReceiptJournalToAPI(tempNumber, tNParams)
-        await checkPostNL(tempNumber, tNParams)
-        
         let authors = [{
             createdBy: props.user.uid2,
             createdAt: Date.now(),
         }]
         let dataReadyToPost = {
             ...newTransaction, authors,
-            tNId: numberId,
-            tNParams: tNParams
+            transNumber: transNumber ? transNumber : await getNewTransNumber()
         }
         const res = await props.postReceiptJournalToAPI(dataReadyToPost)
-        
         if(res) {
+            // props.postNumberListToAPI({transNumber: dataReadyToPost.transNumber})
             navigate(`/receipt-journal/transaction-detail/${res}`)
             Swal.fire({
                 title: 'Good job!',
-                text: `${dataReadyToPost.transType} created`,
+                text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-        }
-    }
-    const checkPostNL = async(tempNumber, tNParams) => {
-        let temp = await props.getNLReceiptJournalFromAPI(tNParams)
-        temp = temp.filter(e => e.transNumber === tempNumber)
-        if(temp.length > 1) {
-            temp.sort((a, b) => a.createdAt - b.createdAt)
-            for(let i = 1; i < temp.length; i++) {
-                let tempNumber = await getIncrement(tNParams)
-                temp[i].transNumber = tempNumber
-                await props.putNLReceiptJournalToAPI(temp[i], tNParams)
-                await checkPostNL(tempNumber, tNParams)
-            }
         }
     }
     
@@ -337,7 +302,7 @@ const CreateUpdateReceiptJournal = (props) => {
 
     const getNewTransNumber = async () => {
         const {initialCode, startFrom} = identicalCode
-        // let dbNumberList = await props.getNLReceiptJournalFromAPI()
+        // let dbNumberList = await props.getNumberListFromAPI()
         let numberList = []
         initialCode ?
         // dbNumberList.forEach(e => {
@@ -442,8 +407,8 @@ const CreateUpdateReceiptJournal = (props) => {
         props.accounts.length > 0 && getAccounts()
     }, [props.accounts])
     
-    const {lastCode} = identicalCode
-    let numbPlaceHolder = isUpdate ? '' : `${lastCode}.[auto]`
+    const {initialCode} = identicalCode
+    let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
     const {nominalNull, accountNull} = validation
 
     return (
@@ -597,10 +562,8 @@ const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postReceiptJournalToAPI: (data) => dispatch(postReceiptJournalToAPI(data)),
     putReceiptJournalToAPI: (data) => dispatch(putReceiptJournalToAPI(data)),
-    getNLReceiptJournalFromAPI: () => dispatch(getNLReceiptJournalFromAPI()),
-    postNLReceiptJournalToAPI: (data) => dispatch(postNLReceiptJournalToAPI(data)),
-    putNLReceiptJournalToAPI: (data) => dispatch(putNLReceiptJournalToAPI(data)),
-    incrementLastOrderTNFromAPI: (data) => dispatch(incrementLastOrderTNFromAPI(data))
+    // getNumberListFromAPI: () => dispatch(getNumberListFromAPI()),
+    // postNumberListToAPI: (data) => dispatch(postNumberListToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateReceiptJournal)
