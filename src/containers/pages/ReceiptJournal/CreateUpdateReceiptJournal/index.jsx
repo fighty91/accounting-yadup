@@ -227,36 +227,45 @@ const CreateUpdateReceiptJournal = (props) => {
         return {accountProblem, newAccountTransactions, totalCredit}
     }
 
-    const getIncrement = async (tNParams) => {
+    const getIncrement = async(tNParams, lessTime) => {
         let tempStart = 0
-        identicalCode.codeList.find(e => {
-            if(e.initialCode === tNParams) {
-                tempStart = e.startFrom
-            }
-        })
-
-        const tempTime = Math.floor(Math.random() * 2001)
+        identicalCode.codeList.find(e => e.initialCode === tNParams && (tempStart = e.startFrom))
+        const tempTime = Math.floor(Math.random() * (lessTime ? 701 : 1401))
         return new Promise(resolve => {
             setTimeout(async() => {
-                let tempNumber = await props.incrementLastOrderTNFromAPI(tempStart, tNParams)
+                let tempNumber = await props.incrementLastOrderTNFromAPI({tempStart, tNParams})
                 resolve(tempNumber)
             }, tempTime)
         })
     }
+    const checkPostNL = async(tempNumber, tNParams) => {
+        let temp = await props.getNLReceiptJournalFromAPI(tNParams)
+        if(temp) {
+            temp = temp.filter(e => e.transNumber === tempNumber)
+            if(temp.length > 1) {
+                temp.sort((a, b) => a.createdAt - b.createdAt)
+                for(let i = 1; i < temp.length; i++) {
+                    let tempNumber = await getIncrement(tNParams, true)
+                    temp[i].transNumber = tempNumber
+                    await props.putNLReceiptJournalToAPI({tempTN: temp[i], tNParams})
+                    await checkPostNL(tempNumber, tNParams)
+                }
+            }
+        }
+    }
     const postDataToAPI = async (newTransaction) => {
         const tNParams = identicalCode.lastCode
         let tempNumber = await getIncrement(tNParams)
-        const numberId = await props.postNLReceiptJournalToAPI(tempNumber, tNParams)
+        const numberId = await props.postNLReceiptJournalToAPI({tempNumber, tNParams})
         await checkPostNL(tempNumber, tNParams)
         
         let authors = [{
             createdBy: props.user.uid2,
-            createdAt: Date.now(),
+            createdAt: Date.now()
         }]
         let dataReadyToPost = {
             ...newTransaction, authors,
-            tNId: numberId,
-            tNParams: tNParams
+            tNId: numberId, tNParams: tNParams
         }
         const res = await props.postReceiptJournalToAPI(dataReadyToPost)
         
@@ -268,19 +277,6 @@ const CreateUpdateReceiptJournal = (props) => {
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
-        }
-    }
-    const checkPostNL = async(tempNumber, tNParams) => {
-        let temp = await props.getNLReceiptJournalFromAPI(tNParams)
-        temp = temp.filter(e => e.transNumber === tempNumber)
-        if(temp.length > 1) {
-            temp.sort((a, b) => a.createdAt - b.createdAt)
-            for(let i = 1; i < temp.length; i++) {
-                let tempNumber = await getIncrement(tNParams)
-                temp[i].transNumber = tempNumber
-                await props.putNLReceiptJournalToAPI(temp[i], tNParams)
-                await checkPostNL(tempNumber, tNParams)
-            }
         }
     }
     
@@ -597,7 +593,7 @@ const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postReceiptJournalToAPI: (data) => dispatch(postReceiptJournalToAPI(data)),
     putReceiptJournalToAPI: (data) => dispatch(putReceiptJournalToAPI(data)),
-    getNLReceiptJournalFromAPI: () => dispatch(getNLReceiptJournalFromAPI()),
+    getNLReceiptJournalFromAPI: (data) => dispatch(getNLReceiptJournalFromAPI(data)),
     postNLReceiptJournalToAPI: (data) => dispatch(postNLReceiptJournalToAPI(data)),
     putNLReceiptJournalToAPI: (data) => dispatch(putNLReceiptJournalToAPI(data)),
     incrementLastOrderTNFromAPI: (data) => dispatch(incrementLastOrderTNFromAPI(data))

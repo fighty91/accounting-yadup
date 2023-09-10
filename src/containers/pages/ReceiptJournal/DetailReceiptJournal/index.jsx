@@ -80,7 +80,7 @@ const DetailReceiptJournal = (props) => {
         const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             navigate('/receipt-journal')
-            await props.deleteNLReceiptJournalFromAPI(transaction.tNId, transaction.tNParams)
+            await props.deleteNLReceiptJournalFromAPI({tNId: transaction.tNId, tNParams: transaction.tNParams})
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transNumber} has been deleted`,
@@ -137,8 +137,11 @@ const DetailReceiptJournal = (props) => {
             getContact(tempTrans.contactId)
             setDataReady(true)
 
-            let tempNumber = await props.getTNReceiptJournalFromAPI(tempTrans.tNId, tempTrans.tNParams)
-            setTransNumber(tempNumber.transNumber)
+            const {tNId, tNParams} = tempTrans
+            const tempNumber = await props.getTNReceiptJournalFromAPI({id: tNId, tNParams: tNParams})
+            let newTransNumb = tempNumber.transNumber
+            const newTransNumber = tNParams === 'defaultCode' ? newTransNumb : `${tNParams}.${newTransNumb}`
+            setTransNumber(newTransNumber)
         }
         else if(!dataReady) {
             navigate('/receipt-journal')

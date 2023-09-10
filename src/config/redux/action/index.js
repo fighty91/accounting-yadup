@@ -420,47 +420,44 @@ export const getTransactionsFromAPI = () => async (dispatch) => {
     await getPaymentJournalsFromAPI()(dispatch)
     await getReceiptJournalsFromAPI()(dispatch)
 }
-export const incrementLastOrderTNFromAPI = (tempStart, tNParams) => (dispatch) => {
+export const incrementLastOrderTNFromAPI = ({tempStart, tNParams}) => (dispatch) => {
     // get once
-    const params = tNParams || 'defaultCode'
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/identicalCode/receiptJournal/codeList/${params}/lastOrder`))
+        get(child(dbRef, `${corpName}/identicalCode/receiptJournal/codeList/${tNParams}/lastOrder`))
         .then(async(snapshot) => {
                 let temp = snapshot.val()
                 temp < tempStart ?
                 temp = tempStart : temp++
                 // update last ordernya
-                await set(ref(database, `${corpName}/identicalCode/receiptJournal/codeList/${params}/lastOrder`), temp)
-                .then().catch(err => console.log(err))
-
+                await set(ref(database, `${corpName}/identicalCode/receiptJournal/codeList/${tNParams}/lastOrder`), temp).then()
+                .catch(err => console.log(err))
                 resolve(temp)
         }).catch((error) => {
             console.error(error);
         });
     })
 }
-export const postNLReceiptJournalToAPI = (transNumber, tNParams) => (dispatch) => {
-    const params = tNParams || 'defaultCode'
+export const postNLReceiptJournalToAPI = ({tempNumber, tNParams}) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        const temp = {transNumber, createdAt: Date.now()}
-        pushData(ref(database, `${corpName}/numberList/receiptJournal/${params}`), temp)
-        .then((dataCredential) => {
-            resolve(dataCredential.key)
-        })
+        const temp = {
+            transNumber: tempNumber,
+            createdAt: Date.now()
+        }
+        pushData(ref(database, `${corpName}/numberList/receiptJournal/${tNParams}`), temp)
+        .then((dataCredential) => resolve(dataCredential.key))
         .catch(err => {
             console.log(err)
             reject(false)   
         })
     })
 }
-export const putNLReceiptJournalToAPI = (transNumber, tNParams) => (dispatch) => {
-    const params = tNParams || 'defaultCode'
-    const {id} = transNumber
-    let temp = {...transNumber}
+export const putNLReceiptJournalToAPI = ({tempTN, tNParams}) => (dispatch) => {
+    const {id} = tempTN
+    let temp = {...tempTN}
     delete temp.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/numberList/receiptJournal/${params}/${id}`), temp)
+        set(ref(database, `${corpName}/numberList/receiptJournal/${tNParams}/${id}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -468,11 +465,10 @@ export const putNLReceiptJournalToAPI = (transNumber, tNParams) => (dispatch) =>
         })
     })
 }
-export const deleteNLReceiptJournalFromAPI = (id, tNParams) => (dispatch) => {
-    const params = tNParams || 'defaultCode'
+export const deleteNLReceiptJournalFromAPI = ({tNId, tNParams}) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/numberList/receiptJournal/${params}/${id}`))
+            remove(ref(database, `${corpName}/numberList/receiptJournal/${tNParams}/${tNId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -481,13 +477,12 @@ export const deleteNLReceiptJournalFromAPI = (id, tNParams) => (dispatch) => {
 }
 export const getLastOrderTNFromAPI = (tNParams) => (dispatch) => {
     // get once
-    const params = tNParams || 'defaultCode'
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/identicalCode/receiptJournal/codeList/${params}/lastOrder`))
+        get(child(dbRef, `${corpName}/identicalCode/receiptJournal/codeList/${tNParams}/lastOrder`))
         .then((snapshot) => {
             if (snapshot.exists()) {
-                let temp = snapshot.val()
+                const temp = snapshot.val()
                 resolve(temp)
             } else resolve(snapshot.exists())
         }).catch((error) => {
@@ -495,15 +490,14 @@ export const getLastOrderTNFromAPI = (tNParams) => (dispatch) => {
         });
     })
 }
-export const getTNReceiptJournalFromAPI = (id, tNParams) => (dispatch) => {
+export const getTNReceiptJournalFromAPI = ({id, tNParams}) => (dispatch) => {
     // get once
-    const params = tNParams || 'defaultCode'
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/receiptJournal/${params}/${id}`))
+        get(child(dbRef, `${corpName}/numberList/receiptJournal/${tNParams}/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
-                let temp = {...snapshot.val(), id}
+            if(snapshot.exists()) {
+                const temp = {...snapshot.val(), id}
                 resolve(temp)
             } else resolve(snapshot.exists())
         }).catch((error) => {
@@ -513,10 +507,9 @@ export const getTNReceiptJournalFromAPI = (id, tNParams) => (dispatch) => {
 }
 export const getNLReceiptJournalFromAPI = (tNParams) => (dispatch) => {
     // get once
-    const params = tNParams || 'defaultCode'
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/receiptJournal/${params}`))
+        get(child(dbRef, `${corpName}/numberList/receiptJournal/${tNParams}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 let numberList = []

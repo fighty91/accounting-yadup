@@ -15,13 +15,15 @@ const ReceiptJournal = (props) => {
     const [transNumber, setTransNumber] = useState({})
 
     const getTransNumber = (id, tNParams) => {
-        const params = tNParams || 'defaultCode'
-        const temp = transNumber[params]
+        const temp = transNumber[tNParams]
         if(temp) {
-            const temp2 = temp.find(e => e.id === id)
-            if(temp2) {
-                return temp2.transNumber
-            }
+            let newNumberCode
+            temp.find(e => {
+                if(e.id === id)
+                tNParams === 'defaultCode' ?
+                newNumberCode = e.transNumber : newNumberCode = `${tNParams}.${e.transNumber}`
+            })
+            return newNumberCode
         }
     }
 
@@ -52,7 +54,9 @@ const ReceiptJournal = (props) => {
     useEffect(() => {
         const temp = props.nLReceiptJournal
         let countTemp = 0
-        for(let x in temp) { x && countTemp++ }
+        for(let x in temp) {
+            x && countTemp++
+        }
         countTemp < 1 && props.getAllNLReceiptJournalFromAPI()
     }, [])
     useEffect(() => {
