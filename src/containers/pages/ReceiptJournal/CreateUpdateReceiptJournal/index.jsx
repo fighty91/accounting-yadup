@@ -51,8 +51,7 @@ const CreateUpdateReceiptJournal = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        codeFor: "receiptJournal", lastCode: '',
-        initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        codeFor: "receiptJournal", lastCode: '', codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getResetUpdate = async (dataTransaction) => {

@@ -873,10 +873,7 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
                     const tempCL = {...tempCodeList[i], initialCode: i}
                     i !== 'defaultCode' && codeList.push(tempCL)
                 }
-                codeList.sort((a, b) => 
-                a.initialCode < b.initialCode ? 1 :
-                a.initialCode > b.initialCode ? -1 : 0 
-                )
+                codeList.sort((a, b) => a.initialCode < b.initialCode ? 1 : a.initialCode > b.initialCode ? -1 : 0)
                 for (let i in tempCodeList) {
                     if(i === 'defaultCode') {
                         const tempCL = {...tempCodeList[i], initialCode: ''}
