@@ -11,14 +11,15 @@ const IdenticalCodeList = (props) => {
             setSpinner(false)
         }, 300)
     }
-    
+    const {initialCode} = props.code
     return(
         <li key={props.row} className="list-group-item d-inline-flex justify-content-between">
             <span className="identical-code-ready" onClick={()=>props.handleOnClick()} data-bs-dismiss="modal">
-                {props.code.initialCode}[auto]
+                {initialCode && initialCode + '.'}[auto]
             </span>
             {   
-                props.code.defaultCode ?
+                // props.code.defaultCode ?
+                !initialCode ?
                 <span className="text-secondary" >
                     <i className="bi bi-trash3-fill"></i>
                 </span>

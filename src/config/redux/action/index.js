@@ -425,13 +425,13 @@ export const incrementLastOrderTNFromAPI = ({tempStart, tNParams, codeFor}) => (
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`))
+        get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams || 'defaultCode'}/lastOrder`))
         .then(async(snapshot) => {
                 let temp = snapshot.val()
                 temp < tempStart ?
                 temp = tempStart : temp++
                 // update last ordernya
-                await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`), temp).then()
+                await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams || 'defaultCode'}/lastOrder`), temp).then()
                 .catch(err => console.log(err))
                 resolve(temp)
         }).catch((error) => {
@@ -445,7 +445,7 @@ export const postNumberListToAPI = ({tempNumber, tNParams, codeFor}) => (dispatc
             transNumber: tempNumber,
             createdAt: Date.now()
         }
-        pushData(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}`), temp)
+        pushData(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}`), temp)
         .then((dataCredential) => resolve(dataCredential.key))
         .catch(err => {
             console.log(err)
@@ -458,7 +458,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
     let temp = {...tempTN}
     delete temp.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${id}`), temp)
+        set(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${id}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -469,7 +469,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
 export const deleteNumberListFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}`))
+            remove(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${tNId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -480,7 +480,7 @@ export const getTransNumberFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) =
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}`))
+        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${tNId}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const temp = {...snapshot.val(), id: tNId}
@@ -495,7 +495,7 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}`))
+        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 let numberList = []
@@ -541,6 +541,8 @@ export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
                     break
                 case 'paymentJournal':
                     type = 'SET_NUMBER_LIST_PAYMENT_JOURNAL'
+                    break
+                default:
                     break
             }
             dispatch({type, value})
@@ -851,7 +853,7 @@ export const deleteIdentical = ({initialCode, codeFor}) => (dispatch) => {
 }
 export const chooseIdentical = ({initialCode, codeFor}) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/identicalCode/${codeFor}/lastCode`), initialCode)
+        set(ref(database, `${corpName}/identicalCode/${codeFor}/lastCode`), initialCode || 'defaultCode')
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -868,9 +870,18 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
                 const tempCodeList = temp[x].codeList
                 let codeList = []
                 for (let i in tempCodeList) {
-                    const initialCode = i
-                    const tempCL = {...tempCodeList[i], initialCode}
-                    codeList.push(tempCL)
+                    const tempCL = {...tempCodeList[i], initialCode: i}
+                    i !== 'defaultCode' && codeList.push(tempCL)
+                }
+                codeList.sort((a, b) => 
+                a.initialCode < b.initialCode ? 1 :
+                a.initialCode > b.initialCode ? -1 : 0 
+                )
+                for (let i in tempCodeList) {
+                    if(i === 'defaultCode') {
+                        const tempCL = {...tempCodeList[i], initialCode: ''}
+                        codeList.unshift(tempCL)
+                    }
                 }
                 temp[x].codeList = codeList
             }

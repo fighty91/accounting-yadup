@@ -444,7 +444,7 @@ const CreateUpdateReceiptJournal = (props) => {
     }, [props.accounts])
     
     const {lastCode} = identicalCode
-    let numbPlaceHolder = isUpdate ? '' : `${lastCode}.[auto]`
+    let numbPlaceHolder = isUpdate ? '' : `${lastCode === 'defaultCode' ? '' : lastCode+'.'}[auto]`
     const {nominalNull, accountNull} = validation
 
     return (
