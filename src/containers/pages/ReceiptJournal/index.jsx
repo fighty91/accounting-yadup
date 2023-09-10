@@ -4,7 +4,7 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getAllNLReceiptJournalFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getAllNumberListFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import './ReceiptJournal.scss'
 
 const ReceiptJournal = (props) => {
@@ -57,7 +57,7 @@ const ReceiptJournal = (props) => {
         for(let x in temp) {
             x && countTemp++
         }
-        countTemp < 1 && props.getAllNLReceiptJournalFromAPI()
+        countTemp < 1 && props.getAllNumberListFromAPI('receiptJournal')
     }, [])
     useEffect(() => {
         const temp = props.nLReceiptJournal
@@ -140,7 +140,7 @@ const reduxDispatch = (dispatch) => ({
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getAllNLReceiptJournalFromAPI: () => dispatch(getAllNLReceiptJournalFromAPI())
+    getAllNumberListFromAPI: (data) => dispatch(getAllNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(ReceiptJournal)

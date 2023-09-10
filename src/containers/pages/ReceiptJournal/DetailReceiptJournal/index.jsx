@@ -4,7 +4,7 @@ import "./DetailReceiptJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteNLReceiptJournalFromAPI, deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getReceiptJournalFromAPI, getTNReceiptJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteNumberListFromAPI, deleteReceiptJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getReceiptJournalFromAPI, getTransNumberFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -41,7 +41,7 @@ const DetailReceiptJournal = (props) => {
     }
 
     // const getTransNumberAPI = (id) => {
-    //     let temp = props.getTNReceiptJournalFromAPI(id)
+    //     let temp = props.getTransNumberFromAPI(id)
     //     if(temp) {
     //         return temp.transNumber
     //     }
@@ -77,10 +77,11 @@ const DetailReceiptJournal = (props) => {
     }
 
     const deleteTransaction = async() => {
+        const {tNId, tNParams} = transaction
         const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             navigate('/receipt-journal')
-            await props.deleteNLReceiptJournalFromAPI({tNId: transaction.tNId, tNParams: transaction.tNParams})
+            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transNumber} has been deleted`,
@@ -138,7 +139,7 @@ const DetailReceiptJournal = (props) => {
             setDataReady(true)
 
             const {tNId, tNParams} = tempTrans
-            const tempNumber = await props.getTNReceiptJournalFromAPI({id: tNId, tNParams: tNParams})
+            const tempNumber = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
             let newTransNumb = tempNumber.transNumber
             const newTransNumber = tNParams === 'defaultCode' ? newTransNumb : `${tNParams}.${newTransNumb}`
             setTransNumber(newTransNumber)
@@ -160,7 +161,7 @@ const DetailReceiptJournal = (props) => {
     // useEffect(() => )
     // useEffect(() => {
     //     setTransNumber(
-    //         props.getTNReceiptJournalFromAPI(transaction.tNId, transaction.tNParams)
+    //         props.getTransNumberFromAPI(transaction.tNId, transaction.tNParams)
     //         )
     // }, [transaction.tNId])
 
@@ -321,8 +322,8 @@ const reduxDispatch = (dispatch) => ({
     getReceiptJournalFromAPI: (data) => dispatch(getReceiptJournalFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
     deleteReceiptJournalFromAPI: (data) => dispatch(deleteReceiptJournalFromAPI(data)),
-    getTNReceiptJournalFromAPI: (data) => dispatch(getTNReceiptJournalFromAPI(data)),
-    deleteNLReceiptJournalFromAPI: (data) => dispatch(deleteNLReceiptJournalFromAPI(data))
+    getTransNumberFromAPI: (data) => dispatch(getTransNumberFromAPI(data)),
+    deleteNumberListFromAPI: (data) => dispatch(deleteNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(DetailReceiptJournal)
