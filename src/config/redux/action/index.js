@@ -516,7 +516,7 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
     })
 }
 export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
-    return new Promise( async (resolve) => {
+    return new Promise(resolve => {
         const starCountRef = ref(database, `${corpName}/numberList/${codeFor}`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()},
