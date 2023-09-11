@@ -4,7 +4,7 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getContactsFromAPI, getPaymentJournalsFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getAllNumberListFromAPI, getContactsFromAPI, getPaymentJournalsFromAPI } from "../../../config/redux/action";
 import './PaymentJournal.scss'
 
 const PaymentJournal = (props) => {
@@ -12,7 +12,21 @@ const PaymentJournal = (props) => {
     const [accounts, setAccounts] = useState()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState()
+    const [transNumber, setTransNumber] = useState({})
     
+    const getTransNumber = (id, tNParams) => {
+        const temp = transNumber[tNParams]
+        if(temp) {
+            let newNumberCode
+            temp.find(e => {
+                if(e.id === id)
+                tNParams === 'defaultCode' ?
+                newNumberCode = e.transNumber : newNumberCode = `${tNParams}.${e.transNumber}`
+            })
+            return newNumberCode
+        }
+    }
+
     useEffect(() => {
         props.contacts.length === 0 && props.getContactsFromAPI()
     }, [])
@@ -36,6 +50,19 @@ const PaymentJournal = (props) => {
         const temp = props.transactions.paymentJournal
         temp && setTransactions(temp)
     }, [props.transactions])
+
+    useEffect(() => {
+        const temp = props.nLPaymentJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp < 1 && props.getAllNumberListFromAPI('paymentJournal')
+    }, [])
+    useEffect(() => {
+        const temp = props.nLPaymentJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setTransNumber(temp)
+    }, [props.nLPaymentJournal])
     
     return (
         <LayoutsMainContent>
@@ -81,7 +108,7 @@ const PaymentJournal = (props) => {
                                                     <td className="pb-2">
                                                         <p className="mb-0 fw-normal">
                                                             <Link to={`transaction-detail/${transaction.id}`} className="number-transaction">
-                                                                {transaction.transType} #{transaction.transNumber}
+                                                                {transaction.transType} #{getTransNumber(transaction.tNId, transaction.tNParams)}
                                                             </Link>
                                                         </p>
                                                         <p className="mb-0 fw-light description">{description}</p>
@@ -106,12 +133,14 @@ const PaymentJournal = (props) => {
 const reduxState = (state) => ({
     transactions: state.transactions,
     contacts: state.contacts,
-    accounts: state.accounts
+    accounts: state.accounts,
+    nLPaymentJournal: state.nLPaymentJournal
 })
 const reduxDispatch = (dispatch) => ({
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
+    getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
+    getAllNumberListFromAPI: (data) => dispatch(getAllNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(PaymentJournal)

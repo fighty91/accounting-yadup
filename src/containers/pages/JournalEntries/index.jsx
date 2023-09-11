@@ -4,7 +4,7 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getAllNumberListFromAPI, getContactsFromAPI, getJournalEntriesFromAPI } from "../../../config/redux/action";
 import './JournalEntries.scss'
 
 const JournalEntries = (props) => {
@@ -12,6 +12,20 @@ const JournalEntries = (props) => {
     const [accounts, setAccounts] = useState()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState()
+    const [transNumber, setTransNumber] = useState({})
+
+    const getTransNumber = (id, tNParams) => {
+        const temp = transNumber[tNParams]
+        if(temp) {
+            let newNumberCode
+            temp.find(e => {
+                if(e.id === id)
+                tNParams === 'defaultCode' ?
+                newNumberCode = e.transNumber : newNumberCode = `${tNParams}.${e.transNumber}`
+            })
+            return newNumberCode
+        }
+    }
 
     useEffect(() => {
         props.contacts.length === 0 && props.getContactsFromAPI()
@@ -36,6 +50,19 @@ const JournalEntries = (props) => {
         const temp = props.transactions.journalEntries
         temp && setTransactions(temp)
     }, [props.transactions])
+
+    useEffect(() => {
+        const temp = props.nLJournalEntries
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp < 1 && props.getAllNumberListFromAPI('journalEntries')
+    }, [])
+    useEffect(() => {
+        const temp = props.nLJournalEntries
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setTransNumber(temp)
+    }, [props.nLJournalEntries])
     
     return (
         <LayoutsMainContent>
@@ -81,7 +108,7 @@ const JournalEntries = (props) => {
                                                     <td className="pb-2">
                                                         <p className="mb-0 fw-normal">
                                                             <Link to={`transaction-detail/${transaction.id}`} className="number-transaction">
-                                                                {transaction.transType} #{transaction.transNumber}
+                                                                {transaction.transType} #{getTransNumber(transaction.tNId, transaction.tNParams)}
                                                             </Link>
                                                         </p>
                                                         <p className="mb-0 fw-light description">{description}</p>
@@ -106,12 +133,14 @@ const JournalEntries = (props) => {
 const reduxState = (state) => ({
     transactions: state.transactions,
     contacts: state.contacts,
-    accounts: state.accounts
+    accounts: state.accounts,
+    nLJournalEntries: state.nLJournalEntries
 })
 const reduxDispatch = (dispatch) => ({
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getAccountsFromAPI: () => dispatch(getAccountsFromAPI())
+    getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
+    getAllNumberListFromAPI: (data) => dispatch(getAllNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(JournalEntries)

@@ -129,7 +129,7 @@ const OpeningBalance = (props) => {
                                         <tbody className="table-group-divider">
                                             {
                                                 parentAccounts.map(parentAccount => {
-                                                    let { id, number, accountName } = parentAccount
+                                                    let {id, number, accountName} = parentAccount
                                                     const {childAccounts} = accountAmount(id)
                                                     return (
                                                         <Fragment key={id}>
@@ -148,10 +148,10 @@ const OpeningBalance = (props) => {
                                                                             <td className="ps-2 pe-0 account-number"><Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-number ps-0 pe-0 ms-0 me-0">{ acc.number }</Link></td>
                                                                             <td className="ps-2"><Link to={`/accounts/account-detail/${acc.id}?page=profile`} className="account-name pe-0 me-0">{ acc.accountName }</Link></td>
                                                                             <td className="text-end">
-                                                                                { getCurrencyAbs(amount > 0 ? amount : 0) }
+                                                                                {getCurrencyAbs(amount > 0 ? amount : 0)}
                                                                             </td>
                                                                             <td className="text-end pe-2">
-                                                                                { getCurrencyAbs(amount < 0 ? amount : 0) }
+                                                                                {getCurrencyAbs(amount < 0 ? amount : 0)}
                                                                             </td>
                                                                         </tr>
                                                                     )
@@ -164,10 +164,10 @@ const OpeningBalance = (props) => {
                                             <tr className="fw-bold">
                                                 <td className="ps-2 pe-2 text-secondary" colSpan={2}>Total Amount</td>
                                                 <td className="text-end text-primary">
-                                                    { getCurrencyAbs(totalDebit) }
+                                                    {getCurrencyAbs(totalDebit)}
                                                 </td>
                                                 <td className="text-end pe-2 text-primary">
-                                                    { getCurrencyAbs(totalCredit) }
+                                                    {getCurrencyAbs(totalCredit)}
                                                 </td>
                                             </tr>
                                         </tbody>

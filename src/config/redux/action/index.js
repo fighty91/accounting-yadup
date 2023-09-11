@@ -425,13 +425,13 @@ export const incrementLastOrderTNFromAPI = ({tempStart, tNParams, codeFor}) => (
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams || 'defaultCode'}/lastOrder`))
+        get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`))
         .then(async(snapshot) => {
                 let temp = snapshot.val()
                 temp < tempStart ?
                 temp = tempStart : temp++
                 // update last ordernya
-                await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams || 'defaultCode'}/lastOrder`), temp).then()
+                await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`), temp).then()
                 .catch(err => console.log(err))
                 resolve(temp)
         }).catch((error) => {
@@ -445,7 +445,7 @@ export const postNumberListToAPI = ({tempNumber, tNParams, codeFor}) => (dispatc
             transNumber: tempNumber,
             createdAt: Date.now()
         }
-        pushData(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}`), temp)
+        pushData(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}`), temp)
         .then((dataCredential) => resolve(dataCredential.key))
         .catch(err => {
             console.log(err)
@@ -458,7 +458,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
     let temp = {...tempTN}
     delete temp.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${id}`), temp)
+        set(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${id}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -469,7 +469,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
 export const deleteNumberListFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${tNId}`))
+            remove(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -480,10 +480,11 @@ export const getTransNumberFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) =
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}/${tNId}`))
+        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}/transNumber`))
         .then((snapshot) => {
             if(snapshot.exists()) {
-                const temp = {...snapshot.val(), id: tNId}
+                let temp = snapshot.val()
+                if(tNParams !== 'defaultCode') temp = `${tNParams}.${temp}`
                 resolve(temp)
             } else resolve(snapshot.exists())
         }).catch((error) => {
@@ -495,7 +496,7 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams || 'defaultCode'}`))
+        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 let numberList = []
@@ -541,6 +542,9 @@ export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
                     break
                 case 'paymentJournal':
                     type = 'SET_NUMBER_LIST_PAYMENT_JOURNAL'
+                    break
+                case 'journalEntries':
+                    type = 'SET_NUMBER_LIST_JOURNAL_ENTRIES'
                     break
                 default:
                     break

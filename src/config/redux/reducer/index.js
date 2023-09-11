@@ -106,6 +106,11 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 nLPaymentJournal: value
             }
+        case 'SET_NUMBER_LIST_JOURNAL_ENTRIES' :
+            return {
+                ...state,
+                nLJournalEntries: value
+            }
         case 'SET_USER' :
             return {
                 ...state,

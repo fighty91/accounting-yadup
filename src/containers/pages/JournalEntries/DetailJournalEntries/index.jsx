@@ -4,7 +4,7 @@ import "./DetailJournalEntries.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deleteJournalEntryFromAPI, getAccountsFromAPI, getContactFromAPI, getJournalEntryFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteJournalEntryFromAPI, deleteNumberListFromAPI, getAccountsFromAPI, getContactFromAPI, getJournalEntryFromAPI, getTransNumberFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -24,6 +24,7 @@ const DetailJournalEntries = (props) => {
         transType: "Journal Entries",
         transAccounts: []
     })
+    const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
 
     const handleDeleteTransaction = () => {
@@ -83,9 +84,11 @@ const DetailJournalEntries = (props) => {
         // navigate
     }
     const deleteTransaction = async() => {
+        const {tNId, tNParams} = transaction
         const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
         if (deleteSuccess) {
             navigate('/journal-entries')
+            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
@@ -123,6 +126,10 @@ const DetailJournalEntries = (props) => {
             setTransAccounts(tempTrans.transAccounts)
             getContact(tempTrans.contactId)
             setDataReady(true)
+
+            const {tNId, tNParams} = tempTrans
+            let newTransNumb = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
+            setTransNumber(newTransNumb)
         }
         else if(!dataReady) {
             navigate('/journal-entries')
@@ -140,7 +147,9 @@ const DetailJournalEntries = (props) => {
     
     return (
         <LayoutsMainContent>
-            <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
+            {/* <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/> */}
+            <ContentHeader name={transNumber ? `${transaction.transType} #${transNumber}` : 'Loading...'}/>
+
             {/* Entry Content */}
             <div className="card pb-5 detail-journal-entries">
                 <div className="card-body">
@@ -289,7 +298,9 @@ const reduxDispatch = (dispatch) => ({
     getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getJournalEntryFromAPI: (data) => dispatch(getJournalEntryFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
-    deleteJournalEntryFromAPI: (data) => dispatch(deleteJournalEntryFromAPI(data))
+    deleteJournalEntryFromAPI: (data) => dispatch(deleteJournalEntryFromAPI(data)),
+    getTransNumberFromAPI: (data) => dispatch(getTransNumberFromAPI(data)),
+    deleteNumberListFromAPI: (data) => dispatch(deleteNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(DetailJournalEntries)

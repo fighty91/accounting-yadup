@@ -28,8 +28,6 @@ const DetailReceiptJournal = (props) => {
     const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
     
-    
-
     const getContact = async (contactId) => {
         let temp
         if(props.contacts.length > 0) {
@@ -39,16 +37,6 @@ const DetailReceiptJournal = (props) => {
         }
         temp && setContact(temp)
     }
-
-    // const getTransNumberAPI = (id) => {
-    //     let temp = props.getTransNumberFromAPI(id)
-    //     if(temp) {
-    //         return temp.transNumber
-    //     }
-    // }
-    // useEffect(() => {
-    //     getTransNumberAPI()
-    // })
 
     const getAuthor = () => {
         const authors = transaction.authors
@@ -139,10 +127,8 @@ const DetailReceiptJournal = (props) => {
             setDataReady(true)
 
             const {tNId, tNParams} = tempTrans
-            const tempNumber = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
-            let newTransNumb = tempNumber.transNumber
-            const newTransNumber = tNParams === 'defaultCode' ? newTransNumb : `${tNParams}.${newTransNumb}`
-            setTransNumber(newTransNumber)
+            let newTransNumb = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
+            setTransNumber(newTransNumb)
         }
         else if(!dataReady) {
             navigate('/receipt-journal')
@@ -158,17 +144,9 @@ const DetailReceiptJournal = (props) => {
         getTransactions()
     }, [props.transactions])
 
-    // useEffect(() => )
-    // useEffect(() => {
-    //     setTransNumber(
-    //         props.getTransNumberFromAPI(transaction.tNId, transaction.tNParams)
-    //         )
-    // }, [transaction.tNId])
-
     return (
         <LayoutsMainContent>
             <ContentHeader name={transNumber ? `${transaction.transType} #${transNumber}` : 'Loading...'}/>
-            {/* <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/> */}
             {/* Entry Content */}
             <div className="card pb-5 detail-receipt-journal">
                 <div className="card-body">
@@ -313,8 +291,7 @@ const reduxState = (state) => ({
     users: state.users,
     accounts: state.accounts,
     contacts: state.contacts,
-    transactions: state.transactions,
-    nLPaymentJournal: state.nLPaymentJournal
+    transactions: state.transactions
 })
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),

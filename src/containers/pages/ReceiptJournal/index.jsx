@@ -54,14 +54,14 @@ const ReceiptJournal = (props) => {
     useEffect(() => {
         const temp = props.nLReceiptJournal
         let countTemp = 0
-        for(let x in temp) {
-            x && countTemp++
-        }
+        for(let x in temp) { x && countTemp++ }
         countTemp < 1 && props.getAllNumberListFromAPI('receiptJournal')
     }, [])
     useEffect(() => {
         const temp = props.nLReceiptJournal
-        temp && setTransNumber(temp)
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setTransNumber(temp)
     }, [props.nLReceiptJournal])
 
     return (

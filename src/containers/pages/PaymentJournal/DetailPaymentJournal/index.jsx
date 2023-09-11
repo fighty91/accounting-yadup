@@ -4,7 +4,7 @@ import "./DetailPaymentJournal.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { deletePaymentJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getPaymentJournalFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
+import { deleteNumberListFromAPI, deletePaymentJournalFromAPI, getAccountsFromAPI, getContactFromAPI, getPaymentJournalFromAPI, getTransNumberFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -25,6 +25,7 @@ const DetailPaymentJournal = (props) => {
         transType: "Payment Journal",
         transAccounts: []
     })
+    const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
 
     const handleDeleteTransaction = () => {
@@ -42,9 +43,11 @@ const DetailPaymentJournal = (props) => {
     }
     
     const deleteTransaction = async() => {
+        const {tNId, tNParams} = transaction
         const deleteSuccess = await props.deletePaymentJournalFromAPI(transaction.id)
         if (deleteSuccess) {
             navigate('/payment-journal')
+            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'paymentJournal'})
             Swal.fire({
                 title: 'Success Delete!',
                 text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
@@ -121,6 +124,10 @@ const DetailPaymentJournal = (props) => {
             setPaymentAccount(tempPaymentAccount)
             getContact(tempTrans.contactId)
             setDataReady(true)
+
+            const {tNId, tNParams} = tempTrans
+            let newTransNumb = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'paymentJournal'})
+            setTransNumber(newTransNumb)
         }
         else if(!dataReady) {
             navigate('/payment-journal')
@@ -138,7 +145,7 @@ const DetailPaymentJournal = (props) => {
 
     return (
         <LayoutsMainContent>
-            <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/>
+            <ContentHeader name={transNumber ? `${transaction.transType} #${transNumber}` : 'Loading...'}/>
             {/* Entry Content */}
             <div className="card pb-5 detail-payment-journal">
                 <div className="card-body">
@@ -290,7 +297,9 @@ const reduxDispatch = (dispatch) => ({
     getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getPaymentJournalFromAPI: (data) => dispatch(getPaymentJournalFromAPI(data)),
     getUsersFromAPI: () => dispatch(getUsersFromAPI()),
-    deletePaymentJournalFromAPI: (data) => dispatch(deletePaymentJournalFromAPI(data))
+    deletePaymentJournalFromAPI: (data) => dispatch(deletePaymentJournalFromAPI(data)),
+    getTransNumberFromAPI: (data) => dispatch(getTransNumberFromAPI(data)),
+    deleteNumberListFromAPI: (data) => dispatch(deleteNumberListFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(DetailPaymentJournal)
