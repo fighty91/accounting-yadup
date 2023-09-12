@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import IdenticalCodeList from "./IdenticalCodeList";
 import FormIdenticalCode from "./FormIdenticalCode";
-import { chooseIdentical, deleteIdentical, getIdenticalCodeFromAPI, putIdenticalCodeToAPI } from "../../../config/redux/action";
+import { chooseIdentical, deleteIdentical, getIdenticalCodeFromAPI, postIdenticalCodeToAPI } from "../../../config/redux/action";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import './ModalIdenticalCode.scss'
@@ -26,7 +26,7 @@ const ModalIdenticalCode = (props) => {
         if(res) {
             Toast.fire({
                 icon: 'success',
-                title: `Identical Code ${initialCode}[auto]`
+                title: `Identical Code ${initialCode && initialCode + '.'}[auto]`
             })
         }
     }
@@ -45,28 +45,20 @@ const ModalIdenticalCode = (props) => {
 
     const handleCreateIdentical = async () => {
         let problemCount = 0
-        // lastInitialDigit && problemCount++
-        // lastInitialSpace && problemCount++
-        // firstInitialSpace && problemCount++
         !formIdentical.initialCode && problemCount++
         !identicalAvailable && problemCount++
         
         if(problemCount === 0) {
-            // let newCodeList = [...identicalCode.codeList]
-            let newFormIdentical = {...formIdentical}
-            console.log(newFormIdentical)
-            // if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
-            // newCodeList.push(newFormIdentical)
-            // newCodeList.sort((a, b) => 
-            //     a.transNumber < b.transNumber ? -1 :
-            //     a.transNumber > b.transNumber ? 1 : 0
-            // )
-            // const newIdenticalCode = {
-            //     ...identicalCode,
-            //     codeList: newCodeList
-            // }
-            // const res = await props.putIdenticalCodeToAPI(newIdenticalCode)
-            // res && getResetFormIdentical()
+            const {codeFor} = identicalCode,
+            {initialCode} = formIdentical
+            let newIdentical = {
+                ...formIdentical,
+                isActive: true, lastOrder: 0
+            }
+            delete newIdentical.initialCode
+            if(newIdentical.startFrom === '') newIdentical.startFrom = 1
+            const res = await props.postIdenticalCodeToAPI({initialCode, codeFor, newIdentical})
+            res && getResetFormIdentical()
         }
     }
 
@@ -76,44 +68,20 @@ const ModalIdenticalCode = (props) => {
 
     const handleInputIdentical = (data) => {
         setAvailable(true)
-        // let lastDigit = false
-        // let lastSpace = false
-        // let firstSpace = false
-
-        let newFormIdentical = {...formIdentical}
-        let {name, value} = data.target
-        const startNumb = value
-        // if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
+        let {name, value} = data.target,
+        newFormIdentical = {...formIdentical}
         if(value >= 0) {
-            name === 'startFrom' && value !== '' ?
-            newFormIdentical[name] = +value :
+            value !== '' ? 
+            value % 1 === 0 && (newFormIdentical[name] = +value) :
             newFormIdentical[name] = value
+           
+            setFormIdentical(newFormIdentical)
+            
+            let newCodeList = [...identicalCode.codeList]
+            const {initialCode} = newFormIdentical
+            const notAvailable = newCodeList.find(e => initialCode && +initialCode === +e.initialCode)
+            notAvailable && setAvailable(false)
         }
-        // if (name === 'startFrom') {
-        //     const startNumb = +value
-        //     if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
-        // } else {
-        //     newFormIdentical[name] = value
-        //     if(value.length > 0 && value.charAt(0) === ' ') {
-        //         firstSpace = true
-        //     } else if(value.length > 1) {
-        //         const lastChar = value.charAt(value.length-1)
-        //         if(lastChar === ' ') {
-        //             lastSpace = true
-        //         } else {
-        //             if (value !== '' && +lastChar >= 0) lastDigit = true 
-        //         }
-        //     }
-        // }
-        // setLastInitialDigit(lastDigit)
-        // setLastInitialSpace(lastSpace)
-        // setFirstInitialSpace(firstSpace)
-        setFormIdentical(newFormIdentical)
-
-        let newCodeList = [...identicalCode.codeList]
-        const {initialCode} = newFormIdentical
-        const notAvailable = newCodeList.find(e => initialCode && initialCode === e.initialCode)
-        notAvailable && setAvailable(false)
     }
 
     useEffect(()=> {
@@ -138,9 +106,9 @@ const ModalIdenticalCode = (props) => {
         setIdentical,
         setAvailable,
         setShowForm,
-        setLastInitialDigit,
-        setLastInitialSpace,
-        setFirstInitialSpace,
+        // setLastInitialDigit,
+        // setLastInitialSpace,
+        // setFirstInitialSpace,
         setFormIdentical,
         getResetFormIdentical
     } = props.identicalState
@@ -184,7 +152,7 @@ const reduxDispatch = (dispatch) => ({
     chooseIdentical: (data) => dispatch(chooseIdentical(data)),
     deleteIdentical: (data) => dispatch(deleteIdentical(data)),
     getIdenticalCodeFromAPI: () => dispatch(getIdenticalCodeFromAPI()),
-    putIdenticalCodeToAPI: (data) => dispatch(putIdenticalCodeToAPI(data))
+    postIdenticalCodeToAPI: (data) => dispatch(postIdenticalCodeToAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(ModalIdenticalCode)

@@ -74,8 +74,7 @@ const CreateUpdateReceiptJournal = (props) => {
     }
 
     const getResetFormIdentical = () => {
-        setFormIdentical({ initialCode:'', startFrom:'' })
-        // periksa kembali
+        setFormIdentical({initialCode:'', startFrom:''})
     }
 
     const handleChangeReceiptAccount = (e) => {
@@ -509,7 +508,8 @@ const CreateUpdateReceiptJournal = (props) => {
                                 </div>
                             }
                             </div>
-                            <input type="text" className={`form-control form-control-sm me-1 ${!transNumberAvailable && 'border-danger'} ${validation.numberNull && 'border-danger'}`} id="transNumber" name="transNumber" onChange={handleEntryTransNumber} placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} />
+                            {/* <input type="text" className={`form-control form-control-sm me-1 ${!transNumberAvailable && 'border-danger'} ${validation.numberNull && 'border-danger'}`} id="transNumber" name="transNumber" onChange={handleEntryTransNumber} placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} /> */}
+                            <input type="text" className={'form-control form-control-sm me-1'} id="transNumber" name="transNumber" placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} disabled />
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
                         </div>

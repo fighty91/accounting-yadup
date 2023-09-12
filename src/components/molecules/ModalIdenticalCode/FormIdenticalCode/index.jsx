@@ -30,8 +30,8 @@ const FormIdenticalCode = (props) => {
                 <div>
                     {
                         identicalAvailable && !lastCharDigit && !lastInitialSpace & !firstInitialSpace ?
-                            <ButtonCreate handleOnClick={handleCreate} disabled={false} /> :
-                            <ButtonCreate disabled={true} />
+                        <ButtonCreate handleOnClick={handleCreate} disabled={false} /> :
+                        <ButtonCreate disabled={true} />
                     }
                 </div>
             </div>

@@ -835,12 +835,32 @@ export const getOpeningBalanceFromAPI = () => (dispatch) => {
     })
 }
 
-export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
-    const {codeFor} = identicalCode
-    let newIdenticalCode = {...identicalCode}
-    delete newIdenticalCode.codeFor
-    return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/identicalCode/${codeFor}`), newIdenticalCode)
+// export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => (dispatch) => {
+//     return new Promise((resolve, reject) => {
+//         set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`), newIdentical)
+//         .then(() => resolve(true))
+//         .catch(err => {
+//             console.log(err)
+//             reject(false)   
+//         })
+//     })
+// }
+export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => (dispatch) => {
+    let identicalActive = false,
+    temp = {...newIdentical}
+    return new Promise(async(resolve, reject) => {
+        const dbRef = ref(getDatabase());
+        await get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+        .then((snapshot) => {
+            if(snapshot.exists()) {
+                const {lastOrder, isActive} = snapshot.val()
+                temp.lastOrder = lastOrder
+                identicalActive = isActive
+            }
+        })
+        
+        if(!identicalActive)
+        await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -848,9 +868,42 @@ export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => {
         })
     })
 }
+// export const getIdenticalByParamsFromAPI = ({initialCode, codeFor}) => () => {
+//     // get once
+//     return new Promise((resolve) => {
+//         const dbRef = ref(getDatabase());
+//         get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+//         .then((snapshot) => {
+//             if (snapshot.exists()) {
+//                 const tempEntries = {...snapshot.val(), id}
+//                 resolve(tempEntries)
+//             } else {
+//                 resolve(snapshot.val())
+//             }
+//         })
+
+//         .catch((error) => {
+//             console.error(error);
+//         });
+//     })
+// }
+// export const putIdenticalCodeToAPI = (identicalCode) => (dispatch) => { // NANTI DIHAPUS
+//     const {codeFor} = identicalCode
+//     let newIdenticalCode = {...identicalCode}
+//     delete newIdenticalCode.codeFor
+//     return new Promise((resolve, reject) => {
+//         set(ref(database, `${corpName}/identicalCode/${codeFor}`), newIdenticalCode)
+//         .then(() => resolve(true))
+//         .catch(err => {
+//             console.log(err)
+//             reject(false)   
+//         })
+//     })
+// }
 export const deleteIdentical = ({initialCode, codeFor}) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        remove(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+        // remove(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+        set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}/isActive`), false)
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -865,6 +918,7 @@ export const chooseIdentical = ({initialCode, codeFor}) => (dispatch) => {
         })
     })
 }
+
 export const getIdenticalCodeFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
         const starCountRef = ref(database, `${corpName}/identicalCode`);
@@ -874,8 +928,10 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
                 const tempCodeList = temp[x].codeList
                 let codeList = []
                 for (let i in tempCodeList) {
-                    const tempCL = {...tempCodeList[i], initialCode: i}
-                    i !== 'defaultCode' && codeList.push(tempCL)
+                    if(tempCodeList[i].isActive) {
+                        const tempCL = {...tempCodeList[i], initialCode: i}
+                        i !== 'defaultCode' && codeList.push(tempCL)
+                    }
                 }
                 codeList.sort((a, b) => a.initialCode < b.initialCode ? 1 : a.initialCode > b.initialCode ? -1 : 0)
                 for (let i in tempCodeList) {
