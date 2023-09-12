@@ -18,7 +18,8 @@ const DetailJournalEntries = (props) => {
     const [contact, setContact] = useState({ name: ''})
     const [transAccounts, setTransAccounts] = useState([])
     const [transaction, setTransaction] = useState({
-        transNumber: "",
+        tNId: "",
+        tNParams: '',
         date: '',
         memo: "",
         transType: "Journal Entries",
@@ -27,10 +28,24 @@ const DetailJournalEntries = (props) => {
     const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
 
+    const deleteTransaction = async() => {
+        const {tNId, tNParams} = transaction
+        const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
+        if (deleteSuccess) {
+            navigate('/journal-entries')
+            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
+            Swal.fire({
+                title: 'Success Delete!',
+                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+        }
+    }
     const handleDeleteTransaction = () => {
         Swal.fire({
             title: 'Are you sure?',
-            text: `${transaction.transType} #${transaction.transNumber} will be removed from transactions list!`,
+            text: `${transaction.transType} #${transNumber} will be removed from transactions list!`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -74,27 +89,6 @@ const DetailJournalEntries = (props) => {
             let dateMsg = dateTemp.toLocaleString()
             const msg = `${initialMsg} ${authorName} ${dateMsg}`
             return msg
-        }
-    }
-
-    const getEditTrans = () => {
-        // navigate
-    }
-    const getDuplicate = () => {
-        // navigate
-    }
-    const deleteTransaction = async() => {
-        const {tNId, tNParams} = transaction
-        const deleteSuccess = await props.deleteJournalEntryFromAPI(transaction.id)
-        if (deleteSuccess) {
-            navigate('/journal-entries')
-            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
-            Swal.fire({
-                title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
         }
     }
 
@@ -147,9 +141,7 @@ const DetailJournalEntries = (props) => {
     
     return (
         <LayoutsMainContent>
-            {/* <ContentHeader name={transaction.transNumber ? `${transaction.transType} #${transaction.transNumber}` : 'Loading...'}/> */}
             <ContentHeader name={transNumber ? `${transaction.transType} #${transNumber}` : 'Loading...'}/>
-
             {/* Entry Content */}
             <div className="card pb-5 detail-journal-entries">
                 <div className="card-body">

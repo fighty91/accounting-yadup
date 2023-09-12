@@ -6,9 +6,10 @@ import './FormIdenticalCode.css'
 const FormIdenticalCode = (props) => {
     const { handleCreate, handleInput, data} = props
     const [identical, identicalAvailable, lastCharDigit, lastInitialSpace, firstInitialSpace] = data
-    const handleKeyEnter = (event) => { event.code === 'Enter' && handleCreate() }
+    const handleKeyEnter = (event) => {
+        event.code === 'Enter' && handleCreate()
+    }
 
-    console.log(lastInitialSpace)
     return (
         <Fragment>
             <div className="row g-3 pe-3 ps-3 mb-3">
@@ -19,7 +20,7 @@ const FormIdenticalCode = (props) => {
                 </div>
                 <div className="col-sm-4">
                     <label htmlFor="startFrom" className="form-label mb-0 form-number-format">Start From</label>
-                    <input type="number" onKeyUp={(e)=>handleKeyEnter(e)} className={"form-control form-control-sm"} placeholder="..." aria-label="start-from" value={identical.startFrom} onChange={handleInput} name="startFrom" id="startFrom" min="1" autoComplete="off"/>
+                    <input type="number" onKeyUp={(e)=>handleKeyEnter(e)} className={"form-control form-control-sm"} placeholder="..." aria-label="start-from" value={identical.startFrom} onChange={handleInput} name="startFrom" id="startFrom" min="0" autoComplete="off"/>
                 </div>
                 
                 { !identicalAvailable && <InputValidation name="not available, initial code already exist" /> }

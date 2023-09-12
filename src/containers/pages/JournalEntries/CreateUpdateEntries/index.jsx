@@ -6,7 +6,7 @@ import InputValidation from "../../../../components/atoms/InputValidation";
 import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/ButtonAndLink";
 import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getJournalEntryFromAPI, postJournalEntryToAPI, putJournalEntryToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getJournalEntryFromAPI, getNumberListFromAPI, getTransNumberFromAPI, incrementLastOrderTNFromAPI, postJournalEntryToAPI, postNumberListToAPI, putJournalEntryToAPI, putNumberListToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
@@ -50,7 +50,7 @@ const CreateUpdateEntries = (props) => {
     const [showFormIdentic, setShowFormIdentic] = useState(false)
     const [formIdentical, setFormIdentical] = useState({ initialCode:'', startFrom:'' })
     const [identicalCode, setIdenticalCode] = useState({
-        codeFor: "journalEntries", initialCode: "", startFrom: "", codeList: [{ initialCode: "", startFrom: "" }]
+        codeFor: "journalEntries", lastCode: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
 
     const getResetUpdate = async (dataTransaction) => {
@@ -73,7 +73,7 @@ const CreateUpdateEntries = (props) => {
     }
 
     const getResetFormIdentical = () => {
-        setFormIdentical({ initialCode:'', startFrom:'' })
+        setFormIdentical({ initialCode:'', startFrom:'', isActive: true, lastOrder: 0 })
     }
 
     const handleEntryTransaction = (data) => {
@@ -232,21 +232,57 @@ const CreateUpdateEntries = (props) => {
         return {accountProblem, newAccountTransactions}
     }
 
+    const getIncrement = async(lessTime) => {
+        const {codeFor, lastCode} = identicalCode
+        const tNParams = lastCode
+        let tempStart = 0
+        identicalCode.codeList.find(e => e.initialCode === tNParams && (tempStart = e.startFrom))
+        const tempTime = Math.floor(Math.random() * (lessTime ? 701 : 1401))
+        return new Promise(resolve => {
+            setTimeout(async() => {
+                let tempNumber = await props.incrementLastOrderTNFromAPI({tempStart, tNParams, codeFor})
+                resolve(tempNumber)
+            }, tempTime)
+        })
+    }
+    const checkPostNL = async(tempNumber) => {
+        const {codeFor, lastCode} = identicalCode
+        const tNParams = lastCode
+        let temp = await props.getNumberListFromAPI({tNParams, codeFor})
+        if(temp) {
+            temp = temp.filter(e => e.transNumber === tempNumber)
+            if(temp.length > 1) {
+                for(let i = 1; i < temp.length; i++) {
+                    let tempNumber = await getIncrement(true)
+                    temp[i].transNumber = tempNumber
+                    await props.putNumberListToAPI({tempTN: temp[i], tNParams, codeFor})
+                    await checkPostNL(tempNumber)
+                }
+            }
+        }
+    }
     const postDataToAPI = async (newTransaction) => {
+        const {codeFor, lastCode} = identicalCode
+        const tNParams = lastCode
+        let tempNumber = await getIncrement()
+        const tNId = await props.postNumberListToAPI({tempNumber, tNParams, codeFor})
+        await checkPostNL(tempNumber)
+
         let authors = [{
             createdBy: props.user.uid2,
             createdAt: Date.now(),
         }]
         let dataReadyToPost = {
             ...newTransaction, authors,
-            transNumber: transNumber ? transNumber : await getNewTransNumber()
+            tNParams, tNId
         }
         const res = await props.postJournalEntryToAPI(dataReadyToPost)
         if(res) {
             navigate(`/journal-entries/transaction-detail/${res}`)
+            const tempNumb = await props.getTransNumberFromAPI({tNId, tNParams, codeFor})
             Swal.fire({
                 title: 'Good job!',
-                text: `${dataReadyToPost.transType} #${dataReadyToPost.transNumber} created`,
+                text: `${dataReadyToPost.transType} #${tempNumb} created`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
@@ -387,8 +423,8 @@ const CreateUpdateEntries = (props) => {
         props.accounts.length > 0 && getAccounts()
     }, [props.accounts])
     
-    const {initialCode} = identicalCode
-    let numbPlaceHolder = isUpdate ? '' : `${initialCode}[auto]`
+    const {lastCode} = identicalCode
+    let numbPlaceHolder = isUpdate ? '' : `${lastCode === 'defaultCode' ? '' : lastCode+'.'}[auto]`
     const {nominalNull, nominalDouble, accountNull} = validation
 
     return (
@@ -507,7 +543,13 @@ const reduxDispatch = (dispatch) => ({
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     postJournalEntryToAPI: (data) => dispatch(postJournalEntryToAPI(data)),
-    putJournalEntryToAPI: (data) => dispatch(putJournalEntryToAPI(data))
+    putJournalEntryToAPI: (data) => dispatch(putJournalEntryToAPI(data)),
+
+    getNumberListFromAPI: (data) => dispatch(getNumberListFromAPI(data)),
+    postNumberListToAPI: (data) => dispatch(postNumberListToAPI(data)),
+    putNumberListToAPI: (data) => dispatch(putNumberListToAPI(data)),
+    incrementLastOrderTNFromAPI: (data) => dispatch(incrementLastOrderTNFromAPI(data)),
+    getTransNumberFromAPI: (data) => dispatch(getTransNumberFromAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateEntries)

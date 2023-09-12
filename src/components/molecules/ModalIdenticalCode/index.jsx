@@ -45,27 +45,28 @@ const ModalIdenticalCode = (props) => {
 
     const handleCreateIdentical = async () => {
         let problemCount = 0
-        lastInitialDigit && problemCount++
-        lastInitialSpace && problemCount++
-        firstInitialSpace && problemCount++
+        // lastInitialDigit && problemCount++
+        // lastInitialSpace && problemCount++
+        // firstInitialSpace && problemCount++
         !formIdentical.initialCode && problemCount++
         !identicalAvailable && problemCount++
         
         if(problemCount === 0) {
-            let newCodeList = [...identicalCode.codeList]
+            // let newCodeList = [...identicalCode.codeList]
             let newFormIdentical = {...formIdentical}
-            if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
-            newCodeList.push(newFormIdentical)
-            newCodeList.sort((a, b) => 
-                a.transNumber < b.transNumber ? -1 :
-                a.transNumber > b.transNumber ? 1 : 0
-            )
-            const newIdenticalCode = {
-                ...identicalCode,
-                codeList: newCodeList
-            }
-            const res = await props.putIdenticalCodeToAPI(newIdenticalCode)
-            res && getResetFormIdentical()
+            console.log(newFormIdentical)
+            // if(newFormIdentical.startFrom === '' || newFormIdentical.startFrom === 0) newFormIdentical.startFrom = 1
+            // newCodeList.push(newFormIdentical)
+            // newCodeList.sort((a, b) => 
+            //     a.transNumber < b.transNumber ? -1 :
+            //     a.transNumber > b.transNumber ? 1 : 0
+            // )
+            // const newIdenticalCode = {
+            //     ...identicalCode,
+            //     codeList: newCodeList
+            // }
+            // const res = await props.putIdenticalCodeToAPI(newIdenticalCode)
+            // res && getResetFormIdentical()
         }
     }
 
@@ -75,31 +76,38 @@ const ModalIdenticalCode = (props) => {
 
     const handleInputIdentical = (data) => {
         setAvailable(true)
-        let lastDigit = false
-        let lastSpace = false
-        let firstSpace = false
+        // let lastDigit = false
+        // let lastSpace = false
+        // let firstSpace = false
 
         let newFormIdentical = {...formIdentical}
         let {name, value} = data.target
-        if (name === 'startFrom') {
-            const startNumb = +value
-            if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
-        } else {
+        const startNumb = value
+        // if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
+        if(value >= 0) {
+            name === 'startFrom' && value !== '' ?
+            newFormIdentical[name] = +value :
             newFormIdentical[name] = value
-            if(value.length > 0 && value.charAt(0) === ' ') {
-                firstSpace = true
-            } else if(value.length > 1) {
-                const lastChar = value.charAt(value.length-1)
-                if(lastChar === ' ') {
-                    lastSpace = true
-                } else {
-                    if (value !== '' && +lastChar >= 0) lastDigit = true 
-                }
-            }
         }
-        setLastInitialDigit(lastDigit)
-        setLastInitialSpace(lastSpace)
-        setFirstInitialSpace(firstSpace)
+        // if (name === 'startFrom') {
+        //     const startNumb = +value
+        //     if(startNumb % 1 === 0) newFormIdentical[name] = startNumb
+        // } else {
+        //     newFormIdentical[name] = value
+        //     if(value.length > 0 && value.charAt(0) === ' ') {
+        //         firstSpace = true
+        //     } else if(value.length > 1) {
+        //         const lastChar = value.charAt(value.length-1)
+        //         if(lastChar === ' ') {
+        //             lastSpace = true
+        //         } else {
+        //             if (value !== '' && +lastChar >= 0) lastDigit = true 
+        //         }
+        //     }
+        // }
+        // setLastInitialDigit(lastDigit)
+        // setLastInitialSpace(lastSpace)
+        // setFirstInitialSpace(firstSpace)
         setFormIdentical(newFormIdentical)
 
         let newCodeList = [...identicalCode.codeList]

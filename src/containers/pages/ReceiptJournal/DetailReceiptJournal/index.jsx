@@ -20,6 +20,7 @@ const DetailReceiptJournal = (props) => {
     const [receiptAccount, setReceiptAccount] = useState({})
     const [transaction, setTransaction] = useState({
         tNId: "",
+        tNParams: '',
         date: '',
         memo: "",
         transType: "Receipt Journal",
@@ -27,6 +28,34 @@ const DetailReceiptJournal = (props) => {
     })
     const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
+    
+    const deleteTransaction = async() => {
+        const {tNId, tNParams} = transaction
+        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
+        if (deleteSuccess) {
+            navigate('/receipt-journal')
+            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
+            Swal.fire({
+                title: 'Success Delete!',
+                text: `${transaction.transType} #${transNumber} has been deleted`,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+            })
+        }
+    }
+    const handleDeleteTransaction = () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `${transaction.transType} #${transNumber} will be removed from transactions list!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            result.isConfirmed && deleteTransaction()
+        })
+    }
     
     const getContact = async (contactId) => {
         let temp
@@ -62,34 +91,6 @@ const DetailReceiptJournal = (props) => {
             const msg = `${initialMsg} ${authorName} ${dateMsg}`
             return msg
         }
-    }
-
-    const deleteTransaction = async() => {
-        const {tNId, tNParams} = transaction
-        const deleteSuccess = await props.deleteReceiptJournalFromAPI(transaction.id)
-        if (deleteSuccess) {
-            navigate('/receipt-journal')
-            await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'receiptJournal'})
-            Swal.fire({
-                title: 'Success Delete!',
-                text: `${transaction.transType} #${transNumber} has been deleted`,
-                icon: 'success',
-                confirmButtonColor: '#198754'
-            })
-        }
-    }
-    const handleDeleteTransaction = () => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `${transaction.transType} #${transNumber} will be removed from transactions list!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            result.isConfirmed && deleteTransaction()
-        })
     }
 
     const getAccount = (dataId) => {

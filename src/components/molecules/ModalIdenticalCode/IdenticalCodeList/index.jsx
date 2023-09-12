@@ -18,7 +18,6 @@ const IdenticalCodeList = (props) => {
                 {initialCode && initialCode + '.'}[auto]
             </span>
             {   
-                // props.code.defaultCode ?
                 !initialCode ?
                 <span className="text-secondary" >
                     <i className="bi bi-trash3-fill"></i>

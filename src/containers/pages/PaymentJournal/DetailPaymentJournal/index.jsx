@@ -19,7 +19,8 @@ const DetailPaymentJournal = (props) => {
     const [transAccounts, setTransAccounts] = useState([])
     const [paymentAccount, setPaymentAccount] = useState({})
     const [transaction, setTransaction] = useState({
-        transNumber: "",
+        tNId: "",
+        tNParams: '',
         date: '',
         memo: "",
         transType: "Payment Journal",
@@ -28,20 +29,6 @@ const DetailPaymentJournal = (props) => {
     const [transNumber, setTransNumber] = useState()
     const [dataReady, setDataReady] = useState(false)
 
-    const handleDeleteTransaction = () => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `${transaction.transType} #${transaction.transNumber} will be removed from transactions list!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) =>
-            result.isConfirmed && deleteTransaction()
-        )
-    }
-    
     const deleteTransaction = async() => {
         const {tNId, tNParams} = transaction
         const deleteSuccess = await props.deletePaymentJournalFromAPI(transaction.id)
@@ -55,6 +42,19 @@ const DetailPaymentJournal = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+    }
+    const handleDeleteTransaction = () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `${transaction.transType} #${transNumber} will be removed from transactions list!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) =>
+            result.isConfirmed && deleteTransaction()
+        )
     }
 
     const getContact = async (contactId) => {
