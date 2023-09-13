@@ -36,7 +36,7 @@ const DetailJournalEntries = (props) => {
             await props.deleteNumberListFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
             Swal.fire({
                 title: 'Success Delete!',
-                text: `${transaction.transType} #${transaction.transNumber} has been deleted`,
+                text: `${transaction.transType} #${transNumber} has been deleted`,
                 icon: 'success',
                 confirmButtonColor: '#198754'
             })
