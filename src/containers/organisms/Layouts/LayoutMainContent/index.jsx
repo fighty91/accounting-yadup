@@ -14,7 +14,7 @@ const LayoutsMainContent = (props) => {
     const checkAccessToken = async () => {
         const tokenMatch = await props.getCheckToken({accessToken, userId})
         !tokenMatch && navigate('/logout')
-        console.log('tokeMatch', tokenMatch)
+        // console.log('ada')
     }
 
     useEffect(() => {

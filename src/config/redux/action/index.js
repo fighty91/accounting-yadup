@@ -62,6 +62,22 @@ const setUserRegister = (userData) => {
 //         });
 //     })
 // }
+const getUser = (uid) => {
+    // get once
+    return new Promise((resolve) => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/users/${uid}`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                resolve(snapshot.val())
+            } else {
+                resolve(snapshot.val())
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    })
+}
 const getOnceUsers = () => {
     // get once
     return new Promise((resolve) => {
@@ -103,6 +119,11 @@ export const getCheckToken = ({accessToken, userId}) => async (dispatch) => {
     if(userData && accessToken === userData.accessToken) {
         await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
         tokenMatch = true
+    }
+    if(tokenMatch) {
+        const user = await getUser(userId)
+        const {email, password} = user
+        loginUserAPI({email, password})(dispatch)
     }
     return tokenMatch
 }
@@ -161,6 +182,7 @@ export const loginUserAPI = (data) => (dispatch) => {
             localStorage.setItem(`token_${corpName}uid`, JSON.stringify(accessToken))
             await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
             resolve(userCredential.user)
+            console.log('login')
         })
         .catch((error) => {
             const errorCode = error.code;
