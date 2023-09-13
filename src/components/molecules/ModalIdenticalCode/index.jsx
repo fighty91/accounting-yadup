@@ -38,7 +38,7 @@ const ModalIdenticalCode = (props) => {
         if(res) {
             Toast.fire({
                 icon: 'success',
-                title: `Identical Code ${initialCode}[auto]`
+                title: `Identical Code ${initialCode && initialCode + '.'}[auto]`
             })
         }
     }

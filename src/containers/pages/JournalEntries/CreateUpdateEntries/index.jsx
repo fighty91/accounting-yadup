@@ -64,8 +64,13 @@ const CreateUpdateEntries = (props) => {
             else {
                 setTransDb(dataTransaction)
                 setIsUpdate(true)
-                setTransNumber(dataTransaction.transNumber)
+                
+                const {tNId, tNParams} = dataTransaction
+                const tempNumb = await props.getTransNumberFromAPI({tNId, tNParams, codeFor: 'journalEntries'})
+                setTransNumber(tempNumb)
                 tempTransaction.date = date
+                tempTransaction.tNId = tNId
+                tempTransaction.tNParams = tNParams
             }
             setTransaction(tempTransaction)
             handleCurrency(newTransAccounts)
@@ -326,7 +331,12 @@ const CreateUpdateEntries = (props) => {
                     !newTransaction[i] && delete newTransaction[i]
                 }
                 isUpdate ?
-                await putDataToAPI({...newTransaction, transNumber, id: transDb.id}) :
+                await putDataToAPI({
+                    ...newTransaction,
+                    id: transDb.id,
+                    // transNumber
+                })
+                :
                 await postDataToAPI(newTransaction)
             }
         }
