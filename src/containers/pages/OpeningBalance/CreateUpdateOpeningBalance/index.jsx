@@ -28,7 +28,8 @@ const CreateUpdateOpeningBalance = (props) => {
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
         memo: '',
-        transNumber: '10001',
+        tNId: 'defaultId',
+        tNParams: 'defaultCode',
         transType: "Opening Balance"
     })
 
@@ -232,7 +233,8 @@ const CreateUpdateOpeningBalance = (props) => {
                 let transAccounts = newAccountTransactions.filter(e => e.debit || e.credit)
                 transAccounts.forEach(e => deleteProps(e, ['parentId', 'number', 'accountName']))
                 let newTransaction = {
-                    ...transaction, transAccounts
+                    ...transaction,
+                    transAccounts
                 }
                 for(let i in newTransaction) {
                     !newTransaction[i] && delete newTransaction[i]
