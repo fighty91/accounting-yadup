@@ -4,12 +4,13 @@ import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import './Contacts.scss'
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteContactFromAPI, getContactsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { deleteContactFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 
 const Contacts = (props) => {
     const [contacts, setContacts] = useState([])
     const [transactions, setTransactions] = useState([])
+
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -22,6 +23,15 @@ const Contacts = (props) => {
         }
     })
 
+    const deleteContact = async (data) => {
+        const res = await props.deleteContactFromAPI(data.id)
+        if(res) {
+            Toast.fire({
+                icon: 'success',
+                title: `Success Delete \n${data.name}`,
+            })
+        }
+    }
     const getConfirmDelete = (data) => {
         const res = transactions.find(e => e.contactId === data.id)
         if(res) {
@@ -36,17 +46,6 @@ const Contacts = (props) => {
             deleteContact(data)
         }
     }
-
-    const deleteContact = async (data) => {
-        const res = await props.deleteContactFromAPI(data.id)
-        if(res) {
-            Toast.fire({
-                icon: 'success',
-                title: `Success Delete \n${data.name}`,
-            })
-        }
-    }
-
     const handleDeleteContact = (data) => {
         Swal.fire({
             title: 'Are you sure?',
@@ -64,14 +63,21 @@ const Contacts = (props) => {
     }
 
     useEffect(() => {
-        props.getContactsFromAPI()
-        props.getTransactionsFromAPI()
+        props.contacts.length < 1 && props.getContactsFromAPI()
     }, [])
-
     useEffect(() => {
-        setContacts(props.contacts)
+        props.contacts.length > 0 && setContacts(props.contacts)
     }, [props.contacts])
     
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        getTransactionsProps()
+    }, [])
     useEffect(() => {
         let temp = []
         for(let x in props.transactions) {
@@ -152,7 +158,10 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data)),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI())
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(Contacts)
