@@ -63,24 +63,25 @@ const TransactionsContact = (props) => {
         getTransactionsProps()
     }, [])
     const getTransactions = async() => {
-        let trans = []
-        const temp1 = props.transactions.openingBalance,
-        temp2 = props.transactions.receiptJournal,
-        temp3 = props.transactions.paymentJournal,
-        temp4 = props.transactions.journalEntries,
-        temp1url = '/opening-balance',
-        temp2url = '/receipt-journal/transaction-detail/',
-        temp3url = '/payment-journal/transaction-detail/',
-        temp4url = '/journal-entries/transaction-detail/'
+        let tempTrans = []
+        const temp = [
+            {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.paymentJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
+        ],
+        tempOB = props.transactions.openingBalance,
+        urlOB = '/opening-balance'
 
-        temp2 && temp2.forEach(acc => acc.contactId === contactId && trans.push({...acc, surl: temp2url + acc.id}))
-        temp3 && temp3.forEach(acc => acc.contactId === contactId && trans.push({...acc, surl: temp3url + acc.id}))
-        temp4 && temp4.forEach(acc => acc.contactId === contactId && trans.push({...acc, surl: temp4url + acc.id}))
-        // trans.sort((a, b) => a.transNumber < b.transNumber ? -1 : a.transNumber > b.transNumber ? 1 : 0)
-        trans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
-
-        temp1 && temp1.forEach(acc => acc.contactId === contactId && trans.unshift({...acc, surl: temp1url}))
-        trans.length > 0 && setTransactions(trans)
+        temp.forEach(a =>
+            a.trans && a.trans.forEach(acc =>
+                acc.contactId === contactId && tempTrans.push({...acc, surl: a.surl + acc.id})
+            )
+        )
+        tempTrans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
+        tempOB && tempOB.forEach(acc =>
+            acc.contactId === contactId && tempTrans.unshift({...acc, surl: urlOB})
+        )
+        tempTrans.length > 0 && setTransactions(tempTrans)
     }
     useEffect(() => {
         getTransactions()

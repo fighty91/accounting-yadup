@@ -31,26 +31,30 @@ const TransactionsAccount = (props) => {
         getTransactionsProps()
     }, [])
     const getTransactions = async() => {
-        let trans = []
-        const temp1 = props.transactions.openingBalance,
-        temp1url = '/opening-balance',
-        temp = [
+        let tempTrans = []
+        const temp = [
             {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
             {trans: props.transactions.paymentJournal, surl: '/receipt-journal/transaction-detail/'},
             {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
-        ]
-        
+        ],
+        tempOB = props.transactions.openingBalance,
+        urlOB = '/opening-balance'
+
         temp.forEach(a =>
             a.trans && a.trans.forEach(e =>
-                e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: a.surl + e.id}))
+                e.transAccounts.forEach(acc =>
+                    acc.account === accountId && tempTrans.push({...e, surl: a.surl + e.id})
+                )
             )
         )
 
-        trans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
-        temp1 && temp1.forEach(e =>
-            e.transAccounts.forEach(acc => acc.account === accountId && trans.unshift({...e, surl: temp1url}))
+        tempTrans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
+        tempOB && tempOB.forEach(e =>
+            e.transAccounts.forEach(acc => 
+                acc.account === accountId && tempTrans.unshift({...e, surl: urlOB})
+            )
         )
-        trans.length > 0 && setTransactions(trans)
+        tempTrans.length > 0 && setTransactions(tempTrans)
     }
     useEffect(() => {
         getTransactions()
