@@ -33,26 +33,20 @@ const TransactionsAccount = (props) => {
     const getTransactions = async() => {
         let trans = []
         const temp1 = props.transactions.openingBalance,
-        temp2 = props.transactions.receiptJournal,
-        temp3 = props.transactions.paymentJournal,
-        temp4 = props.transactions.journalEntries,
         temp1url = '/opening-balance',
-        temp2url = '/receipt-journal/transaction-detail/',
-        temp3url = '/payment-journal/transaction-detail/',
-        temp4url = '/journal-entries/transaction-detail/'
+        temp = [
+            {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.paymentJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
+        ]
+        
+        temp.forEach(a =>
+            a.trans && a.trans.forEach(e =>
+                e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: a.surl + e.id}))
+            )
+        )
 
-        temp2 && temp2.forEach(e =>
-            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp2url + e.id}))
-        )
-        temp3 && temp3.forEach(e =>
-            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp3url + e.id}))
-        )
-        temp4 && temp4.forEach(e =>
-            e.transAccounts.forEach(acc => acc.account === accountId && trans.push({...e, surl: temp4url + e.id}))
-        )
-        trans.sort((a, b) => a.transNumber < b.transNumber ? -1 : a.transNumber > b.transNumber ? 1 : 0)
         trans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
-
         temp1 && temp1.forEach(e =>
             e.transAccounts.forEach(acc => acc.account === accountId && trans.unshift({...e, surl: temp1url}))
         )

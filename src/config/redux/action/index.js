@@ -29,7 +29,7 @@ const setUserAccessToken = (userData) => {
 }
 const setUserRegister = (userData) => {
     return new Promise(async(resolve, reject) => {
-        const { name, email, uid, createdAt, userAccessId } = userData
+        const { name, email, password, uid, createdAt, userAccessId } = userData
         const users = await getOnceUsers()
         let uid2 = 1
         if(users) {
@@ -44,6 +44,7 @@ const setUserRegister = (userData) => {
             uid2,
             name,
             email,
+            password,
             isActive: true,
             userAccessId,
             createdAt
@@ -142,6 +143,7 @@ export const registerUserAPI = (data) => (dispatch) => {
                 uid,
                 name,
                 email,
+                password,
                 userAccessId,
                 accessToken
             }
