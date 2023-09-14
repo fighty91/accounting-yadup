@@ -28,32 +28,6 @@ const NewContact = (props) => {
         }
     })
 
-    const getAccount = () => {
-        let newAccountPayables = []
-        let newAccountReceivables = []
-        props.accounts.forEach(e => {
-            if( e.isParent === false && e.isActive === true) {
-                e.categoryId === "2" && newAccountReceivables.push(e)
-                e.categoryId === "7" && newAccountPayables.push(e)
-            }
-        })
-        
-        let newAccountMapping = {}
-        newAccountReceivables.forEach((e, i) => {
-            if (i === 0) newAccountMapping.accountReceivable = e.id
-        })
-        newAccountPayables.forEach((e, i) => {
-            if (i === 0) {
-                newAccountMapping.accountPayable = e.id
-                newAccountMapping.expensePayable = e.id
-            }
-        })
-
-        setAccountReceivables(newAccountReceivables)
-        setAccountPayables(newAccountPayables)
-        setAccountMapping(newAccountMapping)
-    }
-
     const postDataToAPI = async (data) => {
         const res = await props.postContactToAPI(data)
         if(res) {
@@ -127,14 +101,42 @@ const NewContact = (props) => {
         }
     }
     
+    const getRPAccount = (data) => {
+        let newReceivables = []
+        let newPayables = []
+        data.forEach(e => {
+            if(!e.isParent && e.isActive) {
+                e.categoryId === "2" && newReceivables.push(e)
+                e.categoryId === "7" && newPayables.push(e)
+            }
+        })
+        return {newReceivables, newPayables}
+    }
+    const getAccount = () => {
+        const {newReceivables, newPayables} = getRPAccount(props.accounts)
+        setAccountReceivables(newReceivables)
+        setAccountPayables(newPayables)
+    }
+    const getAccountMapping = async() => {
+        let temp = props.accounts 
+        if(temp.length < 1) temp = await props.getAccountsFromAPI()
+        
+        if(temp.length > 0) {
+            const {newReceivables, newPayables} = getRPAccount(temp)
+            let newAccountMapping = {
+                accountReceivable: newReceivables[0].id,
+                accountPayable: newPayables[0].id,
+                expensePayable: newPayables[0].id,
+            }
+            setAccountMapping(newAccountMapping)
+        }
+    }
     useEffect(() => {
-        getAccount()
-    }, [props.accounts])
-    
-    useEffect(() => {
-        props.getAccountsFromAPI()
+        getAccountMapping()
     }, [])
-    
+    useEffect(() => {
+        props.accounts.length > 0 && getAccount()
+    }, [props.accounts])
     
     return(
         <LayoutsMainContent>

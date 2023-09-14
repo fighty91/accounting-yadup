@@ -5,7 +5,7 @@ import ContactCard from "../../../components/molecules/ContactCard";
 import { ButtonDelete, ButtonLinkTo } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteContactFromAPI, getAccountsFromAPI, getContactsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { deleteContactFromAPI, getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 
 const DetailContact = (props) => {
@@ -30,31 +30,33 @@ const DetailContact = (props) => {
         }
     })
     
-    const getContact = async () => {
-        const newContact = await props.contacts.find(e => e.id === contactId)
-        if(newContact) {
-            setContact(newContact)
-            setPositions(newContact.position)
-            setAccountMapping(newContact.defaultAccount)
-        }
-    }
-        
     const getPosition = () => {
         let newPositions = []
-        for (let x in positions) {
-            if (positions[x] === true) {
-                let posName = x.charAt(0).toUpperCase() + x.slice(1);
-                let color = ''
-                if (x === 'vendor') {color = 'danger'}
-                if (x === 'customer') {color = 'success'}
-                if (x === 'employee') {color = 'primary'}
-                if (x === 'other') {color = 'secondary'}
-                newPositions.push({name: posName, color: color})
+        const temp = [
+            {name: 'vendor', color: 'danger'},
+            {name: 'customer', color: 'success'},
+            {name: 'employee', color: 'primary'},
+            {name: 'other', color: 'secondary'},
+        ]
+        for(let x in positions) {
+            if(positions[x] === true) {
+                const posName = x.charAt(0).toUpperCase() + x.slice(1);
+                temp.find(e => e.name === x && newPositions.push({name: posName, color: e.color}))
             } 
         }
         return newPositions
     }
-
+    
+    const deleteContact = async () => {
+        const res = await props.deleteContactFromAPI(contact.id)
+        if(res) {
+            navigate('/contacts')
+            Toast.fire({
+                icon: 'success',
+                title: `Success Delete \n${contact.name}`
+            })
+        }
+    }
     const getConfirmDelete = () => {
         const res = transactions.find(e => e.contactId === contact.id)
         if(res) {
@@ -69,18 +71,6 @@ const DetailContact = (props) => {
             deleteContact()
         }
     }
-    
-    const deleteContact = async () => {
-        const res = await props.deleteContactFromAPI(contact.id)
-        if(res) {
-            navigate('/contacts')
-            Toast.fire({
-                icon: 'success',
-                title: `Success Delete \n${contact.name}`
-            })
-        }
-    }
-
     const handleDeleteContact = () => {
         Swal.fire({
             title: 'Are you sure?',
@@ -98,19 +88,36 @@ const DetailContact = (props) => {
     }
 
     useEffect(() => {
-        props.getContactsFromAPI()
-        props.getAccountsFromAPI()
-        props.getTransactionsFromAPI()
+        props.accounts.length < 1 && props.getAccountsFromAPI()
     },[])
-
     useEffect(() => {
-        setAccounts(props.accounts)
+        props.accounts.length > 0 && setAccounts(props.accounts)
     }, [props.accounts])
 
+    const getContact = async () => {
+        const newContact = await props.contacts.find(e => e.id === contactId)
+        if(newContact) {
+            setContact(newContact)
+            setPositions(newContact.position)
+            setAccountMapping(newContact.defaultAccount)
+        }
+    }
     useEffect(() => {
-        getContact()
+        props.contacts.length < 1 && props.getContactsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.contacts.length > 0 && getContact()
     }, [props.contacts])
 
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        getTransactionsProps()
+    }, [])
     useEffect(() => {
         let temp = []
         for(let x in props.transactions) {
@@ -121,7 +128,7 @@ const DetailContact = (props) => {
     
     const {name, address, phone, id } = contact
     const newPositions = getPosition()
-    let {expensePayable, accountPayable, accountReceivable } = accountMapping
+    let {expensePayable, accountPayable, accountReceivable} = accountMapping
     let expPayable, accPayable, accReceivable
 
     accounts.forEach(account => {
@@ -202,6 +209,10 @@ const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data)),
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(DetailContact)
