@@ -22,6 +22,5 @@ const checkAccHistory = async (data) => {
     contact && contactCount++
     return { childCount, transCount, masterAcc, contactCount }
 }
-
     
 export {checkAccHistory}

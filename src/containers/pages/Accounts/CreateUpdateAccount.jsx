@@ -7,7 +7,7 @@ import InputValidation from "../../../components/atoms/InputValidation";
 import FormSubAccount from "../../../components/molecules/SubAccountForm";
 import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getTransactionsFromAPI, postAccountToAPI, putAccountToAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalFromAPI, getReceiptJournalFromAPI, getTransactionsFromAPI, postAccountToAPI, putAccountToAPI } from "../../../config/redux/action";
 import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
@@ -88,7 +88,7 @@ const CreateUpdateAccount = (props) => {
         }
         let checkAccount = accountId && await checkAccHistory(data)
 
-        let newMappingRole = {...mappingRole}
+        let newMappingRole = {}
         const { childCount, transCount, masterAcc, contactCount } = checkAccount
         if(isParent && childCount > 0) newMappingRole.parentOnly = true
         if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true, fixParent: true})
@@ -127,7 +127,6 @@ const CreateUpdateAccount = (props) => {
             })
         }
     }
-
     const handleUpdateData = async () => {
         const problemMapping = await checkMapping(accountDb)
         if(problemMapping) {
@@ -154,13 +153,10 @@ const CreateUpdateAccount = (props) => {
                 updateProps(newAccount, {isParent, parentId})
                 deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
             }
-            await putDataToAPI(account)
         } else {
             await putDataToAPI(account)
         }
     }
-
-    
 
     const getNumberValid = async (data) => {
         let newNullValid = data.newNullValid
@@ -240,8 +236,6 @@ const CreateUpdateAccount = (props) => {
         if(problemCount < 1) {
             isUpdate ? handleUpdateData() : postDataToAPI()
         }
-
-        problemCount > 1 && console.log('problem detection')
     }
 
     const handleKeyEnter = (event) => {
@@ -288,16 +282,6 @@ const CreateUpdateAccount = (props) => {
             setNullValid(newNullValid)
         }
     }
-
-    const setUpdate = () => {
-        setIsUpdate(true)
-        props.getContactsFromAPI()
-        props.getTransactionsFromAPI()
-        // dicek kembali lagi
-    }
-    useEffect(() => {
-        accountId && setUpdate()
-    }, [])
         
     const getAccountCollect = async () => {
         const accGroup = await getAccGroup(accountId)
@@ -321,20 +305,34 @@ const CreateUpdateAccount = (props) => {
         }
     }
     useEffect(() => {
-        props.accounts.length === 0 && props.getAccountsFromAPI()
+        props.accounts.length < 1 && props.getAccountsFromAPI()
     }, [])
     useEffect(() => {
         props.accounts.length > 0 && getAccountCollect()
     }, [props.accounts])
 
     useEffect(() => {
-        props.categories.length === 0 && props.getCategoriesFromAPI()
+        props.categories.length < 1 && props.getCategoriesFromAPI()
     }, [])
     useEffect(() => {
         const temp = props.categories
         temp.length > 0 && setCategories(temp)
     }, [props.categories])
 
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    const setUpdate = () => {
+        setIsUpdate(true)
+        props.contacts.length < 1 && props.getContactsFromAPI()
+        getTransactionsProps()
+    }
+    useEffect(() => {
+        accountId && setUpdate()
+    }, [])
     useEffect(() => {
         let temp = []
         for(let x in props.transactions) {
@@ -342,6 +340,9 @@ const CreateUpdateAccount = (props) => {
         }
         setTransactions(temp)
     }, [props.transactions])
+    useEffect(()=> {
+        getAccountCollect()
+    }, [transactions])
   
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
     const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
@@ -402,9 +403,13 @@ const reduxDispatch = (dispatch) => ({
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
+    // getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     postAccountToAPI: (data) => dispatch(postAccountToAPI(data)),
-    putAccountToAPI: (data) => dispatch(putAccountToAPI(data))
+    putAccountToAPI: (data) => dispatch(putAccountToAPI(data)),
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(CreateUpdateAccount)
