@@ -34,7 +34,7 @@ const TransactionsAccount = (props) => {
         let tempTrans = []
         const temp = [
             {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
-            {trans: props.transactions.paymentJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.paymentJournal, surl: '/payment-journal/transaction-detail/'},
             {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
         ],
         tempOB = props.transactions.openingBalance,
@@ -156,7 +156,7 @@ const TransactionsAccount = (props) => {
                                                         {getTransNumber(tNId, tNParams, transType)}
                                                     </Link>
                                                 </p>
-                                                <p className="mb-0 fw-light description">{memo}</p>
+                                                <p className="mb-0 fw-light description">{memo || 'no description'}</p>
                                             </td>
                                             <td className="text-end">{getCurrency(debit)}</td>
                                             <td className="text-end">{getCurrency(credit)}</td>

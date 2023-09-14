@@ -5,7 +5,7 @@ import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import ContactCard from "../../../components/molecules/ContactCard";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { getAllNumberListFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import './Contacts.scss'
 
 const TransactionsContact = (props) => {
@@ -14,6 +14,32 @@ const TransactionsContact = (props) => {
     const [contact, setContact] = useState({})
     const [positions, setPositions] = useState({})
     const [transactions, setTransactions] = useState([])
+    const [nLReceiptJournal, setNLReceiptJournal] = useState()
+    const [nLPaymentJournal, setNLPaymentJournal] = useState()
+    const [nLJournalEntries, setNLJournalEntries] = useState()
+
+    const getTransNumber = (tNId, tNParams, transType) => {
+        let temp, params = '#'
+        switch (transType) {
+            case 'Receipt Journal':
+                nLReceiptJournal && nLReceiptJournal[tNParams].find(e => e.id === tNId && (temp = e.transNumber))
+                break;
+            case 'Payment Journal':
+                nLPaymentJournal && nLPaymentJournal[tNParams].find(e => e.id === tNId && (temp = e.transNumber))
+                break;
+            case 'Journal Entries':
+                nLJournalEntries && nLJournalEntries[tNParams].find(e => e.id === tNId && (temp = e.transNumber))
+                break;
+            case 'Opening Balance':
+                temp = 10001
+                break;
+            default:
+                break;
+        }
+        if(tNParams !== 'defaultCode') params = '#' + tNParams + '.'
+        const showNumber = `${transType} ${params+temp}`
+        return showNumber
+    }
 
     const getContact = () => {
         const newContact = props.contacts.find(e => e.id === contactId)
@@ -22,36 +48,12 @@ const TransactionsContact = (props) => {
             setPositions(newContact.position)
         }
     }
-
     useEffect(() => {
-        props.getContactsFromAPI()
-        // props.getTransactionsFromAPI()
+        props.contacts.length < 1 && props.getContactsFromAPI()
     },[])
-    
     useEffect(() => {
-        getContact()
+        props.contacts.length > 0 && getContact()
     },[props.contacts])
-
-    // useEffect(() => {
-    //     let newTransactions = []
-    //     for(let x in props.transactions) {
-    //         for(let e of props.transactions[x]) {
-    //             e.contactId === contactId && newTransactions.push(e)
-    //         }
-    //         // props.transactions[x].forEach(e => 
-    //         //     e.contactId === contactId && newTransactions.push(e)
-    //         // )
-    //     }
-    //     newTransactions.sort((a, b) => 
-    //         a.transNumber < b.transNumber ? 1 :
-    //         a.transNumber > b.transNumber ? -1 : 0
-    //     )
-    //     newTransactions.sort((a, b) => 
-    //         a.date < b.date ? 1 :
-    //         a.date > b.date ? -1 : 0
-    //     )
-    //     setTransactions(newTransactions)
-    // },[props.transactions])
 
     const getTransactionsProps = async() => {
         !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
@@ -66,7 +68,7 @@ const TransactionsContact = (props) => {
         let tempTrans = []
         const temp = [
             {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
-            {trans: props.transactions.paymentJournal, surl: '/receipt-journal/transaction-detail/'},
+            {trans: props.transactions.paymentJournal, surl: '/payment-journal/transaction-detail/'},
             {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
         ],
         tempOB = props.transactions.openingBalance,
@@ -86,7 +88,34 @@ const TransactionsContact = (props) => {
     useEffect(() => {
         getTransactions()
     }, [props.transactions])
-    
+
+    useEffect(() => {
+        let arrCodeFor = {receiptJournal: 'nLReceiptJournal', paymentJournal: 'nLPaymentJournal', journalEntries: 'nLJournalEntries'}
+        for(let e in arrCodeFor) {
+            let temp = props[arrCodeFor[e]], tempCount = 0
+            for(let x in temp) {x && tempCount++}
+            tempCount < 1 && props.getAllNumberListFromAPI(e)
+        }
+    }, [])
+    useEffect(() => {
+        const temp = props.nLReceiptJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setNLReceiptJournal(temp)
+    }, [props.nLReceiptJournal])
+    useEffect(() => {
+        const temp = props.nLPaymentJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setNLPaymentJournal(temp)
+    }, [props.nLPaymentJournal])
+    useEffect(() => {
+        const temp = props.nLJournalEntries
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setNLJournalEntries(temp)
+    }, [props.nLJournalEntries])
+
     const getPosition = () => {
         let newPositions = []
         const temp = [
@@ -104,7 +133,7 @@ const TransactionsContact = (props) => {
         return newPositions
     }
     
-    const {name, id } = contact
+    const {name, id} = contact
     const newPositions = getPosition()
     
     return(
@@ -119,16 +148,15 @@ const TransactionsContact = (props) => {
                             <table className="table table-striped table-sm table-transaction">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="tabel-date" onClick={()=> console.log(transactions)}>Date</th>
+                                        <th scope="col" className="tabel-date">Date</th>
                                         <th scope="col">Description</th>
                                         <th scope="col" className="text-end">Total</th>
-                                        {/* <th scope="col" className="text-end">Action</th> */}
                                     </tr>
                                 </thead>
                                 <tbody className="table-group-divider">
                                     {
                                         transactions.map(trans => {
-                                            const {date, transType, transNumber, memo, transAccounts} = trans
+                                            const {date, transType, tNId, tNParams, memo, transAccounts} = trans
                                             let amount = 0
                                             transAccounts.forEach(e => amount += e.debit)
                                             return (
@@ -136,9 +164,9 @@ const TransactionsContact = (props) => {
                                                     <td>{date.split('-').reverse().join('/')}</td>
                                                     <td className="pb-2">
                                                         <p className="mb-0 fw-normal">
-                                                            {/* <Link to={`/journal-entries/transaction-detail/${trans.id}`} className="number-transaction"> */}
                                                             <Link to={trans.surl} className="number-transaction">
-                                                                {transType} #{transNumber}
+                                                                {/* {transType} #{transNumber} */}
+                                                                {getTransNumber(tNId, tNParams, transType)}
                                                             </Link>
                                                         </p>
                                                         <p className="mb-0 fw-light description">{memo || 'no description'}</p>
@@ -162,15 +190,18 @@ const TransactionsContact = (props) => {
 
 const reduxState = (state) => ({
     contacts: state.contacts,
-    transactions: state.transactions
+    transactions: state.transactions,
+    nLReceiptJournal: state.nLReceiptJournal,
+    nLPaymentJournal: state.nLPaymentJournal,
+    nLJournalEntries: state.nLJournalEntries
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
-    getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
-    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getAllNumberListFromAPI: (data) => dispatch(getAllNumberListFromAPI(data)),
 })
 
 export default connect(reduxState, reduxDispatch)(TransactionsContact)
