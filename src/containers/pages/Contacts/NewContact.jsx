@@ -14,6 +14,7 @@ const NewContact = (props) => {
     const [accountReceivables, setAccountReceivables] = useState([])
     const [accountPayables, setAccountPayables] = useState([])
     const [accountMapping, setAccountMapping] = useState({})
+    
     const navigate = useNavigate()
 
     const Toast = Swal.mixin({
@@ -28,17 +29,6 @@ const NewContact = (props) => {
         }
     })
 
-    const postDataToAPI = async (data) => {
-        const res = await props.postContactToAPI(data)
-        if(res) {
-            Toast.fire({
-                icon: 'success',
-                title: `Success Add \n${data.name}`
-            })
-            navigate(`/contacts/detail/${res}`)
-        }
-    }
-   
     const handleEntryContact = (data) => {
         let newContact = {...contact}
         newContact[data.target.name] = data.target.value
@@ -57,6 +47,16 @@ const NewContact = (props) => {
         setAccountMapping(newMapping)
     }
     
+    const postDataToAPI = async (data) => {
+        const res = await props.postContactToAPI(data)
+        if(res) {
+            Toast.fire({
+                icon: 'success',
+                title: `Success Add \n${data.name}`
+            })
+            navigate(`/contacts/detail/${res}`)
+        }
+    }
     const handleSubmit = () => {
         let problemCount = 0
         let positionCount = 0
@@ -74,7 +74,6 @@ const NewContact = (props) => {
                 confirmButtonColor: '#fd7e14'
             })
         }
-
         if(contact.name.length < 3) {
             problemCount++
             Swal.fire({
@@ -102,14 +101,9 @@ const NewContact = (props) => {
     }
     
     const getRPAccount = (data) => {
-        let newReceivables = []
-        let newPayables = []
-        data.forEach(e => {
-            if(!e.isParent && e.isActive) {
-                e.categoryId === "2" && newReceivables.push(e)
-                e.categoryId === "7" && newPayables.push(e)
-            }
-        })
+        const newAccounts = data.filter(e => !e.isParent)
+        const newReceivables = newAccounts.filter(account => account.categoryId === "2")
+        const newPayables = newAccounts.filter(account => account.categoryId === "7")
         return {newReceivables, newPayables}
     }
     const getAccount = () => {

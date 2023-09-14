@@ -94,8 +94,8 @@ const DetailContact = (props) => {
         props.accounts.length > 0 && setAccounts(props.accounts)
     }, [props.accounts])
 
-    const getContact = async () => {
-        const newContact = await props.contacts.find(e => e.id === contactId)
+    const getContact = () => {
+        const newContact = props.contacts.find(e => e.id === contactId)
         if(newContact) {
             setContact(newContact)
             setPositions(newContact.position)

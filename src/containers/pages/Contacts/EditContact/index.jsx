@@ -15,9 +15,9 @@ const EditContact = (props) => {
     const [accountReceivables, setAccountReceivables] = useState([])
     const [accountPayables, setAccountPayables] = useState([])
     const [accountMapping, setAccountMapping] = useState({})
-    const navigate = useNavigate()
 
-    let { contactId } = useParams()
+    const navigate = useNavigate()
+    const { contactId } = useParams()
 
     const Toast = Swal.mixin({
         toast: true,
@@ -30,34 +30,6 @@ const EditContact = (props) => {
           toast.addEventListener('mouseleave', Swal.resumeTimer)
         }
     })
-
-    const getContact = () => {
-        const newContact = props.contacts.find(e => e.id === contactId)
-        if(newContact) {
-            setContact(newContact)
-            setPositions(newContact.position)
-            setAccountMapping(newContact.defaultAccount)
-        }
-    }
-    const getAccounts = () => {
-        const newAccounts = props.accounts.filter(e => e.isParent === false)
-        const newAccountReceivables = newAccounts.filter(account => account.categoryId === "2")
-        const newAccountPayables = newAccounts.filter(account => account.categoryId === "7")
-        
-        setAccountReceivables(newAccountReceivables)
-        setAccountPayables(newAccountPayables)
-    }
-
-    const putDataToAPI = async (data) => {
-        const res = await props.putContactToAPI(data)
-        if(res) {
-            Toast.fire({
-                icon: 'success',
-                title: `Success Update \n${data.name}`
-            })
-            navigate(`/contacts/detail/${data.id}`)
-        }
-    }
     
     const handleEntryContact = (data) => {
         let newContact = {...contact}
@@ -77,13 +49,22 @@ const EditContact = (props) => {
         setAccountMapping(newMapping)
     }
     
+    const putDataToAPI = async (data) => {
+        const res = await props.putContactToAPI(data)
+        if(res) {
+            Toast.fire({
+                icon: 'success',
+                title: `Success Update \n${data.name}`
+            })
+            navigate(`/contacts/detail/${data.id}`)
+        }
+    }
     const handleSubmit = () => {
         let problemCount = 0
         let positionCount = 0
         for (let x in positions) {
             if (positions[x] === true) { positionCount++ } 
         }
-
         if(positionCount < 1) {
             problemCount++
             Swal.fire(
@@ -92,7 +73,6 @@ const EditContact = (props) => {
                 'warning'
             )
         }
-
         if(contact.name.length < 3) {
             problemCount++
             Swal.fire(
@@ -117,21 +97,36 @@ const EditContact = (props) => {
         }
     }
     
+    const getContact = () => {
+        const newContact = props.contacts.find(e => e.id === contactId)
+        if(newContact) {
+            setContact(newContact)
+            setPositions(newContact.position)
+            setAccountMapping(newContact.defaultAccount)
+        }
+    }
     useEffect(() => {
-        props.getContactsFromAPI()
-        props.getAccountsFromAPI()
+        props.contacts.length < 1 && props.getContactsFromAPI()
     }, [])
     
     useEffect(() => {
-        getContact()
+        props.contacts.length > 0 && getContact()
     }, [props.contacts])
 
+    const getAccounts = () => {
+        const newAccounts = props.accounts.filter(e => !e.isParent)
+        const newAccountReceivables = newAccounts.filter(account => account.categoryId === "2")
+        const newAccountPayables = newAccounts.filter(account => account.categoryId === "7")
+        setAccountReceivables(newAccountReceivables)
+        setAccountPayables(newAccountPayables)
+    }
     useEffect(() => {
-        getAccounts()
+        props.accounts.length < 1 && props.getAccountsFromAPI()
+    }, [])
+    useEffect(() => {
+        props.accounts.length > 0 && getAccounts()
     }, [props.accounts])
 
-    
-    
     return(
         <LayoutsMainContent>
             <ContentHeader name="Edit Contact"/>
