@@ -7,12 +7,13 @@ import InputValidation from "../../../components/atoms/InputValidation";
 import FormSubAccount from "../../../components/molecules/SubAccountForm";
 import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getCategoriesFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalFromAPI, getReceiptJournalFromAPI, postAccountToAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalFromAPI, getReceiptJournalFromAPI, putAccountToAPI } from "../../../config/redux/action";
 import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
-const CreateUpdateAccount = (props) => {
+const EditAccount = (props) => {
     const { deleteProps, updateProps } = useGeneralFunc()
+    const {accountId} = useParams()
     const navigate = useNavigate()
 
     const [parentAccounts, setParentAccounts] = useState([])
@@ -33,6 +34,8 @@ const CreateUpdateAccount = (props) => {
     const [accumulationType, setAccumulationType] = useState('')
     const [numberAvailable, setNumberAvailable] = useState(true)
     const [nullValid, setNullValid] = useState({})
+    const [mappingRole, setMappingRole] = useState({})
+    const [transactions, setTransactions] = useState([])
 
     const Toast = Swal.mixin({
         toast: true,
@@ -46,7 +49,7 @@ const CreateUpdateAccount = (props) => {
         }
     })
 
-    const getAccGroup = () => {
+    const getAccGroup = (dataAccountId) => {
         const data = props.accounts
         const newParentAccounts = data.filter(e => e.isParent)
 
@@ -62,41 +65,84 @@ const CreateUpdateAccount = (props) => {
         let numberData = []
         data.forEach(e => numberData.push(e.number))
 
+        let accountDb = dataAccountId && data.find(e => e.id === dataAccountId)
         return {
             newParentAccounts,
             newMasterDepreciaton,
             newMasterAmortization,
-            numberData
+            numberData,
+            accountDb
         }
     }
     
+    // update
+    const checkMapping = async (newAccount) => {
+        const { isParent, isAmortization, isDepreciation} = newAccount
+        const data = {
+            account: newAccount,
+            contacts: props.contacts,
+            accounts: props.accounts,
+            transactions,
+        }
+        let checkAccount = await checkAccHistory(data)
+
+        let newMappingRole = {}
+        const { childCount, transCount, masterAcc, contactCount } = checkAccount
+        if(isParent && childCount > 0) newMappingRole.parentOnly = true
+        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true, fixParent: true})
+        if(transCount > 0) {
+            isAmortization || isDepreciation ? newMappingRole.accumOnly = true : newMappingRole.subOnly = true
+        }
+        setMappingRole(newMappingRole)
+
+        let problemMapping
+        for(let x in checkAccount) {
+            if(checkAccount[x] > 0) problemMapping = x
+        }
+        if(problemMapping) return problemMapping
+    }
+
     const getNumberValid = async (data) => {
         let newNullValid = data.newNullValid
         let numberData = []
         props.accounts.forEach(e => numberData.push(e.number))
 
         let newAvailable = true
-        await numberData.find(e => e === data.number && (newAvailable = false))
+        if (numberData.find(e => e === data.number)) {
+            newAvailable = false
+            if(accountDb) {
+                if (accountDb.number === data.number) {
+                    newAvailable = true
+                }
+            }
+        }
         setNumberAvailable(newAvailable)
-        if(newAvailable === false) newNullValid.number = false
+        if (newAvailable === false) newNullValid.number = false
         setNullValid(newNullValid)
         return newAvailable
     }
 
     const handleEntryNumber = async (event) => {
-        const {value} = event.target
+        const { value } = event.target
         let newNullValid = {...nullValid}
         handleEntryAccount(event)
 
         let newAvailable = true
-        numberAccounts.find(e => e === value && (newAvailable = false))
+        if (numberAccounts.find(e => e === value)) {
+            newAvailable = false
+            if(accountDb) {
+                if (accountDb.number === value) {
+                    newAvailable = true
+                }
+            }
+        }
         setNumberAvailable(newAvailable)
-        if(newAvailable === false) newNullValid.number = false
+        if (newAvailable === false) newNullValid.number = false
         setNullValid(newNullValid)
     }
 
     const handleEntryAccount = (event) => {
-        let {name, value} = event.target
+        let { name, value } = event.target
         let newAccount = {...account}
         newAccount[name] = value
         if(name === 'masterId' && value > 0) newAccount.parentId = getParentOfMaster(value)
@@ -116,15 +162,46 @@ const CreateUpdateAccount = (props) => {
         icon: 'warning',
         confirmButtonColor: '#fd7e14'
     })
-    const postDataToAPI = async () => {
-        const id = await props.postAccountToAPI(account)
-        if(id) {
+    const putDataToAPI = async () => {
+        const res = await props.putAccountToAPI(account)
+        if(res) {
+            navigate(`/accounts/account-detail/${account.id}?page=profile`)
             const {accountName, number} = account
             Toast.fire({
                 icon: 'success',
-                title: `Success Add (${number})\n${accountName}`
+                title: `Success Update (${number})\n${accountName}`
             })
-            navigate(`/accounts/account-detail/${id}?page=profile`)
+        }
+    }
+    const handleUpdateData = async () => {
+        const problemMapping = await checkMapping(accountDb)
+        if(problemMapping) {
+            let newAccount = {...account}
+            const { isParent, parentId, isAmortization, isDepreciation, masterId } = accountDb
+            if(isParent && problemMapping === 'childCount') {
+                newAccount.isParent = true
+                deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId', 'parentId'])
+            }
+            if(problemMapping === 'transCount') {
+                newAccount.isParent = false
+                isAmortization || isDepreciation ?
+                    updateProps(newAccount, {parentId, masterId}) :
+                    deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
+                if (isAmortization) {
+                    newAccount.isAmortization = true
+                    delete newAccount.isDepreciation
+                } else if(isDepreciation) {
+                    newAccount.isDepreciation = true
+                    delete newAccount.isAmortization
+                }
+            }
+            if(problemMapping === 'masterAcc' || problemMapping === 'contactCount') {
+                updateProps(newAccount, {isParent, parentId})
+                deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
+            }
+            await putDataToAPI(account)
+        } else {
+            await putDataToAPI(account)
         }
     }
     const handleSubmit = async () => {
@@ -137,8 +214,7 @@ const CreateUpdateAccount = (props) => {
         }
         if(accountType === 'subAccount') newNullValid.parent = !parentId && true
         if(accountType === 'isAccumulation') {
-            !accumulationType ?
-            newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
+            !accumulationType ? newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
         }
         
         let problemCount = 0
@@ -149,10 +225,12 @@ const CreateUpdateAccount = (props) => {
         !newNumberAvailable && problemCount++
 
         if(problemCount < 1) {
-            window.navigator.onLine ?
-            postDataToAPI() : lostConnection()
+            if(window.navigator.onLine) {
+                handleUpdateData()
+            } else lostConnection()
         }
     }
+
     const handleKeyEnter = (event) => {
         event.code === 'Enter' && handleSubmit()
     }
@@ -199,15 +277,36 @@ const CreateUpdateAccount = (props) => {
     }
         
     const getAccountCollect = async () => {
-        const accGroup = await getAccGroup()
+        const accGroup = await getAccGroup(accountId)
         const {newParentAccounts, newMasterDepreciaton, newMasterAmortization, numberData} = accGroup
+
         setParentAccounts(newParentAccounts)
         setMasterDepreciaton(newMasterDepreciaton)
         setMasterAmortization(newMasterAmortization)
         setNumberAccounts(numberData)
+
+        if(accountId) {
+            let newAccountDb = {...accGroup.accountDb}
+            checkMapping(newAccountDb)
+        }
+    }
+    const getAccUpdate = async() => {
+        let temp = props.accounts
+        if(temp.length < 1) temp = await props.getAccountsFromAPI()
+        if(accountId) {
+            let newAccountDb = temp.find(e => e.id === accountId)
+            
+            const { isParent, isAmortization, isDepreciation } = newAccountDb
+            isParent && setAccountType('isParent')
+            if(isAmortization || isDepreciation) setAccountType('isAccumulation')
+            isAmortization && setAccumulationType('isAmortization')
+            isDepreciation && setAccumulationType('isDepreciation')
+            setAccountDb(newAccountDb)
+            setAccount(newAccountDb)
+        }
     }
     useEffect(() => {
-        props.accounts.length < 1 && props.getAccountsFromAPI()
+        getAccUpdate()
     }, [])
     useEffect(() => {
         props.accounts.length > 0 && getAccountCollect()
@@ -221,11 +320,32 @@ const CreateUpdateAccount = (props) => {
         temp.length > 0 && setCategories(temp)
     }, [props.categories])
 
+    const getTransactionsProps = async() => {
+        !props.transactions.openingBalance && await props.getOpeningBalanceFromAPI()
+        !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
+        !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
+        !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+    }
+    useEffect(() => {
+        props.contacts.length < 1 && props.getContactsFromAPI()
+        getTransactionsProps()
+    }, [])
+    useEffect(() => {
+        let temp = []
+        for(let x in props.transactions) {
+            props.transactions[x].forEach(e => temp.push(e))
+        }
+        setTransactions(temp)
+    }, [props.transactions])
+    useEffect(()=> {
+        getAccountCollect()
+    }, [transactions])
+  
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
     const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
     return(
         <LayoutsMainContent>
-            <ContentHeader name={"New Account"}/>
+            <ContentHeader name={"Edit Account"}/>
             <div className="card">
                 <div className="card-body mt-3">
                     <div className="row g-3 mb-4">
@@ -258,11 +378,11 @@ const CreateUpdateAccount = (props) => {
                             { nullValid.balance && <InputValidation name="balance null" /> }
                         </div>
                     </div>
-                    <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} />
+                    <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} mappingRole={mappingRole} />
                     <div>
-                        <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} />
+                        <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} isUpdate={true}/>
                         &nbsp;&nbsp;&nbsp;
-                        <ButtonLinkTo color="outline-danger" name="Cancel" linkTo='/accounts' />
+                        <ButtonLinkTo color="outline-danger" name="Cancel" linkTo={`/accounts/account-detail/${accountId}?page=profile`} />
                     </div>
                 </div>
             </div>
@@ -273,11 +393,18 @@ const CreateUpdateAccount = (props) => {
 const reduxState = (state) => ({
     categories: state.categories,
     accounts: state.accounts,
+    contacts: state.contacts,
+    transactions: state.transactions
 })
 const reduxDispatch = (dispatch) => ({
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    postAccountToAPI: (data) => dispatch(postAccountToAPI(data)),
+    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
+    putAccountToAPI: (data) => dispatch(putAccountToAPI(data)),
+    getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
 })
 
-export default connect(reduxState, reduxDispatch)(CreateUpdateAccount)
+export default connect(reduxState, reduxDispatch)(EditAccount)

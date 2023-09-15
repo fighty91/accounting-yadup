@@ -11,7 +11,7 @@ import { getAccountsFromAPI, getCategoriesFromAPI, getJournalEntriesFromAPI, get
 import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
-const CreateUpdateAccount = (props) => {
+const NewAccount = (props) => {
     const { deleteProps, updateProps } = useGeneralFunc()
     const navigate = useNavigate()
 
@@ -27,7 +27,6 @@ const CreateUpdateAccount = (props) => {
         isParent: false,
         isActive: true
     })
-    const [accountDb, setAccountDb] = useState()
     const [categories, setCategories] = useState([])
     const [accountType, setAccountType] = useState('subAccount')
     const [accumulationType, setAccumulationType] = useState('')
@@ -280,4 +279,4 @@ const reduxDispatch = (dispatch) => ({
     postAccountToAPI: (data) => dispatch(postAccountToAPI(data)),
 })
 
-export default connect(reduxState, reduxDispatch)(CreateUpdateAccount)
+export default connect(reduxState, reduxDispatch)(NewAccount)

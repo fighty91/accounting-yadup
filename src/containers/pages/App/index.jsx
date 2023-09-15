@@ -12,7 +12,6 @@ import Contacts from "../Contacts";
 import JournalEntries from "../JournalEntries";
 import Reports from "../Reports";
 import DetailAccount from "../Accounts/DetailAccount";
-import CreateUpdateAccount from "../Accounts/CreateUpdateAccount";
 import DetailContact from "../Contacts/DetailContact";
 import EditContact from "../Contacts/EditContact";
 import NewContact from "../Contacts/NewContact";
@@ -32,6 +31,8 @@ import DetailReceiptJournal from "../ReceiptJournal/DetailReceiptJournal";
 import DetailPaymentJournal from "../PaymentJournal/DetailPaymentJournal";
 import OpeningBalance from "../OpeningBalance";
 import CreateUpdateOpeningBalance from "../OpeningBalance/CreateUpdateOpeningBalance";
+import EditAccount from "../Accounts/EditAccount";
+import NewAccount from "../Accounts/NewAccount";
 
 class App extends Component {
     render() {
@@ -48,8 +49,8 @@ class App extends Component {
                     <Route path="/reports" Component={Reports}/>
 
                     <Route path="/accounts/account-detail/:accountId" Component={DetailAccount}/>
-                    <Route path="/accounts/edit-account/:accountId" Component={CreateUpdateAccount}/>
-                    <Route path="/accounts/new-account" Component={CreateUpdateAccount}/>
+                    <Route path="/accounts/edit-account/:accountId" Component={EditAccount}/>
+                    <Route path="/accounts/new-account" Component={NewAccount}/>
                     
                     <Route path="/contacts/detail/:contactId" Component={DetailContact}/>
                     <Route path="/contacts/edit-contact/:contactId" Component={EditContact}/>
