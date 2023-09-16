@@ -2,9 +2,9 @@ import React, { Fragment } from "react";
 import InputValidation from "../../atoms/InputValidation";
 
 const FormSubAccount = (props) => {
-    const { accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton } = props.data
-    const { handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter } = props.handleSubFunc
-    const { subOnly, parentOnly, accumOnly } = props.mappingRole || {}
+    const {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton} = props.data
+    const {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter} = props.handleSubFunc
+    const {subOnly, parentOnly, accumOnly} = props.mappingRole || {}
     return (
         <Fragment>
             <div className="d-sm-inline-flex g-3 mb-3">

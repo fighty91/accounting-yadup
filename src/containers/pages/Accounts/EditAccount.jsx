@@ -89,7 +89,7 @@ const EditAccount = (props) => {
         let newMappingRole = {}
         const {childCount, transCount, masterAcc, contactCount} = checkAccount
         if(isParent && childCount > 0) newMappingRole.parentOnly = true
-        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true})
+        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true, fixCategory: true})
         if(transCount > 0) {
             isAmortization || isDepreciation ? newMappingRole.accumOnly = true : newMappingRole.subOnly = true
         }
@@ -367,10 +367,16 @@ const EditAccount = (props) => {
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="categoryId" className="">Category</label>
-                            <select className="form-select form-select-sm" id="categoryId" name="categoryId" onChange={handleEntryAccount} value={account.categoryId && account.categoryId} >
-                                { !account.categoryId && <option value="">Choose...</option> }
-                                { categories.map(e => <option key={e.id} value={e.id}>{e.name}</option>) }
-                            </select>
+                                
+                                <select className="form-select form-select-sm" id="categoryId" name="categoryId" onChange={handleEntryAccount} value={account.categoryId && account.categoryId} disabled={mappingRole.fixCategory} >
+                                    {!account.categoryId && <option value="">Choose...</option> }
+                                    {
+                                        mappingRole.fixCategory ?
+                                        categories.map(e => e.id === account.categoryId && <option key={e.id} value={e.id}>{e.name}</option>)
+                                        :
+                                        categories.map(e => <option key={e.id} value={e.id}>{e.name}</option>)
+                                    }
+                                </select>
                             { nullValid.category && <InputValidation name="category null" /> }
                         </div>
                         <div className="col-md-6">
