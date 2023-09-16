@@ -7,12 +7,11 @@ import InputValidation from "../../../components/atoms/InputValidation";
 import FormSubAccount from "../../../components/molecules/SubAccountForm";
 import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getCategoriesFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalFromAPI, getReceiptJournalFromAPI, postAccountToAPI } from "../../../config/redux/action";
-import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
+import { getAccountsFromAPI, getCategoriesFromAPI, postAccountToAPI } from "../../../config/redux/action";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const NewAccount = (props) => {
-    const { deleteProps, updateProps } = useGeneralFunc()
+    const { deleteProps } = useGeneralFunc()
     const navigate = useNavigate()
 
     const [parentAccounts, setParentAccounts] = useState([])
