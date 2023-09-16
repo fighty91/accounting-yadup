@@ -76,20 +76,20 @@ const EditAccount = (props) => {
     }
     
     // update
-    const checkMapping = async (newAccount) => {
-        const { isParent, isAmortization, isDepreciation} = newAccount
+    const checkMapping = async(newAccount) => {
+        const {isParent, isAmortization, isDepreciation} = newAccount
         const data = {
             account: newAccount,
             contacts: props.contacts,
             accounts: props.accounts,
-            transactions,
+            transactions
         }
         let checkAccount = await checkAccHistory(data)
 
         let newMappingRole = {}
-        const { childCount, transCount, masterAcc, contactCount } = checkAccount
+        const {childCount, transCount, masterAcc, contactCount} = checkAccount
         if(isParent && childCount > 0) newMappingRole.parentOnly = true
-        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true, fixParent: true})
+        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true})
         if(transCount > 0) {
             isAmortization || isDepreciation ? newMappingRole.accumOnly = true : newMappingRole.subOnly = true
         }
@@ -111,7 +111,7 @@ const EditAccount = (props) => {
         if (numberData.find(e => e === data.number)) {
             newAvailable = false
             if(accountDb) {
-                if (accountDb.number === data.number) {
+                if(accountDb.number === data.number) {
                     newAvailable = true
                 }
             }
@@ -128,10 +128,10 @@ const EditAccount = (props) => {
         handleEntryAccount(event)
 
         let newAvailable = true
-        if (numberAccounts.find(e => e === value)) {
+        if(numberAccounts.find(e => e === value)) {
             newAvailable = false
             if(accountDb) {
-                if (accountDb.number === value) {
+                if(accountDb.number === value) {
                     newAvailable = true
                 }
             }
@@ -162,8 +162,8 @@ const EditAccount = (props) => {
         icon: 'warning',
         confirmButtonColor: '#fd7e14'
     })
-    const putDataToAPI = async () => {
-        const res = await props.putAccountToAPI(account)
+    const putDataToAPI = async (newAccount) => {
+        const res = await props.putAccountToAPI(newAccount)
         if(res) {
             navigate(`/accounts/account-detail/${account.id}?page=profile`)
             const {accountName, number} = account
@@ -177,13 +177,15 @@ const EditAccount = (props) => {
         const problemMapping = await checkMapping(accountDb)
         if(problemMapping) {
             let newAccount = {...account}
-            const { isParent, parentId, isAmortization, isDepreciation, masterId } = accountDb
+            const {isParent, parentId, isAmortization, isDepreciation, masterId, categoryId} = accountDb
             if(isParent && problemMapping === 'childCount') {
                 newAccount.isParent = true
                 deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId', 'parentId'])
             }
             if(problemMapping === 'transCount') {
                 newAccount.isParent = false
+                newAccount.parentId = newAccount.parentId || parentId
+
                 isAmortization || isDepreciation ?
                     updateProps(newAccount, {parentId, masterId}) :
                     deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
@@ -196,10 +198,11 @@ const EditAccount = (props) => {
                 }
             }
             if(problemMapping === 'masterAcc' || problemMapping === 'contactCount') {
-                updateProps(newAccount, {isParent, parentId})
+                newAccount.parentId = newAccount.parentId || parentId
+                updateProps(newAccount, {isParent, categoryId})
                 deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
             }
-            await putDataToAPI(account)
+            putDataToAPI(newAccount)
         } else {
             await putDataToAPI(account)
         }
@@ -253,7 +256,6 @@ const EditAccount = (props) => {
                 delete newAccount.parentId
                 newAccount.isParent = false
         }
-        
         setAccountType(typeValue)
         setAccumulationType('')
         setAccount(newAccount)
@@ -286,8 +288,7 @@ const EditAccount = (props) => {
         setNumberAccounts(numberData)
 
         if(accountId) {
-            let newAccountDb = {...accGroup.accountDb}
-            checkMapping(newAccountDb)
+            checkMapping(accGroup.accountDb)
         }
     }
     const getAccUpdate = async() => {
@@ -296,7 +297,7 @@ const EditAccount = (props) => {
         if(accountId) {
             let newAccountDb = temp.find(e => e.id === accountId)
             
-            const { isParent, isAmortization, isDepreciation } = newAccountDb
+            const {isParent, isAmortization, isDepreciation} = newAccountDb
             isParent && setAccountType('isParent')
             if(isAmortization || isDepreciation) setAccountType('isAccumulation')
             isAmortization && setAccumulationType('isAmortization')
@@ -340,6 +341,10 @@ const EditAccount = (props) => {
     useEffect(()=> {
         getAccountCollect()
     }, [transactions])
+
+    const test = () => {
+        console.log(accountDb)
+    }
   
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
     const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
@@ -350,7 +355,7 @@ const EditAccount = (props) => {
                 <div className="card-body mt-3">
                     <div className="row g-3 mb-4">
                         <div className="col-md-6">
-                            <label htmlFor="accountName" className="" >Name</label>
+                            <label htmlFor="accountName" className="" onClick={test}>Name</label>
                             <input type="text" className="form-control form-control-sm" id="accountName" placeholder="" name="accountName" autoComplete="off" onChange={handleEntryAccount} value={account.accountName ? account.accountName : ''} onKeyUp={handleKeyEnter}/>
                             { nullValid.accountName && <InputValidation name="name null" /> }
                         </div>

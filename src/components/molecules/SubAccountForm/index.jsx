@@ -4,7 +4,7 @@ import InputValidation from "../../atoms/InputValidation";
 const FormSubAccount = (props) => {
     const { accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton } = props.data
     const { handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter } = props.handleSubFunc
-    const { subOnly, fixParent, parentOnly, accumOnly } = props.mappingRole || {}
+    const { subOnly, parentOnly, accumOnly } = props.mappingRole || {}
     return (
         <Fragment>
             <div className="d-sm-inline-flex g-3 mb-3">
@@ -42,15 +42,11 @@ const FormSubAccount = (props) => {
                     accountType === 'subAccount' && 
                     <div className="col-md-6">
                         <label htmlFor="parentId" className="">Sub Account From</label>
-                        <select className="form-select form-select-sm" id="parentId" name="parentId" value={account.parentId && account.parentId} onChange={(e)=>handleEntryAccount(e)} disabled={fixParent}>
-                            { !account.parentId && <option value={0}>Choose...</option> }
-                            { 
-                                fixParent ?
-                                    parentAccounts.map(e => e.id === account.parentId && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option> ) :
-                                    parentAccounts.map(e => e.id !== account.id && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)
-                            }
+                        <select className="form-select form-select-sm" id="parentId" name="parentId" value={account.parentId && account.parentId} onChange={(e)=>handleEntryAccount(e)} >
+                            {!account.parentId && <option value={0}>Choose...</option>}
+                            {parentAccounts.map(e => e.id !== account.id && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)}
                         </select>
-                        { nullValid.parent && <InputValidation name="sub account from null" /> }
+                        {nullValid.parent && <InputValidation name="sub account from null" />}
                     </div>
                 }
                 {
@@ -62,7 +58,7 @@ const FormSubAccount = (props) => {
                             <option value='isDepreciation'>Depreciation</option>
                             <option value='isAmortization'>Amortization</option>
                         </select>
-                        { nullValid.accumType && <InputValidation name="type null" /> }
+                        {nullValid.accumType && <InputValidation name="type null" />}
                     </div>
                 }
                 {
