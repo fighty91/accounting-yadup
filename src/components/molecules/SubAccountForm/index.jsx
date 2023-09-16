@@ -66,7 +66,7 @@ const FormSubAccount = (props) => {
                     <div className="col-md-6">
                         <label htmlFor="masterId" className="">Depreciation From</label>
                         <select className="form-select form-select-sm" id="masterId" name="masterId" onChange={(e)=>handleEntryAccount(e)} value={account.masterId && account.masterId} disabled={accumOnly} >
-                            { !account.masterId && <option value=''>Choose...</option> }
+                            {!account.masterId && <option value=''>Choose...</option>}
                             {
                                 accumOnly ?
                                 masterDepreciaton.map(e => e.id === account.masterId && <option key={e.id} value={e.id}>{ e.number } &nbsp; { e.accountName }</option> ) :
@@ -74,7 +74,7 @@ const FormSubAccount = (props) => {
                                 masterDepreciaton.map(e => e.id !== account.id && <option key={e.id} value={e.id}>{ e.number } &nbsp; { e.accountName }</option> )
                             }
                         </select>
-                        { nullValid.accumMaster && <InputValidation name="depreciation from null" /> }
+                        {nullValid.accumMaster && <InputValidation name="depreciation from null" />}
                     </div>
                 }
                 {
@@ -82,7 +82,7 @@ const FormSubAccount = (props) => {
                     <div className="col-md-6">
                         <label htmlFor="masterId" className="">Amortization From</label>
                         <select className="form-select form-select-sm" id="masterId" name="masterId" onChange={(e)=>handleEntryAccount(e)} value={account.masterId && account.masterId} disabled={accumOnly} >
-                            { !account.masterId && <option value=''>Choose...</option> }
+                            {!account.masterId && <option value=''>Choose...</option>}
                             { 
                                 accumOnly ?
                                     masterAmortization.map(e => 
@@ -100,7 +100,7 @@ const FormSubAccount = (props) => {
                                     ) 
                             }
                         </select>
-                        { nullValid.accumMaster && <InputValidation name="amortization from null" /> }
+                        {nullValid.accumMaster && <InputValidation name="amortization from null" />}
                     </div>
                 }
             </div>

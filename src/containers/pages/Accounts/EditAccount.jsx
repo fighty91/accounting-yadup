@@ -12,7 +12,7 @@ import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const EditAccount = (props) => {
-    const { deleteProps, updateProps } = useGeneralFunc()
+    const {deleteProps, updateProps} = useGeneralFunc()
     const {accountId} = useParams()
     const navigate = useNavigate()
 
@@ -108,7 +108,7 @@ const EditAccount = (props) => {
         props.accounts.forEach(e => numberData.push(e.number))
 
         let newAvailable = true
-        if (numberData.find(e => e === data.number)) {
+        if(numberData.find(e => e === data.number)) {
             newAvailable = false
             if(accountDb) {
                 if(accountDb.number === data.number) {
@@ -123,7 +123,7 @@ const EditAccount = (props) => {
     }
 
     const handleEntryNumber = async (event) => {
-        const { value } = event.target
+        const {value} = event.target
         let newNullValid = {...nullValid}
         handleEntryAccount(event)
 
@@ -142,7 +142,7 @@ const EditAccount = (props) => {
     }
 
     const handleEntryAccount = (event) => {
-        let { name, value } = event.target
+        let {name, value} = event.target
         let newAccount = {...account}
         newAccount[name] = value
         if(name === 'masterId' && value > 0) newAccount.parentId = getParentOfMaster(value)
@@ -238,7 +238,7 @@ const EditAccount = (props) => {
         event.code === 'Enter' && handleSubmit()
     }
 
-    const handleAccountType = async (e) => {
+    const handleAccountType = async(e) => {
         let newAccount = {...account}
         const typeValue = e.target.value
 
@@ -287,24 +287,21 @@ const EditAccount = (props) => {
         setMasterAmortization(newMasterAmortization)
         setNumberAccounts(numberData)
 
-        if(accountId) {
-            checkMapping(accGroup.accountDb)
-        }
+        checkMapping(accGroup.accountDb)
     }
     const getAccUpdate = async() => {
         let temp = props.accounts
         if(temp.length < 1) temp = await props.getAccountsFromAPI()
-        if(accountId) {
-            let newAccountDb = temp.find(e => e.id === accountId)
+
+        let newAccountDb = temp.find(e => e.id === accountId)
             
-            const {isParent, isAmortization, isDepreciation} = newAccountDb
-            isParent && setAccountType('isParent')
-            if(isAmortization || isDepreciation) setAccountType('isAccumulation')
-            isAmortization && setAccumulationType('isAmortization')
-            isDepreciation && setAccumulationType('isDepreciation')
-            setAccountDb(newAccountDb)
-            setAccount(newAccountDb)
-        }
+        const {isParent, isAmortization, isDepreciation} = newAccountDb
+        isParent && setAccountType('isParent')
+        if(isAmortization || isDepreciation) setAccountType('isAccumulation')
+        isAmortization && setAccumulationType('isAmortization')
+        isDepreciation && setAccumulationType('isDepreciation')
+        setAccountDb(newAccountDb)
+        setAccount(newAccountDb)
     }
     useEffect(() => {
         getAccUpdate()
@@ -342,10 +339,6 @@ const EditAccount = (props) => {
         getAccountCollect()
     }, [transactions])
 
-    const test = () => {
-        console.log(accountDb)
-    }
-  
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
     const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
     return(
@@ -355,21 +348,21 @@ const EditAccount = (props) => {
                 <div className="card-body mt-3">
                     <div className="row g-3 mb-4">
                         <div className="col-md-6">
-                            <label htmlFor="accountName" className="" onClick={test}>Name</label>
+                            <label htmlFor="accountName" className="">Name</label>
                             <input type="text" className="form-control form-control-sm" id="accountName" placeholder="" name="accountName" autoComplete="off" onChange={handleEntryAccount} value={account.accountName ? account.accountName : ''} onKeyUp={handleKeyEnter}/>
-                            { nullValid.accountName && <InputValidation name="name null" /> }
+                            {nullValid.accountName && <InputValidation name="name null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="number" className="">Number</label>
                             <input type="text" className="form-control form-control-sm" id="number" placeholder="" name="number" autoComplete="off" onChange={handleEntryNumber} value={account.number ? account.number : ''} onKeyUp={handleKeyEnter} />
-                            { !numberAvailable && <InputValidation name="number unavailable" /> }
-                            { nullValid.number && <InputValidation name="number null" /> }
+                            {!numberAvailable && <InputValidation name="number unavailable" />}
+                            {nullValid.number && <InputValidation name="number null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="categoryId" className="">Category</label>
                                 
                                 <select className="form-select form-select-sm" id="categoryId" name="categoryId" onChange={handleEntryAccount} value={account.categoryId && account.categoryId} disabled={mappingRole.fixCategory} >
-                                    {!account.categoryId && <option value="">Choose...</option> }
+                                    {!account.categoryId && <option value="">Choose...</option>}
                                     {
                                         mappingRole.fixCategory ?
                                         categories.map(e => e.id === account.categoryId && <option key={e.id} value={e.id}>{e.name}</option>)
@@ -377,16 +370,16 @@ const EditAccount = (props) => {
                                         categories.map(e => <option key={e.id} value={e.id}>{e.name}</option>)
                                     }
                                 </select>
-                            { nullValid.category && <InputValidation name="category null" /> }
+                            {nullValid.category && <InputValidation name="category null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="balance" className="">Balance</label>
                             <select className="form-select form-select-sm" id="balance" name="balance" onChange={handleEntryAccount} value={account.balance} >
-                                { !account.balance && <option value="">Choose...</option> }
+                                {!account.balance && <option value="">Choose...</option>}
                                 <option value="debit">Debit</option>
                                 <option value="credit">Credit</option>
                             </select>
-                            { nullValid.balance && <InputValidation name="balance null" /> }
+                            {nullValid.balance && <InputValidation name="balance null" />}
                         </div>
                     </div>
                     <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} mappingRole={mappingRole} />

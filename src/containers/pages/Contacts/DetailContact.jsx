@@ -9,7 +9,7 @@ import { deleteContactFromAPI, getAccountsFromAPI, getContactsFromAPI, getJourna
 import Swal from "sweetalert2";
 
 const DetailContact = (props) => {
-    const { contactId } = useParams();
+    const {contactId} = useParams();
     const [contact, setContact] = useState({})
     const [positions, setPositions] = useState({})
     const [accountMapping, setAccountMapping] = useState({})
@@ -47,7 +47,7 @@ const DetailContact = (props) => {
         return newPositions
     }
     
-    const deleteContact = async () => {
+    const deleteContact = async() => {
         const res = await props.deleteContactFromAPI(contact.id)
         if(res) {
             navigate('/contacts')
@@ -126,7 +126,7 @@ const DetailContact = (props) => {
         setTransactions(temp)
     }, [props.transactions])
     
-    const {name, address, phone, id } = contact
+    const {name, address, phone, id} = contact
     const newPositions = getPosition()
     let {expensePayable, accountPayable, accountReceivable} = accountMapping
     let expPayable, accPayable, accReceivable
@@ -168,21 +168,21 @@ const DetailContact = (props) => {
                                 <td><p>Account Receivable&nbsp;&nbsp;</p></td>
                                 <td><p>:</p></td>
                                 <td>
-                                    { accReceivable ? <p>{accReceivable.number} &nbsp; {accReceivable.accountName}</p> : <p>-</p> }
+                                    {accReceivable ? <p>{accReceivable.number} &nbsp; {accReceivable.accountName}</p> : <p>-</p>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><p>Account Payable&nbsp;</p></td>
                                 <td><p>:</p></td>
                                 <td>
-                                    { accPayable ? <p>{accPayable.number} &nbsp; {accPayable.accountName}</p> : <p>-</p> }
+                                    {accPayable ? <p>{accPayable.number} &nbsp; {accPayable.accountName}</p> : <p>-</p>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><p>Expense Payable&nbsp;</p></td>
                                 <td><p>:</p></td>
                                 <td>
-                                    { expPayable ? <p>{expPayable.number} &nbsp; {expPayable.accountName}</p> : <p>-</p> }
+                                    {expPayable ? <p>{expPayable.number} &nbsp; {expPayable.accountName}</p> : <p>-</p>}
                                 </td>
                             </tr>
                         </tbody>

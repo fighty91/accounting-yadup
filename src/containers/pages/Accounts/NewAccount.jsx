@@ -11,7 +11,7 @@ import { getAccountsFromAPI, getCategoriesFromAPI, postAccountToAPI } from "../.
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const NewAccount = (props) => {
-    const { deleteProps } = useGeneralFunc()
+    const {deleteProps} = useGeneralFunc()
     const navigate = useNavigate()
 
     const [parentAccounts, setParentAccounts] = useState([])
@@ -68,7 +68,7 @@ const NewAccount = (props) => {
         }
     }
     
-    const getNumberValid = async (data) => {
+    const getNumberValid = async(data) => {
         let newNullValid = data.newNullValid
         let numberData = []
         props.accounts.forEach(e => numberData.push(e.number))
@@ -81,7 +81,7 @@ const NewAccount = (props) => {
         return newAvailable
     }
 
-    const handleEntryNumber = async (event) => {
+    const handleEntryNumber = async(event) => {
         const {value} = event.target
         let newNullValid = {...nullValid}
         handleEntryAccount(event)
@@ -114,7 +114,7 @@ const NewAccount = (props) => {
         icon: 'warning',
         confirmButtonColor: '#fd7e14'
     })
-    const postDataToAPI = async () => {
+    const postDataToAPI = async() => {
         const id = await props.postAccountToAPI(account)
         if(id) {
             const {accountName, number} = account
@@ -125,7 +125,7 @@ const NewAccount = (props) => {
             navigate(`/accounts/account-detail/${id}?page=profile`)
         }
     }
-    const handleSubmit = async () => {
+    const handleSubmit = async() => {
         const {accountName, number, categoryId, balance, parentId, masterId} = account
         let newNullValid = {
             accountName: !accountName && true,
@@ -155,7 +155,7 @@ const NewAccount = (props) => {
         event.code === 'Enter' && handleSubmit()
     }
 
-    const handleAccountType = async (e) => {
+    const handleAccountType = async(e) => {
         let newAccount = {...account}
         const typeValue = e.target.value
 
@@ -173,7 +173,6 @@ const NewAccount = (props) => {
                 delete newAccount.parentId
                 newAccount.isParent = false
         }
-        
         setAccountType(typeValue)
         setAccumulationType('')
         setAccount(newAccount)
@@ -196,7 +195,7 @@ const NewAccount = (props) => {
         }
     }
         
-    const getAccountCollect = async () => {
+    const getAccountCollect = async() => {
         const accGroup = await getAccGroup()
         const {newParentAccounts, newMasterDepreciaton, newMasterAmortization, numberData} = accGroup
         setParentAccounts(newParentAccounts)
@@ -230,30 +229,30 @@ const NewAccount = (props) => {
                         <div className="col-md-6">
                             <label htmlFor="accountName" className="" >Name</label>
                             <input type="text" className="form-control form-control-sm" id="accountName" placeholder="" name="accountName" autoComplete="off" onChange={handleEntryAccount} value={account.accountName ? account.accountName : ''} onKeyUp={handleKeyEnter}/>
-                            { nullValid.accountName && <InputValidation name="name null" /> }
+                            {nullValid.accountName && <InputValidation name="name null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="number" className="">Number</label>
                             <input type="text" className="form-control form-control-sm" id="number" placeholder="" name="number" autoComplete="off" onChange={handleEntryNumber} value={account.number ? account.number : ''} onKeyUp={handleKeyEnter} />
-                            { !numberAvailable && <InputValidation name="number unavailable" /> }
-                            { nullValid.number && <InputValidation name="number null" /> }
+                            {!numberAvailable && <InputValidation name="number unavailable" />}
+                            {nullValid.number && <InputValidation name="number null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="categoryId" className="">Category</label>
                             <select className="form-select form-select-sm" id="categoryId" name="categoryId" onChange={handleEntryAccount} value={account.categoryId && account.categoryId} >
-                                { !account.categoryId && <option value="">Choose...</option> }
-                                { categories.map(e => <option key={e.id} value={e.id}>{e.name}</option>) }
+                                {!account.categoryId && <option value="">Choose...</option>}
+                                {categories.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
                             </select>
-                            { nullValid.category && <InputValidation name="category null" /> }
+                            {nullValid.category && <InputValidation name="category null" />}
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="balance" className="">Balance</label>
                             <select className="form-select form-select-sm" id="balance" name="balance" onChange={handleEntryAccount} value={account.balance} >
-                                { !account.balance && <option value="">Choose...</option> }
+                                {!account.balance && <option value="">Choose...</option>}
                                 <option value="debit">Debit</option>
                                 <option value="credit">Credit</option>
                             </select>
-                            { nullValid.balance && <InputValidation name="balance null" /> }
+                            {nullValid.balance && <InputValidation name="balance null" />}
                         </div>
                     </div>
                     <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} />
