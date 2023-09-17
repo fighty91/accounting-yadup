@@ -85,7 +85,7 @@ const DetailContact = (props) => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            if (result.isConfirmed) {
+            if(result.isConfirmed) {
                 window.navigator.onLine ?
                 getConfirmDelete() : lostConnection()
             }

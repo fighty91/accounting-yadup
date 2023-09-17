@@ -47,6 +47,12 @@ const NewContact = (props) => {
         setAccountMapping(newMapping)
     }
     
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
     const postDataToAPI = async (data) => {
         const res = await props.postContactToAPI(data)
         if(res) {
@@ -60,10 +66,8 @@ const NewContact = (props) => {
     const handleSubmit = () => {
         let problemCount = 0
         let positionCount = 0
-        for (let x in positions) {
-            if (positions[x] === true) {
-                positionCount++
-            } 
+        for(let x in positions) {
+            positions[x] === true && positionCount++
         }
         if(positionCount < 1) {
             problemCount++
@@ -96,7 +100,8 @@ const NewContact = (props) => {
             let newContact = {...contact}
             newContact['defaultAccount'] = accountMapping
             newContact['position'] = positions
-            postDataToAPI(newContact)
+            window.navigator.onLine ?
+            postDataToAPI(newContact) : lostConnection()
         }
     }
     
@@ -168,9 +173,9 @@ const NewContact = (props) => {
                             <div className="col-sm-9">
                                 <select className="form-select form-select-sm" id="accountReceivable" value={accountMapping.accountReceivable} name="accountReceivable" onChange={handleAccountMapping}>
                                     {
-                                        accountReceivables.map((account, i) => {
-                                            return (<option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>)
-                                        })
+                                        accountReceivables.map((account, i) =>
+                                            <option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>
+                                        )
                                     }
                                 </select>
                             </div>
@@ -180,9 +185,9 @@ const NewContact = (props) => {
                             <div className="col-sm-9">
                                 <select className="form-select form-select-sm" id="accountPayable" value={accountMapping.accountPayable} name="accountPayable" onChange={handleAccountMapping}>
                                     {
-                                        accountPayables.map((account, i) => {
-                                            return (<option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>)
-                                        })
+                                        accountPayables.map((account, i) =>
+                                            <option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>
+                                        )
                                     }
                                 </select>
                             </div>
@@ -192,9 +197,9 @@ const NewContact = (props) => {
                             <div className="col-sm-9">
                                 <select className="form-select form-select-sm" id="expensePayable" value={accountMapping.expensePayable} name="expensePayable" onChange={handleAccountMapping}>
                                     {
-                                        accountPayables.map((account, i) => {
-                                            return (<option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>)
-                                        })
+                                        accountPayables.map((account, i) =>
+                                            <option key={i} value={account.id}>{account.number}&nbsp;&nbsp;&nbsp;{account.accountName}</option>
+                                        )
                                     }
                                 </select>
                             </div>

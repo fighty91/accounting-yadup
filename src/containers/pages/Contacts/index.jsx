@@ -23,6 +23,12 @@ const Contacts = (props) => {
         }
     })
 
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
     const deleteContact = async (data) => {
         const res = await props.deleteContactFromAPI(data.id)
         if(res) {
@@ -42,9 +48,7 @@ const Contacts = (props) => {
                 confirmButtonText: 'Close',
                 confirmButtonColor: '#dc3545'
             })
-        } else {
-            deleteContact(data)
-        }
+        } else deleteContact(data)
     }
     const handleDeleteContact = (data) => {
         Swal.fire({
@@ -56,8 +60,9 @@ const Contacts = (props) => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-            if (result.isConfirmed) {
-                getConfirmDelete(data)
+            if(result.isConfirmed) {
+                window.navigator.onLine ?
+                getConfirmDelete(data) : lostConnection()
             }
         })
     }
@@ -113,10 +118,10 @@ const Contacts = (props) => {
                                             const {id, name, address, phone, position} = contact
                                             const {customer, vendor, employee, other} = position
                                             let positions = []
-                                            if (customer) { positions.push('Customer') }
-                                            if (vendor) { positions.push('Vendor') }
-                                            if (employee) { positions.push('Employee') }
-                                            if (other) { positions.push('Other') }
+                                            if (customer) {positions.push('Customer')}
+                                            if (vendor) {positions.push('Vendor')}
+                                            if (employee) {positions.push('Employee')}
+                                            if (other) {positions.push('Other')}
 
                                             return (
                                                 <tr key={id}>
@@ -143,7 +148,6 @@ const Contacts = (props) => {
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </LayoutsMainContent>

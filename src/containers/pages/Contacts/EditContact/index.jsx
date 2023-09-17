@@ -5,7 +5,7 @@ import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonA
 import ContactPositionForm from "../../../../components/molecules/ContactPositionForm";
 import './EditContact.scss'
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getContactsFromAPI, putContactToAPI } from "../../../../config/redux/action";
+import { getAccountsFromAPI, getContactFromAPI, putContactToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -17,7 +17,7 @@ const EditContact = (props) => {
     const [accountMapping, setAccountMapping] = useState({})
 
     const navigate = useNavigate()
-    const { contactId } = useParams()
+    const {contactId} = useParams()
 
     const Toast = Swal.mixin({
         toast: true,
@@ -49,6 +49,13 @@ const EditContact = (props) => {
         setAccountMapping(newMapping)
     }
     
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
+
     const putDataToAPI = async (data) => {
         const res = await props.putContactToAPI(data)
         if(res) {
@@ -62,43 +69,48 @@ const EditContact = (props) => {
     const handleSubmit = () => {
         let problemCount = 0
         let positionCount = 0
-        for (let x in positions) {
-            if (positions[x] === true) { positionCount++ } 
+        for(let x in positions) {
+            positions[x] === true && positionCount++ 
         }
         if(positionCount < 1) {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Please mark input position first!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: 'Please mark input position first!!',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
         if(contact.name.length < 3) {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Name at least 3 characters!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: 'Name at least 3 characters!!',
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
         if(contact.name.charAt(0) === ' ') {
             problemCount++
-            Swal.fire(
-                'Failed!',
-                'Contact names cannot start with a space!!',
-                'warning'
-            )
+            Swal.fire({
+                title: 'Pending!',
+                text: "Contact names can't start with a space!!",
+                icon: 'warning',
+                confirmButtonColor: '#fd7e14'
+            })
         }
         if(problemCount === 0) {
             let newContact = {...contact}
             newContact['defaultAccount'] = accountMapping
             newContact['position'] = positions
-            putDataToAPI(newContact)
+            window.navigator.onLine ?
+            putDataToAPI(newContact) : lostConnection()
         }
     }
     
-    const getContact = () => {
-        const newContact = props.contacts.find(e => e.id === contactId)
+    const getContact = async() => {
+        const temp = props.contacts,
+        newContact = temp.length > 0 ? temp.find(e => e.id === contactId) : await props.getContactFromAPI(contactId)
         if(newContact) {
             setContact(newContact)
             setPositions(newContact.position)
@@ -106,13 +118,9 @@ const EditContact = (props) => {
         }
     }
     useEffect(() => {
-        props.contacts.length < 1 && props.getContactsFromAPI()
+        getContact()
     }, [])
     
-    useEffect(() => {
-        props.contacts.length > 0 && getContact()
-    }, [props.contacts])
-
     const getAccounts = () => {
         const newAccounts = props.accounts.filter(e => !e.isParent)
         const newAccountReceivables = newAccounts.filter(account => account.categoryId === "2")
@@ -124,8 +132,8 @@ const EditContact = (props) => {
         props.accounts.length < 1 && props.getAccountsFromAPI()
     }, [])
     useEffect(() => {
-        props.accounts.length > 0 && getAccounts()
-    }, [props.accounts])
+        props.accounts.length > 0 && contact.name && getAccounts()
+    }, [props.accounts, contact])
 
     return(
         <LayoutsMainContent>
@@ -211,7 +219,7 @@ const reduxState = (state) => ({
     accounts: state.accounts
 })
 const reduxDispatch = (dispatch) => ({
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
+    getContactFromAPI: (data) =>dispatch(getContactFromAPI(data)),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     putContactToAPI: (data) => dispatch(putContactToAPI(data))
 })
