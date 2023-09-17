@@ -5,12 +5,12 @@ import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import ContactCard from "../../../components/molecules/ContactCard";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getAllNumberListFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import { getAllNumberListFromAPI, getContactFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
 import './Contacts.scss'
 
 const TransactionsContact = (props) => {
-    let { contactId } = useParams();
-    const { getCurrency } = useGeneralFunc()
+    let {contactId} = useParams();
+    const {getCurrency} = useGeneralFunc()
     const [contact, setContact] = useState({})
     const [positions, setPositions] = useState({})
     const [transactions, setTransactions] = useState([])
@@ -41,18 +41,16 @@ const TransactionsContact = (props) => {
         return showNumber
     }
 
-    const getContact = () => {
-        const newContact = props.contacts.find(e => e.id === contactId)
+    const getContact = async() => {
+        const temp = props.contacts,
+        newContact = temp.length > 0 ? temp.find(e => e.id === contactId) : await props.getContactFromAPI(contactId)
         if(newContact) {
             setContact(newContact)
             setPositions(newContact.position)
         }
     }
     useEffect(() => {
-        props.contacts.length < 1 && props.getContactsFromAPI()
-    },[])
-    useEffect(() => {
-        props.contacts.length > 0 && getContact()
+        getContact()
     },[props.contacts])
 
     const getTransactionsProps = async() => {
@@ -75,14 +73,10 @@ const TransactionsContact = (props) => {
         urlOB = '/opening-balance'
 
         temp.forEach(a =>
-            a.trans && a.trans.forEach(acc =>
-                acc.contactId === contactId && tempTrans.push({...acc, surl: a.surl + acc.id})
-            )
+            a.trans && a.trans.forEach(acc => acc.contactId === contactId && tempTrans.push({...acc, surl: a.surl + acc.id}))
         )
         tempTrans.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
-        tempOB && tempOB.forEach(acc =>
-            acc.contactId === contactId && tempTrans.unshift({...acc, surl: urlOB})
-        )
+        tempOB && tempOB.forEach(acc => acc.contactId === contactId && tempTrans.unshift({...acc, surl: urlOB}))
         tempTrans.length > 0 && setTransactions(tempTrans)
     }
     useEffect(() => {
@@ -100,19 +94,19 @@ const TransactionsContact = (props) => {
     useEffect(() => {
         const temp = props.nLReceiptJournal
         let countTemp = 0
-        for(let x in temp) { x && countTemp++ }
+        for(let x in temp) {x && countTemp++}
         countTemp > 0 && setNLReceiptJournal(temp)
     }, [props.nLReceiptJournal])
     useEffect(() => {
         const temp = props.nLPaymentJournal
         let countTemp = 0
-        for(let x in temp) { x && countTemp++ }
+        for(let x in temp) {x && countTemp++}
         countTemp > 0 && setNLPaymentJournal(temp)
     }, [props.nLPaymentJournal])
     useEffect(() => {
         const temp = props.nLJournalEntries
         let countTemp = 0
-        for(let x in temp) { x && countTemp++ }
+        for(let x in temp) {x && countTemp++}
         countTemp > 0 && setNLJournalEntries(temp)
     }, [props.nLJournalEntries])
 
@@ -196,7 +190,7 @@ const reduxState = (state) => ({
     nLJournalEntries: state.nLJournalEntries
 })
 const reduxDispatch = (dispatch) => ({
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
+    getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),

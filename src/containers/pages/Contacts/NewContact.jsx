@@ -14,6 +14,7 @@ const NewContact = (props) => {
     const [accountReceivables, setAccountReceivables] = useState([])
     const [accountPayables, setAccountPayables] = useState([])
     const [accountMapping, setAccountMapping] = useState({})
+    const [submitLoading, setSubmitLoading] = useState(false)
     
     const navigate = useNavigate()
 
@@ -64,44 +65,49 @@ const NewContact = (props) => {
         }
     }
     const handleSubmit = () => {
-        let problemCount = 0
-        let positionCount = 0
-        for(let x in positions) {
-            positions[x] === true && positionCount++
-        }
-        if(positionCount < 1) {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: 'Please mark input position first!!',
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(contact.name.length < 3) {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: 'Name at least 3 characters!!',
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(contact.name.charAt(0) === ' ') {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: "Contact names can't start with a space!!",
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(problemCount === 0) {
-            let newContact = {...contact}
-            newContact['defaultAccount'] = accountMapping
-            newContact['position'] = positions
-            window.navigator.onLine ?
-            postDataToAPI(newContact) : lostConnection()
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
+            let problemCount = 0
+            let positionCount = 0
+            for(let x in positions) {
+                positions[x] === true && positionCount++
+            }
+            if(positionCount < 1) {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Please mark input position first!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+            if(contact.name.length < 3) {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Name at least 3 characters!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+            if(contact.name.charAt(0) === ' ') {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: "Contact names can't start with a space!!",
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+
+            if(problemCount > 0) setSubmitLoading(false)
+            else {
+                let newContact = {...contact}
+                newContact['defaultAccount'] = accountMapping
+                newContact['position'] = positions
+                postDataToAPI(newContact)
+            }
         }
     }
     
@@ -205,7 +211,12 @@ const NewContact = (props) => {
                             </div>
                         </div>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name={submitLoading && 'Loading...'} color="primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonLinkTo name="Cancel" linkTo="/contacts" color="outline-danger"/>
                 </div>

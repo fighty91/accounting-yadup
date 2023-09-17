@@ -5,7 +5,7 @@ import ContactCard from "../../../components/molecules/ContactCard";
 import { ButtonDelete, ButtonLinkTo } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteContactFromAPI, getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { deleteContactFromAPI, getAccountsFromAPI, getContactFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 
 const DetailContact = (props) => {
@@ -99,8 +99,9 @@ const DetailContact = (props) => {
         props.accounts.length > 0 && setAccounts(props.accounts)
     }, [props.accounts])
 
-    const getContact = () => {
-        const newContact = props.contacts.find(e => e.id === contactId)
+    const getContact = async() => {
+        const temp = props.contacts,
+        newContact = temp.length > 0 ? temp.find(e => e.id === contactId) : await props.getContactFromAPI(contactId)
         if(newContact) {
             setContact(newContact)
             setPositions(newContact.position)
@@ -108,10 +109,7 @@ const DetailContact = (props) => {
         }
     }
     useEffect(() => {
-        props.contacts.length < 1 && props.getContactsFromAPI()
-    }, [])
-    useEffect(() => {
-        props.contacts.length > 0 && getContact()
+        getContact()
     }, [props.contacts])
 
     const getTransactionsProps = async() => {
@@ -209,6 +207,7 @@ const reduxState = (state) => ({
     transactions: state.transactions
 })
 const reduxDispatch = (dispatch) => ({
+    getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),

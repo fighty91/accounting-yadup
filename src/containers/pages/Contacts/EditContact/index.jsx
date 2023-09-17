@@ -103,7 +103,7 @@ const EditContact = (props) => {
                     confirmButtonColor: '#fd7e14'
                 })
             }
-
+            
             if(problemCount > 0) setSubmitLoading(false)
             else {
                 let newContact = {...contact}
