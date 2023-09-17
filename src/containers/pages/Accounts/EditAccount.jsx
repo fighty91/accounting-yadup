@@ -89,7 +89,11 @@ const EditAccount = (props) => {
         let newMappingRole = {}
         const {childCount, transCount, masterAcc, contactCount} = checkAccount
         if(isParent && childCount > 0) newMappingRole.parentOnly = true
-        if(masterAcc > 0 || contactCount > 0) updateProps(newMappingRole, {subOnly: true, fixCategory: true})
+        if(masterAcc > 0 || contactCount > 0) {
+            updateProps(newMappingRole, {subOnly: true, fixCategory: true})
+            if(masterAcc > 0) newMappingRole.fixParent = true
+            if(contactCount > 0) newMappingRole.limitParent = true
+        }
         if(transCount > 0) {
             isAmortization || isDepreciation ? newMappingRole.accumOnly = true : newMappingRole.subOnly = true
         }
@@ -196,12 +200,22 @@ const EditAccount = (props) => {
                     newAccount.isDepreciation = true
                     delete newAccount.isAmortization
                 }
+
             }
             if(problemMapping === 'masterAcc' || problemMapping === 'contactCount') {
-                newAccount.parentId = newAccount.parentId || parentId
                 updateProps(newAccount, {isParent, categoryId})
                 deleteProps(newAccount, ['isAmortization', 'isDepreciation', 'masterId'])
+                if(problemMapping === 'masterAcc') newAccount.parentId = parentId
+                if(problemMapping === 'contactCount') {
+                    // gunakan kategori id untuk menangkap parent apa aja yang diperkenankan
+                    let tempCount = 0
+                    const parentGroup = parentAccounts.filter(e => e.categoryId === categoryId)
+                    parentGroup.find(e => e.id === newAccount.parentId && tempCount++)
+                    if(tempCount < 1) newAccount.parentId = parentId
+                }
             }
+            console.log(newAccount)
+
             putDataToAPI(newAccount)
         } else {
             await putDataToAPI(account)
@@ -233,7 +247,6 @@ const EditAccount = (props) => {
             } else lostConnection()
         }
     }
-
     const handleKeyEnter = (event) => {
         event.code === 'Enter' && handleSubmit()
     }
@@ -336,11 +349,11 @@ const EditAccount = (props) => {
         setTransactions(temp)
     }, [props.transactions])
     useEffect(()=> {
-        getAccountCollect()
-    }, [transactions])
+        props.accounts.length > 0 && getAccountCollect()
+    }, [transactions, props.contacts])
 
     const handleSubFunc = {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter}
-    const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton}
+    const dataSub = {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton, categoryId: accountDb && accountDb.categoryId}
     return(
         <LayoutsMainContent>
             <ContentHeader name={"Edit Account"}/>

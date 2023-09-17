@@ -291,6 +291,8 @@ export const putAccountToAPI = (account) => (dispatch) => {
     const {id} = account
     let newAccount = {...account}
     delete newAccount.id
+    delete newAccount.amount
+    delete newAccount.categoryName
     return new Promise((resolve, reject) => {
         set(ref(database, `${corpName}/accounts/${id}`), newAccount)
         .then(() => {

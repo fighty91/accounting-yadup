@@ -2,9 +2,9 @@ import React, { Fragment } from "react";
 import InputValidation from "../../atoms/InputValidation";
 
 const FormSubAccount = (props) => {
-    const {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton} = props.data
+    const {accountType, account, parentAccounts, nullValid, accumulationType, masterAmortization, masterDepreciaton, categoryId} = props.data
     const {handleAccountType, handleEntryAccount, handleEntryAccumulation, handleKeyEnter} = props.handleSubFunc
-    const {subOnly, parentOnly, accumOnly} = props.mappingRole || {}
+    const {subOnly, parentOnly, accumOnly, fixParent, limitParent} = props.mappingRole || {}
     return (
         <Fragment>
             <div className="d-sm-inline-flex g-3 mb-3">
@@ -42,9 +42,19 @@ const FormSubAccount = (props) => {
                     accountType === 'subAccount' && 
                     <div className="col-md-6">
                         <label htmlFor="parentId" className="">Sub Account From</label>
-                        <select className="form-select form-select-sm" id="parentId" name="parentId" value={account.parentId && account.parentId} onChange={(e)=>handleEntryAccount(e)} >
+                        <select className="form-select form-select-sm" id="parentId" name="parentId" value={account.parentId && account.parentId} onChange={(e)=>handleEntryAccount(e)} disabled={fixParent} >
                             {!account.parentId && <option value={0}>Choose...</option>}
-                            {parentAccounts.map(e => e.id !== account.id && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)}
+                            {
+                                fixParent ?
+                                parentAccounts.map(e => e.id === account.parentId && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)
+                                :
+                                (
+                                    limitParent ?
+                                    parentAccounts.map(e => e.id !== account.id && e.categoryId === categoryId && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)
+                                    :
+                                    parentAccounts.map(e => e.id !== account.id && <option key={e.id} value={e.id}>{e.number} &nbsp; {e.accountName}</option>)
+                                )
+                            }
                         </select>
                         {nullValid.parent && <InputValidation name="sub account from null" />}
                     </div>
