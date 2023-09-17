@@ -64,7 +64,8 @@ const EditContact = (props) => {
                 title: `Success Update \n${data.name}`
             })
             navigate(`/contacts/detail/${data.id}`)
-        } setSubmitLoading(false)
+        }
+        setSubmitLoading(false)
     }
     const handleSubmit = () => {
         !window.navigator.onLine && lostConnection()
