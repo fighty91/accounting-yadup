@@ -16,10 +16,10 @@ export const ButtonDuplicate = (props) => (
 )
 
 export const ButtonSubmit = (props) => {
-    const {color, handleOnClick, isUpdate} = props
+    const {color, handleOnClick, name, isUpdate } = props
     return(
         <button type="submit" className={`btn btn-${color} btn-sm`} onClick={handleOnClick}>
-            {isUpdate ? 'Update' : 'Submit'}
+            {name || (isUpdate ? 'Update' : 'Submit')}
         </button>
     )
 }

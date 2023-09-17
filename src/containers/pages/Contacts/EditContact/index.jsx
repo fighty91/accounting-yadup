@@ -15,6 +15,7 @@ const EditContact = (props) => {
     const [accountReceivables, setAccountReceivables] = useState([])
     const [accountPayables, setAccountPayables] = useState([])
     const [accountMapping, setAccountMapping] = useState({})
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const navigate = useNavigate()
     const {contactId} = useParams()
@@ -55,7 +56,6 @@ const EditContact = (props) => {
         icon: 'warning',
         confirmButtonColor: '#fd7e14'
     })
-
     const putDataToAPI = async (data) => {
         const res = await props.putContactToAPI(data)
         if(res) {
@@ -64,47 +64,52 @@ const EditContact = (props) => {
                 title: `Success Update \n${data.name}`
             })
             navigate(`/contacts/detail/${data.id}`)
-        }
+        } setSubmitLoading(false)
     }
     const handleSubmit = () => {
-        let problemCount = 0
-        let positionCount = 0
-        for(let x in positions) {
-            positions[x] === true && positionCount++ 
-        }
-        if(positionCount < 1) {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: 'Please mark input position first!!',
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(contact.name.length < 3) {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: 'Name at least 3 characters!!',
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(contact.name.charAt(0) === ' ') {
-            problemCount++
-            Swal.fire({
-                title: 'Pending!',
-                text: "Contact names can't start with a space!!",
-                icon: 'warning',
-                confirmButtonColor: '#fd7e14'
-            })
-        }
-        if(problemCount === 0) {
-            let newContact = {...contact}
-            newContact['defaultAccount'] = accountMapping
-            newContact['position'] = positions
-            window.navigator.onLine ?
-            putDataToAPI(newContact) : lostConnection()
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
+            let problemCount = 0
+            let positionCount = 0
+            for(let x in positions) {
+                positions[x] === true && positionCount++ 
+            }
+            if(positionCount < 1) {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Please mark input position first!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+            if(contact.name.length < 3) {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: 'Name at least 3 characters!!',
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+            if(contact.name.charAt(0) === ' ') {
+                problemCount++
+                Swal.fire({
+                    title: 'Pending!',
+                    text: "Contact names can't start with a space!!",
+                    icon: 'warning',
+                    confirmButtonColor: '#fd7e14'
+                })
+            }
+
+            if(problemCount > 0) setSubmitLoading(false)
+            else {
+                let newContact = {...contact}
+                newContact['defaultAccount'] = accountMapping
+                newContact['position'] = positions
+                putDataToAPI(newContact)
+            }
         }
     }
     
@@ -132,7 +137,7 @@ const EditContact = (props) => {
         props.accounts.length < 1 && props.getAccountsFromAPI()
     }, [])
     useEffect(() => {
-        props.accounts.length > 0 && contact.name && getAccounts()
+        props.accounts.length > 0 && getAccounts()
     }, [props.accounts, contact])
 
     return(
@@ -205,7 +210,12 @@ const EditContact = (props) => {
                             </div>
                         </div>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name={submitLoading && 'Loading...'} color="primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} isUpdate={true} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonLinkTo name="Cancel" linkTo={`/contacts/detail/${contactId}`} color="outline-danger"/>
                 </div>
