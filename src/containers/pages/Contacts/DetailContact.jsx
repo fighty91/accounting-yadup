@@ -5,7 +5,7 @@ import ContactCard from "../../../components/molecules/ContactCard";
 import { ButtonDelete, ButtonLinkTo } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteContactFromAPI, getAccountsFromAPI, getContactFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
+import { deleteContactFromAPI, getAccountsFromAPI, getContactFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, getTransactionsFromAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
 
 const DetailContact = (props) => {
@@ -209,7 +209,6 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     getContactFromAPI: (data) => dispatch(getContactFromAPI(data)),
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
-    getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getTransactionsFromAPI: () => dispatch(getTransactionsFromAPI()),
     deleteContactFromAPI: (data) => dispatch(deleteContactFromAPI(data)),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
