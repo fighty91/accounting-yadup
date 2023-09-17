@@ -179,8 +179,8 @@ const EditAccount = (props) => {
     }
     const handleUpdateData = async () => {
         const problemMapping = await checkMapping(accountDb)
+        let newAccount = {...account}
         if(problemMapping) {
-            let newAccount = {...account}
             const {isParent, parentId, isAmortization, isDepreciation, masterId, categoryId} = accountDb
             if(isParent && problemMapping === 'childCount') {
                 newAccount.isParent = true
@@ -200,7 +200,6 @@ const EditAccount = (props) => {
                     newAccount.isDepreciation = true
                     delete newAccount.isAmortization
                 }
-
             }
             if(problemMapping === 'masterAcc' || problemMapping === 'contactCount') {
                 updateProps(newAccount, {isParent, categoryId})
@@ -214,12 +213,8 @@ const EditAccount = (props) => {
                     if(tempCount < 1) newAccount.parentId = parentId
                 }
             }
-            console.log(newAccount)
-
-            putDataToAPI(newAccount)
-        } else {
-            await putDataToAPI(account)
         }
+        putDataToAPI(newAccount)
     }
     const handleSubmit = async () => {
         const {accountName, number, categoryId, balance, parentId, masterId} = account
@@ -242,9 +237,8 @@ const EditAccount = (props) => {
         !newNumberAvailable && problemCount++
 
         if(problemCount < 1) {
-            if(window.navigator.onLine) {
-                handleUpdateData()
-            } else lostConnection()
+            window.navigator.onLine ?
+            handleUpdateData() : lostConnection()
         }
     }
     const handleKeyEnter = (event) => {

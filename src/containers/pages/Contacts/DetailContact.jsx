@@ -67,9 +67,7 @@ const DetailContact = (props) => {
                 confirmButtonText: 'Close',
                 confirmButtonColor: '#dc3545'
             })
-        } else {
-            deleteContact()
-        }
+        } else deleteContact()
     }
     const handleDeleteContact = () => {
         Swal.fire({
@@ -192,7 +190,6 @@ const DetailContact = (props) => {
                     <ButtonLinkTo color="outline-primary" name="Edit" linkTo={`/contacts/edit-contact/${id}`} />
                     &nbsp;&nbsp;&nbsp;
                     <ButtonDelete color="outline-danger" handleOnClick={() => handleDeleteContact({id, name})}/>
-                    {/* <ButtonDelete color="outline-danger" handleOnClick={handleDeleteTrans}/> */}
                 </div>
             </ContactCard>
         </LayoutsMainContent>

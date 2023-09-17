@@ -12,7 +12,7 @@ import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getCont
 import { confirmDeleteAccount } from "../../organisms/MyFunctions/useAccountFunc";
 
 const DetailAccount = (props) => {
-    let { accountId } = useParams()
+    let {accountId} = useParams()
     const navigate = useNavigate()
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
@@ -184,7 +184,7 @@ const DetailAccount = (props) => {
     const {profileActive, transActive, subListActive} = navbarActive
     return(
         <LayoutsMainContent>
-            <ContentHeader name={ account && account.accountName || 'Loading...' } subName={ account && account.number || 'Loading...'}/>
+            <ContentHeader name={account && account.accountName || 'Loading...' } subName={account && account.number || 'Loading...'}/>
             <AccountCard navbarActive={navbarActive} dataCard={{accountId, isParent: account && account.isParent}}>
                 {
                     profileActive &&
@@ -201,8 +201,8 @@ const DetailAccount = (props) => {
                 {
                     account && 
                     <Fragment>
-                        { !account.isParent && transActive && <TransactionsAccount dataTrans={{account}} /> }
-                        { account.isParent && subListActive && <SubAccountList dataSub={{account}} /> }
+                        {!account.isParent && transActive && <TransactionsAccount dataTrans={{account}} />}
+                        {account.isParent && subListActive && <SubAccountList dataSub={{account}} />}
                     </Fragment>
                 }
             </AccountCard>
