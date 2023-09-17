@@ -47,6 +47,12 @@ const DetailContact = (props) => {
         return newPositions
     }
     
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
     const deleteContact = async() => {
         const res = await props.deleteContactFromAPI(contact.id)
         if(res) {
@@ -80,7 +86,8 @@ const DetailContact = (props) => {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                getConfirmDelete()
+                window.navigator.onLine ?
+                getConfirmDelete() : lostConnection()
             }
         })
     }
