@@ -63,6 +63,7 @@ const NewContact = (props) => {
             })
             navigate(`/contacts/detail/${res}`)
         }
+        setSubmitLoading(false)
     }
     const handleSubmit = () => {
         !window.navigator.onLine && lostConnection()
@@ -213,7 +214,7 @@ const NewContact = (props) => {
                     </div>
                     {
                         submitLoading ?
-                        <ButtonSubmit name={submitLoading && 'Loading...'} color="primary"/>
+                        <ButtonSubmit name={submitLoading && 'Loading...'} color="outline-primary"/>
                         :
                         <ButtonSubmit handleOnClick={handleSubmit} color="outline-primary"/>
                     }

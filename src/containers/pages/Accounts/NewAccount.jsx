@@ -11,9 +11,6 @@ import { getAccountsFromAPI, getCategoriesFromAPI, postAccountToAPI } from "../.
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const NewAccount = (props) => {
-    const {deleteProps} = useGeneralFunc()
-    const navigate = useNavigate()
-
     const [parentAccounts, setParentAccounts] = useState([])
     const [masterDepreciaton, setMasterDepreciaton] = useState([])
     const [numberAccounts, setNumberAccounts] = useState([])
@@ -31,6 +28,10 @@ const NewAccount = (props) => {
     const [accumulationType, setAccumulationType] = useState('')
     const [numberAvailable, setNumberAvailable] = useState(true)
     const [nullValid, setNullValid] = useState({})
+    const [submitLoading, setSubmitLoading] = useState(false)
+    
+    const {deleteProps} = useGeneralFunc()
+    const navigate = useNavigate()
 
     const Toast = Swal.mixin({
         toast: true,
@@ -124,31 +125,33 @@ const NewAccount = (props) => {
             })
             navigate(`/accounts/account-detail/${id}?page=profile`)
         }
+        setSubmitLoading(false)
     }
     const handleSubmit = async() => {
-        const {accountName, number, categoryId, balance, parentId, masterId} = account
-        let newNullValid = {
-            accountName: !accountName && true,
-            number: !number && true,
-            category: !categoryId && true,
-            balance: !balance && true
-        }
-        if(accountType === 'subAccount') newNullValid.parent = !parentId && true
-        if(accountType === 'isAccumulation') {
-            !accumulationType ?
-            newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
-        }
-        
-        let problemCount = 0
-        for(let x in newNullValid) newNullValid[x] === true && problemCount++
-        
-        const data = {number, newNullValid}
-        const newNumberAvailable = await getNumberValid(data) // untuk menangkap nomor sudah dipakai atau belum
-        !newNumberAvailable && problemCount++
-
-        if(problemCount < 1) {
-            window.navigator.onLine ?
-            postDataToAPI() : lostConnection()
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
+            const {accountName, number, categoryId, balance, parentId, masterId} = account
+            let newNullValid = {
+                accountName: !accountName && true,
+                number: !number && true,
+                category: !categoryId && true,
+                balance: !balance && true
+            }
+            if(accountType === 'subAccount') newNullValid.parent = !parentId && true
+            if(accountType === 'isAccumulation') {
+                !accumulationType ?
+                newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
+            }
+            let problemCount = 0
+            for(let x in newNullValid) newNullValid[x] === true && problemCount++
+            
+            const data = {number, newNullValid}
+            const newNumberAvailable = await getNumberValid(data) // untuk menangkap nomor sudah dipakai atau belum
+            !newNumberAvailable && problemCount++
+    
+            problemCount > 0 ?
+            setSubmitLoading(false) : postDataToAPI()
         }
     }
     const handleKeyEnter = (event) => {
@@ -257,7 +260,12 @@ const NewAccount = (props) => {
                     </div>
                     <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} />
                     <div>
-                        <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} />
+                        {
+                            submitLoading ?
+                            <ButtonSubmit color="outline-primary" name="Loading..." />
+                            :
+                            <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} />
+                        }
                         &nbsp;&nbsp;&nbsp;
                         <ButtonLinkTo color="outline-danger" name="Cancel" linkTo='/accounts' />
                     </div>

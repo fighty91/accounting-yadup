@@ -213,7 +213,7 @@ const EditContact = (props) => {
                     </div>
                     {
                         submitLoading ?
-                        <ButtonSubmit name={submitLoading && 'Loading...'} color="primary"/>
+                        <ButtonSubmit name={submitLoading && 'Loading...'} color="outline-primary"/>
                         :
                         <ButtonSubmit handleOnClick={handleSubmit} isUpdate={true} color="outline-primary"/>
                     }

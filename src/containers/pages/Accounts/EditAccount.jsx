@@ -12,10 +12,6 @@ import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
 import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 
 const EditAccount = (props) => {
-    const {deleteProps, updateProps} = useGeneralFunc()
-    const {accountId} = useParams()
-    const navigate = useNavigate()
-
     const [parentAccounts, setParentAccounts] = useState([])
     const [masterDepreciaton, setMasterDepreciaton] = useState([])
     const [numberAccounts, setNumberAccounts] = useState([])
@@ -36,6 +32,11 @@ const EditAccount = (props) => {
     const [nullValid, setNullValid] = useState({})
     const [mappingRole, setMappingRole] = useState({})
     const [transactions, setTransactions] = useState([])
+    const [submitLoading, setSubmitLoading] = useState(false)
+
+    const {deleteProps, updateProps} = useGeneralFunc()
+    const {accountId} = useParams()
+    const navigate = useNavigate()
 
     const Toast = Swal.mixin({
         toast: true,
@@ -176,6 +177,7 @@ const EditAccount = (props) => {
                 title: `Success Update (${number})\n${accountName}`
             })
         }
+        setSubmitLoading(false)
     }
     const handleUpdateData = async () => {
         const problemMapping = await checkMapping(accountDb)
@@ -217,28 +219,29 @@ const EditAccount = (props) => {
         putDataToAPI(newAccount)
     }
     const handleSubmit = async () => {
-        const {accountName, number, categoryId, balance, parentId, masterId} = account
-        let newNullValid = {
-            accountName: !accountName && true,
-            number: !number && true,
-            category: !categoryId && true,
-            balance: !balance && true
-        }
-        if(accountType === 'subAccount') newNullValid.parent = !parentId && true
-        if(accountType === 'isAccumulation') {
-            !accumulationType ? newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
-        }
-        
-        let problemCount = 0
-        for(let x in newNullValid) newNullValid[x] === true && problemCount++
-        
-        const data = {number, newNullValid}
-        const newNumberAvailable = await getNumberValid(data) // untuk menangkap nomor sudah dipakai atau belum
-        !newNumberAvailable && problemCount++
-
-        if(problemCount < 1) {
-            window.navigator.onLine ?
-            handleUpdateData() : lostConnection()
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
+            const {accountName, number, categoryId, balance, parentId, masterId} = account
+            let newNullValid = {
+                accountName: !accountName && true,
+                number: !number && true,
+                category: !categoryId && true,
+                balance: !balance && true
+            }
+            if(accountType === 'subAccount') newNullValid.parent = !parentId && true
+            if(accountType === 'isAccumulation') {
+                !accumulationType ? newNullValid.accumType = true : newNullValid.accumMaster = !masterId && true
+            }
+            let problemCount = 0
+            for(let x in newNullValid) newNullValid[x] === true && problemCount++
+            
+            const data = {number, newNullValid}
+            const newNumberAvailable = await getNumberValid(data) // untuk menangkap nomor sudah dipakai atau belum
+            !newNumberAvailable && problemCount++
+    
+            problemCount > 0 ?
+            setSubmitLoading(false) : handleUpdateData()
         }
     }
     const handleKeyEnter = (event) => {
@@ -391,7 +394,12 @@ const EditAccount = (props) => {
                     </div>
                     <FormSubAccount handleSubFunc={handleSubFunc} data={dataSub} mappingRole={mappingRole} />
                     <div>
-                        <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} isUpdate={true}/>
+                        {
+                            submitLoading ?
+                            <ButtonSubmit color="outline-primary" name='Loading...'/>
+                            :
+                            <ButtonSubmit color="outline-primary" handleOnClick={handleSubmit} isUpdate={true}/>
+                        }
                         &nbsp;&nbsp;&nbsp;
                         <ButtonLinkTo color="outline-danger" name="Cancel" linkTo={`/accounts/account-detail/${accountId}?page=profile`} />
                     </div>
