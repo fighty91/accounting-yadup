@@ -52,6 +52,7 @@ const CreateUpdateEntries = (props) => {
     const [identicalCode, setIdenticalCode] = useState({
         codeFor: "journalEntries", lastCode: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
@@ -292,8 +293,8 @@ const CreateUpdateEntries = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
-    
     const putDataToAPI = async (newTransaction) => {
         let dataReadyToUpdate = {...newTransaction}
         dataReadyToUpdate.authors.push({
@@ -310,6 +311,7 @@ const CreateUpdateEntries = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
 
     const lostConnection = () => Swal.fire({
@@ -320,7 +322,9 @@ const CreateUpdateEntries = (props) => {
     })
 
     const handleSubmit = async () => {
-        if(window.navigator.onLine) {
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
             const {accountProblem, newAccountTransactions} = await getAccountValidation()
             if(!accountProblem) {
                 let newTransaction = {
@@ -331,33 +335,10 @@ const CreateUpdateEntries = (props) => {
                     !newTransaction[i] && delete newTransaction[i]
                 }
                 isUpdate ?
-                await putDataToAPI({
-                    ...newTransaction,
-                    id: transDb.id,
-                    // transNumber
-                })
-                :
-                await postDataToAPI(newTransaction)
+                await putDataToAPI({...newTransaction, id: transDb.id}) : await postDataToAPI(newTransaction)
             }
+            else setSubmitLoading(false)
         }
-        else lostConnection()
-    }
-
-    const getNewTransNumber = async () => {
-        const {initialCode, startFrom} = identicalCode
-        let numberList = []
-        initialCode ?
-        transNumberList.forEach(e => {
-            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
-        }) :
-        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
-
-        let lastOrder = Math.max(...numberList)
-        let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
-        if(startFrom > newOrder) newOrder = startFrom
-        let newTransNumber = initialCode + newOrder
-        return newTransNumber
     }
 
     const handleButtonIdentical = () => {
@@ -497,16 +478,21 @@ const CreateUpdateEntries = (props) => {
                                 {
                                     accountTransactions.map((trans, row)=> {
                                         const {account, description, debit, credit} = trans
-                                        const formValidation = [ nominalNull[row], nominalDouble[row], accountNull[row] ]
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
-                                        const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
+                                        const formValidation = [nominalNull[row], nominalDouble[row], accountNull[row]]
+                                        const rowFormFunc= {handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e)}
+                                        const data = {row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions}
                                         return <RowFormEntries key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
                                 }
                             </tbody>
                         </table>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name='Loading' color="outline-primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>

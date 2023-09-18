@@ -54,6 +54,7 @@ const CreateUpdatePaymentJournal = (props) => {
     const [identicalCode, setIdenticalCode] = useState({
         codeFor: "paymentJournal", lastCode: "", codeList: [{ initialCode: "", startFrom: "" }]
     })
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
@@ -289,8 +290,8 @@ const CreateUpdatePaymentJournal = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
-    
     const putDataToAPI = async (newTransaction) => {
         let dataReadyToUpdate = {...newTransaction}
         dataReadyToUpdate.authors.push({
@@ -307,6 +308,7 @@ const CreateUpdatePaymentJournal = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
 
     const lostConnection = () => Swal.fire({
@@ -317,7 +319,9 @@ const CreateUpdatePaymentJournal = (props) => {
     })
 
     const handleSubmit = async () => {
-        if(window.navigator.onLine) {
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
             let {accountProblem, newAccountTransactions, totalDebit} = await getAccountValidation()
             if(!accountProblem) {
                 let transAccounts = newAccountTransactions.filter(e => e.account && e.debit > 0)
@@ -333,34 +337,28 @@ const CreateUpdatePaymentJournal = (props) => {
                     !newTransaction[i] && delete newTransaction[i]
                 }
                 isUpdate ?
-                await putDataToAPI({
-                    ...newTransaction,
-                    id: transDb.id,
-                    // transNumber
-                })
-                :
-                await postDataToAPI(newTransaction)
+                await putDataToAPI({...newTransaction, id: transDb.id}) : await postDataToAPI(newTransaction)
             }
+            else setSubmitLoading(false)
         }
-        else lostConnection()
     }
 
-    const getNewTransNumber = async () => {
-        const {initialCode, startFrom} = identicalCode
-        let numberList = []
-        initialCode ?
-        transNumberList.forEach(e => {
-            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
-        }) :
-        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
+    // const getNewTransNumber = async () => {
+    //     const {initialCode, startFrom} = identicalCode
+    //     let numberList = []
+    //     initialCode ?
+    //     transNumberList.forEach(e => {
+    //         let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
+    //         if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
+    //     }) :
+    //     transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
 
-        let lastOrder = Math.max(...numberList)
-        let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
-        if(startFrom > newOrder) newOrder = startFrom
-        let newTransNumber = initialCode + newOrder
-        return newTransNumber
-    }
+    //     let lastOrder = Math.max(...numberList)
+    //     let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
+    //     if(startFrom > newOrder) newOrder = startFrom
+    //     let newTransNumber = initialCode + newOrder
+    //     return newTransNumber
+    // }
 
     const handleButtonIdentical = () => {
         setShowFormIdentic(false)
@@ -540,12 +538,9 @@ const CreateUpdatePaymentJournal = (props) => {
                             <tbody>
                                 {
                                     accountTransactions.map((trans, row)=> {
-                                        
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
-                                        
+                                        const rowFormFunc= {handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e)}
                                         const {account, description, debit, credit} = trans
-                                        const formValidation = [ nominalNull[row], accountNull[row] ]
-                                        
+                                        const formValidation = [nominalNull[row], accountNull[row]]
                                         const data = { row, account, accounts, description, debit, credit, formValidation, parentAccounts, accountTransactions }
                                         return <RowFormPaymentJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
@@ -553,7 +548,12 @@ const CreateUpdatePaymentJournal = (props) => {
                             </tbody>
                         </table>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name='Loading...' color="outline-primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>

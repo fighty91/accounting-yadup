@@ -53,6 +53,7 @@ const CreateUpdateReceiptJournal = (props) => {
     const [identicalCode, setIdenticalCode] = useState({
         codeFor: "receiptJournal", lastCode: '', codeList: [{ initialCode: "", startFrom: "" }]
     })
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const getResetUpdate = async (dataTransaction) => {
         if(dataTransaction) {
@@ -286,6 +287,7 @@ const CreateUpdateReceiptJournal = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
     
     const putDataToAPI = async (newTransaction) => {
@@ -304,6 +306,7 @@ const CreateUpdateReceiptJournal = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
 
     const lostConnection = () => Swal.fire({
@@ -314,7 +317,9 @@ const CreateUpdateReceiptJournal = (props) => {
     })
 
     const handleSubmit = async () => {
-        if(window.navigator.onLine) {
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
             let {accountProblem, newAccountTransactions, totalCredit} = await getAccountValidation()
             if(!accountProblem) {
                 let newReceiptAccount = {
@@ -332,16 +337,10 @@ const CreateUpdateReceiptJournal = (props) => {
                     !newTransaction[i] && delete newTransaction[i]
                 }
                 isUpdate ?
-                await putDataToAPI({
-                    ...newTransaction,
-                    id: transDb.id,
-                    // transNumber 
-                })
-                :
-                await postDataToAPI(newTransaction)
+                await putDataToAPI({...newTransaction,id: transDb.id}) : await postDataToAPI(newTransaction)
             }
+            else setSubmitLoading(false)
         }
-        else lostConnection()
     }
 
     const getNewTransNumber = async () => {
@@ -518,7 +517,6 @@ const CreateUpdateReceiptJournal = (props) => {
                                 </div>
                             }
                             </div>
-                            {/* <input type="text" className={`form-control form-control-sm me-1 ${!transNumberAvailable && 'border-danger'} ${validation.numberNull && 'border-danger'}`} id="transNumber" name="transNumber" onChange={handleEntryTransNumber} placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} /> */}
                             <input type="text" className={'form-control form-control-sm me-1'} id="transNumber" name="transNumber" placeholder={numbPlaceHolder} autoComplete="off" value={transNumber} disabled />
                             { !transNumberAvailable && <InputValidation name="not available, number already exist"/> }
                             { validation.numberNull && <InputValidation name="number null"/> }
@@ -528,7 +526,6 @@ const CreateUpdateReceiptJournal = (props) => {
                             <textarea className="form-control form-control-sm" id="memo" name="memo" rows="4" onChange={handleEntryTransaction} value={transaction.memo} />
                         </div>
                     </div>
-                    
                     
                     <div className="table-responsive-lg mb-4 mb-sm-5">
                         <table className="table table-borderless trans-account">
@@ -545,20 +542,22 @@ const CreateUpdateReceiptJournal = (props) => {
                             <tbody>
                                 {
                                     accountTransactions.map((trans, row)=> {
-                                        
-                                        const rowFormFunc= { handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e) }
-                                        
+                                        const rowFormFunc= {handleEntryAccount, handleDeleteRow, handleSubmit, setAccountTransactions: (e)=>setAccountTransactions(e)}
                                         const {account, description, credit} = trans
-                                        const formValidation = [ nominalNull[row], accountNull[row] ]
-                                        
-                                        const data = { row, account, accounts, description, credit, formValidation, parentAccounts, accountTransactions }
+                                        const formValidation = [nominalNull[row], accountNull[row]]
+                                        const data = {row, account, accounts, description, credit, formValidation, parentAccounts, accountTransactions}
                                         return <RowFormReceiptJournal key={row} rowFormFunc={rowFormFunc} data={data}/>
                                     })
                                 }
                             </tbody>
                         </table>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name='Loading...' color="outline-primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonNavigate name="Cancel" handleOnClick={getCancel} color="outline-danger"/>
                 </div>

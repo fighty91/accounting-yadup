@@ -31,11 +31,8 @@ const RowFormEntries = (props) => {
 
     const handleKeyEnter = async (event) => {
         if (event.code === 'Enter') {
-            event.target.blur()
-            // await handleSubmit()
-            setTimeout(()=> {
-                handleSubmit()
-            }, 600)
+            await event.target.blur()
+            await handleSubmit()
         }
     }
 

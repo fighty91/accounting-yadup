@@ -30,12 +30,9 @@ const RowFormPaymentJournal = (props) => {
     }
 
     const handleKeyEnter = async (event) => {
-        if (event.code === 'Enter') {
-            event.target.blur()
-            // await handleSubmit()
-            setTimeout(()=> {
-                handleSubmit()
-            }, 600)
+        if(event.code === 'Enter') {
+            await event.target.blur()
+            await handleSubmit()
         }
     }
 
@@ -95,10 +92,6 @@ const RowFormPaymentJournal = (props) => {
                 onKeyUp={handleKeyEnter} autoComplete="off" title={debit} />
                 {nominalNull && <InputValidation name="nominal null" /> }
             </td>
-            {/* <td>
-                <label htmlFor={'cr-'+row} className="visually-hidden">Credit</label>
-                <input type="text" name="credit" id={'cr-'+row} className={`form-control form-control-sm credit text-end ${nominalProblem === true && 'border-danger'} account-value`} value={credit} onChange={handleEntryInputNumb} onFocus={handleFocusInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleKeyEnter} autoComplete="off" title={credit} />
-            </td> */}
             <td>
                 <button className="btn btn-outline-danger btn-sm delete-row" id={'dl-'+row} onClick={() => handleDeleteRow(row)}>&minus;</button>
             </td>
