@@ -23,7 +23,7 @@ const CreateUpdateOpeningBalance = (props) => {
     const [minTransDate, setMinTransDate] = useState('')
     const [totalAmount, setTotalAmount] = useState({totalDebit: 0, totalCredit: 0})
     const [accountTransactions, setAccountTransactions] = useState([
-        { account: "", debit: "", credit: "", parentId: "", number: '', accountName: '' }
+        {account: "", debit: "", credit: "", parentId: "", number: '', accountName: ''}
     ])
     const [transaction, setTransaction] = useState({
         date: getFullDateNow(),
@@ -32,6 +32,7 @@ const CreateUpdateOpeningBalance = (props) => {
         tNParams: 'defaultCode',
         transType: "Opening Balance"
     })
+    const [submitLoading, setSubmitLoading] = useState(false)
 
     const handleEntryTransaction = (data) => {
         const {name, value} = data.target
@@ -179,6 +180,12 @@ const CreateUpdateOpeningBalance = (props) => {
         return {accountProblem, newAccountTransactions}
     }
 
+    const lostConnection = () => Swal.fire({
+        title: 'Offline!',
+        text: 'Sorry, your internet connection is lost!!',
+        icon: 'warning',
+        confirmButtonColor: '#fd7e14'
+    })
     const postDataToAPI = async (newTransaction) => {
         let authors = [{
             createdBy: props.user.uid2,
@@ -198,10 +205,9 @@ const CreateUpdateOpeningBalance = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
-    
     const putDataToAPI = async (newTransaction) => {
-        console.log(newTransaction)
         let dataReadyToUpdate = {...newTransaction}
         dataReadyToUpdate.authors.push({
             updatedBy: props.user.uid2,
@@ -217,33 +223,24 @@ const CreateUpdateOpeningBalance = (props) => {
                 confirmButtonColor: '#198754'
             })
         }
+        setSubmitLoading(false)
     }
-    
-    const lostConnection = () => Swal.fire({
-        title: 'Offline!',
-        text: 'Sorry, your internet connection is lost!!',
-        icon: 'warning',
-        confirmButtonColor: '#fd7e14'
-    })
-
     const handleSubmit = async () => {
-        if(window.navigator.onLine) {
+        !window.navigator.onLine && lostConnection()
+        if(!submitLoading && window.navigator.onLine) {
+            setSubmitLoading(true)
             let {accountProblem, newAccountTransactions} = await getAccountValidation()
             if(!accountProblem) {
                 let transAccounts = newAccountTransactions.filter(e => e.debit || e.credit)
                 transAccounts.forEach(e => deleteProps(e, ['parentId', 'number', 'accountName']))
-                let newTransaction = {
-                    ...transaction,
-                    transAccounts
-                }
+                let newTransaction = {...transaction, transAccounts}
                 for(let i in newTransaction) {
                     !newTransaction[i] && delete newTransaction[i]
                 }
                 isUpdate ?
                 await putDataToAPI(newTransaction) : await postDataToAPI(newTransaction)
-            }
+            } else setSubmitLoading(false)
         }
-        else lostConnection()
     }
 
     const handleEnterKey = async (event) => {
@@ -255,7 +252,7 @@ const CreateUpdateOpeningBalance = (props) => {
 
     const getOpeningBalance = async(data) => {
         let temp = props.transactions.openingBalance
-        !temp && (temp = await props.getOpeningBalanceFromAPI())
+        if(!temp) temp = await props.getOpeningBalanceFromAPI()
         
         if(temp.length > 0) {
             let newTransAccounts = data
@@ -300,7 +297,7 @@ const CreateUpdateOpeningBalance = (props) => {
     }
     useEffect(() => {
         getTransactionsDate()
-    }, [])
+    }, [props.transactions])
 
     const getAccount = async() => {
         let newAccounts = [], newParentAccounts = [], newAccountTransactions = []
@@ -339,7 +336,7 @@ const CreateUpdateOpeningBalance = (props) => {
                         <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                             <label htmlFor="date" className="form-label mb-0">Date</label>
                             <input type="date" className={`form-control form-control-sm ${validation.dateMustSmall && 'border-danger'}`} id="date" name="date" onChange={handleEntryTransaction} value={transaction.date} />
-                            {validation.dateMustSmall && <InputValidation name="date must be smaller than the other transaction date"/> }
+                            {validation.dateMustSmall && <InputValidation name="date must be smaller than the other transaction date"/>}
                         </div>
                         <div className="col-sm-6 col-md-8 col-lg-6 col-xl-5">
                             <label htmlFor="memo" className="form-label mb-0">Memo</label>
@@ -375,7 +372,7 @@ const CreateUpdateOpeningBalance = (props) => {
                                                         <td>
                                                             <input type="text" name="debit" 
                                                             id={'db-'+i} min={0} className={`form-control form-control-sm text-end debit account-value ${validation.nominalDouble[i] && 'border-danger'}`}  autoComplete="off" value={account.debit} onFocus={handleFocusInputNumb} onChange={handleEntryInputNumb} onBlur={handleBlurInputNumb} onKeyUp={handleEnterKey} />
-                                                            {validation.nominalDouble[i] && <InputValidation name="nominal double"/> }
+                                                            {validation.nominalDouble[i] && <InputValidation name="nominal double"/>}
                                                         </td>
                                                         <td>
                                                             <input type="text" name="credit" 
@@ -399,7 +396,12 @@ const CreateUpdateOpeningBalance = (props) => {
                             </tbody>
                         </table>
                     </div>
-                    <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    {
+                        submitLoading ?
+                        <ButtonSubmit name="Loading..." color="outline-primary"/>
+                        :
+                        <ButtonSubmit handleOnClick={handleSubmit} isUpdate={isUpdate} color="outline-primary"/>
+                    }
                     &nbsp;&nbsp;&nbsp;
                     <ButtonLinkTo name="Cancel" linkTo={'/opening-balance'} color="outline-danger"/>
                 </div>
