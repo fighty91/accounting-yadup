@@ -1,7 +1,7 @@
 import React, { Children, Fragment, useEffect } from "react";
 import Navbar from "../Navbar";
 import Sidebar from "../Sidebar";
-import { getCheckToken, getUserFromAPI } from "../../../../config/redux/action";
+import { getCheckToken, getCheckUser, getUserFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router";
 import './LayoutMainContent.scss'
@@ -12,8 +12,14 @@ const LayoutsMainContent = (props) => {
     const navigate = useNavigate()
 
     const checkAccessToken = async() => {
-        const userLogin = await props.getCheckToken({accessToken, userId})
-        !userLogin && navigate('/logout')
+        const tokenMatch = await props.getCheckToken({accessToken, userId})
+        !tokenMatch && navigate('/logout')
+
+        if(tokenMatch) {
+            const userLogin = await props.getCheckUser(userId)
+            console.log('test', userLogin)
+            !userLogin && navigate('/logout')
+        }
     }
 
     useEffect(() => {
@@ -49,6 +55,7 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getCheckToken: (data) => dispatch(getCheckToken(data)),
+    getCheckUser: (data) => dispatch(getCheckUser(data)),
     getUserFromAPI: (data) => dispatch(getUserFromAPI(data))
 })
 

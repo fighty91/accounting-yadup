@@ -1,5 +1,5 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
-import { getDatabase, push as pushData, ref, onValue, set, child, get, remove } from "firebase/database";
+import { getDatabase, push as pushData, ref, onValue, set, child, get, remove, update } from "firebase/database";
 import { database } from "../../firebase";
 import { corporation } from "../../corporation";
 import Swal from "sweetalert2";
@@ -16,12 +16,33 @@ const lostConnection = () => Swal.fire({
 
 const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
-        const { email, uid, accessToken } = userData
+        const {email, uid, accessToken, noUpdateTime} = userData
         set(ref(database, `${corpName}/userAccessToken/` + uid), {
             email,
             accessToken
-        }).then(() => resolve(true))
-        .catch((err) => {
+        }).then(() => {
+            resolve(true)
+        })
+        .catch(err => {
+            console.log(err)
+            reject(false)
+        })
+    })
+}
+const updateUserAccessToken = (userData) => {
+    return new Promise((resolve, reject) => {
+        const {email, uid, accessToken, noUpdateTime} = userData
+        const dbRef = ref(getDatabase());
+        const updates = {};
+        
+        set(ref(database, `${corpName}/userAccessToken/${uid}/accessToken`), accessToken)
+        .then(() => {
+            resolve(true)
+            updates[`${corpName}/userAccessToken/${uid}/email`] = email;
+            if(!noUpdateTime) updates[`${corpName}/userAccessToken/${uid}/lastLogin`] = Date.now();
+            update(dbRef, updates)
+        })
+        .catch(err => {
             console.log(err)
             reject(false)
         })
@@ -29,27 +50,23 @@ const setUserAccessToken = (userData) => {
 }
 const setUserRegister = (userData) => {
     return new Promise(async(resolve, reject) => {
-        const { name, email, password, uid, createdAt, userAccessId } = userData
+        const {name, email, password, uid, createdAt, userAccessId} = userData
         const users = await getOnceUsers()
         let uid2 = 1
         if(users) {
             let userUid2 = []
-            for( let x in users ) {
+            for(let x in users) {
                 userUid2.push(users[x].uid2)
             }
             uid2 += Math.max(...userUid2)
         }
         set(ref(database, `${corpName}/users/${uid}`), {
             uid1: uid,
-            uid2,
-            name,
-            email,
-            password,
             isActive: true,
-            userAccessId,
-            createdAt
+            uid2, name, email, password,
+            userAccessId, createdAt
         }).then(() => resolve(true))
-        .catch((err) => {
+        .catch(err => {
             console.log(err)
             reject(false)
         })
@@ -102,7 +119,7 @@ const getUserAccessToken = (userId) => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/userAccessToken/` + userId))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 resolve(snapshot.val())
             } else {
                 resolve(snapshot.val())
@@ -116,15 +133,20 @@ const getUserAccessToken = (userId) => {
 }
 export const getCheckToken = ({accessToken, userId}) => async (dispatch) => {
     const userData = await getUserAccessToken(userId)
-    let userLogin = undefined
+    let tokenMatch = false
     if(userData && accessToken === userData.accessToken) {
+        tokenMatch = true
+        await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
+    }
+    return tokenMatch
+}
+export const getCheckUser = (userId) => (dispatch) => {
+    return new Promise(async(resolve) => {
         const user = await getUser(userId)
         const {email, password} = user
-        // cari cara biar berjalan secara asyncronus
-        userLogin = await loginUserAPI({email, password, noUpdateTime: true})(dispatch)
-    }
-    userLogin && await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
-    return userLogin
+        const userLogin = await loginUserAPI({email, password, noUpdateTime: true})(dispatch)
+        userLogin ? resolve(true) : resolve(false)
+    })
 }
 export const registerUserAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
@@ -137,12 +159,8 @@ export const registerUserAPI = (data) => (dispatch) => {
             const {email, uid, accessToken, metadata} = userCredential.user
             const userData = {
                 createdAt: metadata.createdAt,
-                uid,
-                name,
-                email,
-                password,
-                userAccessId,
-                accessToken
+                uid, name, email, password,
+                userAccessId, accessToken
             }
             let res = false
             const res2 = await setUserAccessToken(userData)
@@ -164,31 +182,29 @@ export const registerUserAPI = (data) => (dispatch) => {
 }
 
 export const loginUserAPI = (data) => (dispatch) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         dispatch({type: 'CHANGE_AUTH_LOADING', value: true})
+        const {email, password, noUpdateTime} = data
+
         const auth = getAuth();
-        signInWithEmailAndPassword(auth, data.email, data.password)
+        signInWithEmailAndPassword(auth, email, password)
         .then(async(userCredential) => {
-            const {email, uid, accessToken} = userCredential.user
-            const userData = {
-                uid,
-                email,
-                accessToken
-            }
-            await set(ref(database, `${corpName}/users/${uid}/password`), data.password)
-            await setUserAccessToken(userData)
+            const {uid, accessToken} = userCredential.user
+            
+            await set(ref(database, `${corpName}/users/${uid}/password`), password)
+            await updateUserAccessToken({uid, email, accessToken, noUpdateTime})
             localStorage.setItem(`${corpName}uid`, JSON.stringify(uid))
             localStorage.setItem(`token_${corpName}uid`, JSON.stringify(accessToken))
 
-            await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
             resolve(userCredential.user)
+            dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
         })
         .catch(error => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage)
-            dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
             resolve(false)
+            dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
         });
     })
 }
@@ -209,9 +225,8 @@ export const logoutUserAPI = () => (dispatch) => {
     signOut(auth).then(() => {
         console.log('Logged out')
         dispatch({type: 'CHANGE_IS_LOGIN', value: false})
-    }).catch((error) => {
-        console.log(error)
-    });
+    })
+    .catch(error => console.log(error));
 }
 
 // export const addDataToAPI = (data) => (patch) => {
