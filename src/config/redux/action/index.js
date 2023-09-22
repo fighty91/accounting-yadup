@@ -16,13 +16,11 @@ const lostConnection = () => Swal.fire({
 
 const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
-        const {email, uid, accessToken, noUpdateTime} = userData
+        const {email, uid, accessToken} = userData
         set(ref(database, `${corpName}/userAccessToken/` + uid), {
             email,
             accessToken
-        }).then(() => {
-            resolve(true)
-        })
+        }).then(() => resolve(true))
         .catch(err => {
             console.log(err)
             reject(false)
@@ -32,12 +30,12 @@ const setUserAccessToken = (userData) => {
 const updateUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
         const {email, uid, accessToken, noUpdateTime} = userData
-        const dbRef = ref(getDatabase());
-        const updates = {};
-        
         set(ref(database, `${corpName}/userAccessToken/${uid}/accessToken`), accessToken)
         .then(() => {
             resolve(true)
+
+            const dbRef = ref(getDatabase());
+            const updates = {};
             updates[`${corpName}/userAccessToken/${uid}/email`] = email;
             if(!noUpdateTime) updates[`${corpName}/userAccessToken/${uid}/lastLogin`] = Date.now();
             update(dbRef, updates)
