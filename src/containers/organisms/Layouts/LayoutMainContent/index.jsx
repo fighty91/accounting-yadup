@@ -11,21 +11,17 @@ const LayoutsMainContent = (props) => {
     const accessToken = JSON.parse(localStorage.getItem(`token_${props.corp}uid`))
     const navigate = useNavigate()
 
-    const checkAccessToken = async () => {
-        const tokenMatch = await props.getCheckToken({accessToken, userId})
-        !tokenMatch && navigate('/logout')
-        // console.log('ada')
+    const checkAccessToken = async() => {
+        const userLogin = await props.getCheckToken({accessToken, userId})
+        !userLogin && navigate('/logout')
     }
 
     useEffect(() => {
-        if (!props.isLogin) {
+        if(!props.isLogin) {
             checkAccessToken()
+            props.getUserFromAPI(userId)
         }
-        props.getUserFromAPI(userId)
     }, [])
-    // useEffect(() => {
-    //     console.log('isLogin', props.isLogin)
-    // }, [props.isLogin])
 
     return (
         props.isLogin &&

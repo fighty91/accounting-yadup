@@ -34,14 +34,26 @@ const NewUser = (props) => {
         setUser(newUser)
     }
 
-    const handleEnterKey = (event) => {
-        event.key === 'Enter' && handleSubmit()
+    const getRegister = async() => {
+        const res = await props.registerUserAPI(user)
+        if(res) {
+            Toast.fire({
+                icon: 'success',
+                title: `Success Register \n${user.name}`
+            })
+            navigate('/users')
+        } else {
+            Swal.fire(
+                'Failed!',
+                `Failed Register ${user.email}`,
+                'info'
+            )
+        }
     }
-
-    const handleSubmit = async() => {
+    const handleSubmit = () => {
         let newUserNull = false
-        for( let x in user ) {
-            if (!user[x]) newUserNull = true
+        for(let x in user) {
+            if(!user[x]) newUserNull = true
         }
         if(newUserNull) {
             Swal.fire(
@@ -50,39 +62,27 @@ const NewUser = (props) => {
                 'info'
             )
         } else {
-            if( user.password === user.confirmPassword ) {
-                const res = await props.registerAPI(user)
-                console.log('oii', res)
-                if(res) {
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Success Register \n${user.name}`
-                    })
-                    navigate('/users')
-                } else {
-                    Swal.fire(
-                        'Failed!',
-                        `Failed Register ${user.email}`,
-                        'info'
-                    )
-                }
-            } else {
-                setPasswordValid(false)
-            }
+            user.password === user.confirmPassword ?
+            getRegister() : setPasswordValid(false)
         }
+    }
+    const handleEnterKey = (event) => {
+        event.key === 'Enter' && handleSubmit()
     }
     
     useEffect(() => {
-        props.getUserAccessFromAPI()
-    }, [])
+        if(props.userAccess.length > 0){
+            let temp = []
+            for(let i = 1; i < props.userAccess.length; i++) {
+                temp.push(props.userAccess[i])
+            }
+            setUserAccess(temp)
+        }
+    }, [props.userAccess])
 
     useEffect(() => {
-        let temp = []
-        for( let i = 1; i < props.userAccess.length; i++) {
-            temp.push(props.userAccess[i])
-        }
-        setUserAccess(temp)
-    }, [props.userAccess])
+        props.userAccess.length < 1 && props.getUserAccessFromAPI()
+    }, [])
     
     return(
         <LayoutsMainContent>
@@ -146,7 +146,7 @@ const reduxState = (state) => ({
 })
 const reduxDispatch = (dispatch) => ({
     getUserAccessFromAPI: () => dispatch(getUserAccessFromAPI()),
-    registerAPI: (data) => dispatch(registerUserAPI(data))
+    registerUserAPI: (data) => dispatch(registerUserAPI(data))
 })
 
 export default connect(reduxState, reduxDispatch)(NewUser)

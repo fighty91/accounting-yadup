@@ -106,7 +106,7 @@ const getUserAccessToken = (userId) => {
                 resolve(snapshot.val())
             } else {
                 resolve(snapshot.val())
-                console.log("No data available");
+                console.log("Unvalid token");
             }
         }).catch((error) => {
             console.error(error);
@@ -116,28 +116,25 @@ const getUserAccessToken = (userId) => {
 }
 export const getCheckToken = ({accessToken, userId}) => async (dispatch) => {
     const userData = await getUserAccessToken(userId)
-    let tokenMatch = false
+    let userLogin = undefined
     if(userData && accessToken === userData.accessToken) {
-        await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
-        tokenMatch = true
-    }
-    if(tokenMatch) {
         const user = await getUser(userId)
         const {email, password} = user
-        loginUserAPI({email, password})(dispatch)
+        // cari cara biar berjalan secara asyncronus
+        userLogin = await loginUserAPI({email, password, noUpdateTime: true})(dispatch)
     }
-    return tokenMatch
+    userLogin && await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
+    return userLogin
 }
 export const registerUserAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({type: 'CHANGE_AUTH_LOADING', value: true})
-
         const {email, password, name, userAccessId} = data
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, email, password)
         .then(async(userCredential) => {
             // Signed in 
-            const { email, uid, accessToken, metadata } = userCredential.user
+            const {email, uid, accessToken, metadata} = userCredential.user
             const userData = {
                 createdAt: metadata.createdAt,
                 uid,
@@ -172,26 +169,26 @@ export const loginUserAPI = (data) => (dispatch) => {
         const auth = getAuth();
         signInWithEmailAndPassword(auth, data.email, data.password)
         .then(async(userCredential) => {
-
-            const { email, uid, accessToken } = userCredential.user
+            const {email, uid, accessToken} = userCredential.user
             const userData = {
                 uid,
                 email,
                 accessToken
             }
+            await set(ref(database, `${corpName}/users/${uid}/password`), data.password)
             await setUserAccessToken(userData)
             localStorage.setItem(`${corpName}uid`, JSON.stringify(uid))
             localStorage.setItem(`token_${corpName}uid`, JSON.stringify(accessToken))
+
             await dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
             resolve(userCredential.user)
-            console.log('login')
         })
-        .catch((error) => {
+        .catch(error => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage)
             dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
-            reject(false)
+            resolve(false)
         });
     })
 }
