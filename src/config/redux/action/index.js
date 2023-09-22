@@ -34,10 +34,10 @@ const updateUserAccessToken = (userData) => {
         .then(() => {
             resolve(true)
 
-            const dbRef = ref(getDatabase());
-            const updates = {};
+            const dbRef = ref(getDatabase())
+            const updates = {}
             updates[`${corpName}/userAccessToken/${uid}/email`] = email;
-            if(!noUpdateTime) updates[`${corpName}/userAccessToken/${uid}/lastLogin`] = Date.now();
+            if(!noUpdateTime) updates[`${corpName}/userAccessToken/${uid}/timestamp`] = Date.now()
             update(dbRef, updates)
         })
         .catch(err => {
@@ -70,17 +70,9 @@ const setUserRegister = (userData) => {
         })
     })
 }
-// export const getUserData = () => (dispatch) => {
-//     const starCountRef = ref(database, `${corpName}/users/` + yadupauid);
-//     return new Promise(async (resolve, reject) => {
-//         onValue(starCountRef, (snapshot) => {
-//             resolve(snapshot.val())
-//         });
-//     })
-// }
 const getUser = (uid) => {
     // get once
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/users/${uid}`))
         .then((snapshot) => {
@@ -89,42 +81,38 @@ const getUser = (uid) => {
             } else {
                 resolve(snapshot.val())
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 const getOnceUsers = () => {
     // get once
     return new Promise((resolve) => {
-        const dbRef = ref(getDatabase());
+        const dbRef = ref(getDatabase())
         get(child(dbRef, `${corpName}/users`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 resolve(snapshot.val())
             } else {
                 resolve(snapshot.val())
-                console.log("No data available");
+                console.log("No data available")
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 const getUserAccessToken = (userId) => {
     // get once
     return new Promise((resolve, reject) => {
-        const dbRef = ref(getDatabase());
+        const dbRef = ref(getDatabase())
         get(child(dbRef, `${corpName}/userAccessToken/` + userId))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 resolve(snapshot.val())
             } else {
                 resolve(snapshot.val())
-                console.log("Unvalid token");
+                console.log("Unvalid token")
             }
-        }).catch((error) => {
-            console.error(error);
+        }).catch(error => {
+            console.error(error)
             reject(false)
         });
     })
@@ -132,7 +120,8 @@ const getUserAccessToken = (userId) => {
 export const getCheckToken = ({accessToken, userId}) => async (dispatch) => {
     const userData = await getUserAccessToken(userId)
     let tokenMatch = false
-    if(userData && accessToken === userData.accessToken) {
+    const loginTime = Date.now() - userData.timestamp
+    if(userData && accessToken === userData.accessToken && loginTime <= 259200000) { // logintime untuk 3 hari
         tokenMatch = true
         await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
     }
@@ -147,7 +136,7 @@ export const getCheckUser = (userId) => (dispatch) => {
     })
 }
 export const registerUserAPI = (data) => (dispatch) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         dispatch({type: 'CHANGE_AUTH_LOADING', value: true})
         const {email, password, name, userAccessId} = data
         const auth = getAuth();
@@ -169,7 +158,7 @@ export const registerUserAPI = (data) => (dispatch) => {
             }
             resolve(res)
         })
-        .catch((error) => {
+        .catch(error => {
             resolve(false)
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -203,7 +192,7 @@ export const loginUserAPI = (data) => (dispatch) => {
             console.log(errorCode, errorMessage)
             resolve(false)
             dispatch({type: 'CHANGE_AUTH_LOADING', value: false})
-        });
+        })
     })
 }
 
@@ -224,49 +213,26 @@ export const logoutUserAPI = () => (dispatch) => {
         console.log('Logged out')
         dispatch({type: 'CHANGE_IS_LOGIN', value: false})
     })
-    .catch(error => console.log(error));
+    .catch(error => console.log(error))
 }
 
-// export const addDataToAPI = (data) => (patch) => {
-//     // writeUserData(data.userId, data.title)
-//     const writeUserData = (data) => {
-//         const { userId, title, date, content } = data
-//         const db = getDatabase();
-//         console.log(userId)
-//         set(ref(db, 'notes/' + userId), {
-//             title,
-//             content,
-//             date
-//         });
-//     }
-//     writeUserData(data)
-// }
-
-// export const getAccountFromAPI = (accountId) => (dispatch) => {
-//     return new Promise(resolve => {
-//         const starCountRef = ref(database, `${corpName}/accounts/` + accountId);
-//         onValue(starCountRef, (snapshot) => {
-//             resolve(snapshot.val())
-//         });
-//     })
-// }
 export const getUserFromAPI = (userId) => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/users/${userId}`);
+        const starCountRef = ref(database, `${corpName}/users/${userId}`)
         onValue(starCountRef, (snapshot) => {
             const user = snapshot.val()
             dispatch({type: 'SET_USER', value: user})
             resolve(user)
-        });
+        })
     })
 }
 export const getUsersFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/users`);
+        const starCountRef = ref(database, `${corpName}/users`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let users = []
-            for( let x in temp) {
+            for(let x in temp) {
                 users.push(temp[x])
             }
             users.sort((a, b) => 
@@ -279,21 +245,21 @@ export const getUsersFromAPI = () => (dispatch) => {
             )
             dispatch({type: 'SET_USERS', value: users})
             resolve(users)
-        });
+        })
     })
 }
 export const getUserAccessFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/userAccess`);
+        const starCountRef = ref(database, `${corpName}/userAccess`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let userAccess = []
-            for( let x in temp) {
+            for(let x in temp) {
                 userAccess.push(temp[x])
             }
             dispatch({type: 'SET_USERACCESS', value: userAccess})
             resolve(userAccess)
-        });
+        })
     })
 }
 export const postAccountToAPI = (account) => (dispatch) => {
@@ -316,9 +282,7 @@ export const putAccountToAPI = (account) => (dispatch) => {
     delete newAccount.categoryName
     return new Promise((resolve, reject) => {
         set(ref(database, `${corpName}/accounts/${id}`), newAccount)
-        .then(() => {
-            resolve(true)
-        })
+        .then(() => resolve(true))
         .catch(err => {
             console.log(err)
             reject(false)   
@@ -334,7 +298,7 @@ export const deleteAccountFromAPI = (accountId) => (dispatch) => {
 }
 export const setActiveAccount = (data) => (dispatch) => {
     return new Promise(resolve => {
-        const { isActive, accountId } = data
+        const {isActive, accountId} = data
         set(ref(database, `${corpName}/accounts/${accountId}/isActive`), isActive)
         .then(() => resolve(true))
         .catch(err => console.log(err))
@@ -346,25 +310,23 @@ export const getAccountFromAPI = (id) => () => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/accounts/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 const temp = {...snapshot.val(), id}
                 resolve(temp)
             } else {
                 resolve(snapshot.val())
-                console.log("No account available");
+                console.log("No account available")
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getAccountsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/accounts`);
+        const starCountRef = ref(database, `${corpName}/accounts`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let accounts = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 accounts.push(temp[x])
             }
@@ -374,22 +336,22 @@ export const getAccountsFromAPI = () => (dispatch) => {
             )
             dispatch({type: 'SET_ACCOUNTS', value: accounts})
             resolve(accounts)
-        });
+        })
     })
 }
 export const getCategoriesFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/categories`);
+        const starCountRef = ref(database, `${corpName}/categories`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let categories = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 categories.push(temp[x])
             }
             dispatch({type: 'SET_CATEGORIES', value: categories})
             resolve(categories)
-        });
+        })
     })
 }
 export const postContactToAPI = (contact) => (dispatch) => {
@@ -423,25 +385,23 @@ export const getContactFromAPI = (id) => () => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/contacts/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 const temp = {...snapshot.val(), id}
                 resolve(temp)
             } else {
                 resolve(snapshot.val())
                 console.log("No contact available");
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getContactsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/contacts`);
+        const starCountRef = ref(database, `${corpName}/contacts`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let contacts = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 contacts.push(temp[x])
             }
@@ -451,7 +411,7 @@ export const getContactsFromAPI = () => (dispatch) => {
             )
             dispatch({type: 'SET_CONTACTS', value: contacts})
             resolve(contacts)
-        });
+        })
     })
 }
 export const deleteContactFromAPI = (contactId) => (dispatch) => {
@@ -509,39 +469,33 @@ export const getReceiptJournalFromAPI = (id) => () => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/transactions/receiptJournal/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 const tempReceipt = {...snapshot.val(), id}
                 resolve(tempReceipt)
             } else {
                 resolve(snapshot.val())
-                console.log("No data available");
+                console.log("No data available")
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getReceiptJournalsFromAPI = () => (dispatch) => {
-    return new Promise( async (resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/receiptJournal`);
+    return new Promise(async(resolve) => {
+        const starCountRef = ref(database, `${corpName}/transactions/receiptJournal`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let receiptJournal = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 receiptJournal.push(temp[x])
             }
-            // receiptJournal.sort((a, b) => 
-            //     a.transNumber < b.transNumber ? 1 :
-            //     a.transNumber > b.transNumber ? -1 : 0
-            // )
             receiptJournal.sort((a, b) => 
                 a.date < b.date ? 1 :
                 a.date > b.date ? -1 : 0
             )
             dispatch({type: 'SET_RECEIPT_JOURNAL', value: receiptJournal})
             resolve(receiptJournal)
-        });
+        })
     })
 }
 export const postPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
@@ -581,29 +535,27 @@ export const deletePaymentJournalFromAPI = (transId) => (dispatch) => {
 }
 export const getPaymentJournalFromAPI = (id) => () => {
     // get once
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/transactions/paymentJournal/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 const tempPayment = {...snapshot.val(), id}
                 resolve(tempPayment)
             } else {
                 resolve(snapshot.val())
                 console.log("No data available");
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getPaymentJournalsFromAPI = () => (dispatch) => {
-    return new Promise( async (resolve) => {
+    return new Promise(async(resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/paymentJournal`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let paymentJournal = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 paymentJournal.push(temp[x])
             }
@@ -617,7 +569,7 @@ export const getPaymentJournalsFromAPI = () => (dispatch) => {
             )
             dispatch({type: 'SET_PAYMENT_JOURNAL', value: paymentJournal})
             resolve(paymentJournal)
-        });
+        })
     })
 }
 
@@ -658,29 +610,27 @@ export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
 }
 export const getJournalEntryFromAPI = (id) => () => {
     // get once
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const dbRef = ref(getDatabase());
         get(child(dbRef, `${corpName}/transactions/journalEntries/${id}`))
         .then((snapshot) => {
-            if (snapshot.exists()) {
+            if(snapshot.exists()) {
                 const tempEntries = {...snapshot.val(), id}
                 resolve(tempEntries)
             } else {
                 resolve(snapshot.val())
                 console.log("No data available");
             }
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getJournalEntriesFromAPI = () => (dispatch) => {
-    return new Promise( async (resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`);
+    return new Promise(async(resolve) => {
+        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let journalEntries = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 journalEntries.push(temp[x])
             }
@@ -694,7 +644,7 @@ export const getJournalEntriesFromAPI = () => (dispatch) => {
             )
             dispatch({type: 'SET_ENTRIES', value: journalEntries})
             resolve(journalEntries)
-        });
+        })
     })
 }
 export const postOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
@@ -733,18 +683,18 @@ export const deleteOpeningBalanceFromAPI = (transId) => (dispatch) => {
     })
 }
 export const getOpeningBalanceFromAPI = () => (dispatch) => {
-    return new Promise( async (resolve) => {
+    return new Promise(async(resolve) => {
         const starCountRef = ref(database, `${corpName}/transactions/openingBalance`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let openingBalance = []
-            for( let x in temp) {
+            for(let x in temp) {
                 temp[x].id = x
                 openingBalance.push(temp[x])
             }
             dispatch({type: 'SET_OPENING_BALANCE', value: openingBalance})
             resolve(openingBalance)
-        });
+        })
     })
 }
 
@@ -761,7 +711,6 @@ export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => 
                 identicalActive = isActive
             }
         })
-        
         if(!identicalActive)
         await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`), temp)
         .then(() => resolve(true))
@@ -772,8 +721,7 @@ export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => 
     })
 }
 export const deleteIdentical = ({initialCode, codeFor}) => (dispatch) => {
-    return new Promise((resolve, reject) => {
-        // remove(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+    return new Promise(resolve => {
         set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}/isActive`), false)
         .then(() => resolve(true))
         .catch(err => console.log(err))
@@ -798,14 +746,14 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
             for(let x in temp) {
                 const tempCodeList = temp[x].codeList
                 let codeList = []
-                for (let i in tempCodeList) {
+                for(let i in tempCodeList) {
                     if(tempCodeList[i].isActive) {
                         const tempCL = {...tempCodeList[i], initialCode: i}
                         i !== 'defaultCode' && codeList.push(tempCL)
                     }
                 }
                 codeList.sort((a, b) => a.initialCode < b.initialCode ? 1 : a.initialCode > b.initialCode ? -1 : 0)
-                for (let i in tempCodeList) {
+                for(let i in tempCodeList) {
                     if(i === 'defaultCode') {
                         const tempCL = {...tempCodeList[i], initialCode: ''}
                         codeList.unshift(tempCL)
@@ -815,14 +763,14 @@ export const getIdenticalCodeFromAPI = () => (dispatch) => {
             }
             dispatch({type: 'SET_IDENTICAL_CODE', value: temp})
             resolve(temp)
-        });
+        })
     })
 }
 
 export const incrementLastOrderTNFromAPI = ({tempStart, tNParams, codeFor}) => (dispatch) => {
     // get once
     return new Promise(resolve => {
-        const dbRef = ref(getDatabase());
+        const dbRef = ref(getDatabase())
         get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`))
         .then(async(snapshot) => {
                 let temp = snapshot.val()
@@ -832,9 +780,7 @@ export const incrementLastOrderTNFromAPI = ({tempStart, tNParams, codeFor}) => (
                 await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`), temp).then()
                 .catch(err => console.log(err))
                 resolve(temp)
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const postNumberListToAPI = ({tempNumber, tNParams, codeFor}) => (dispatch) => {
@@ -885,9 +831,7 @@ export const getTransNumberFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) =
                 if(tNParams !== 'defaultCode') temp = `${tNParams}.${temp}`
                 resolve(temp)
             } else resolve(snapshot.exists())
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
@@ -909,14 +853,12 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
                 )
                 resolve(numberList)
             } else resolve(snapshot.exists())
-        }).catch((error) => {
-            console.error(error);
-        });
+        }).catch(error => console.error(error))
     })
 }
 export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/numberList/${codeFor}`);
+        const starCountRef = ref(database, `${corpName}/numberList/${codeFor}`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()},
             type, value = {}
