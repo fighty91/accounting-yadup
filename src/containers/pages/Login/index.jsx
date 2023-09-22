@@ -102,8 +102,7 @@ const Login = (props) => {
 }
 
 const reduxState = (state) => ({
-    authLoading: state.authLoading,
-    isLogin: state.isLogin
+    authLoading: state.authLoading
 })
 
 const reduxDispatch = (dispatch) => ({
