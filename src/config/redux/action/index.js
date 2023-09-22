@@ -1,4 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, push as pushData, ref, onValue, set, child, get, remove } from "firebase/database";
 import { database } from "../../firebase";
 import { corporation } from "../../corporation";
@@ -196,6 +196,17 @@ export const loginUserAPI = (data) => (dispatch) => {
     })
 }
 
+export const resetUserPasswordAPI = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        const auth = getAuth();
+        sendPasswordResetEmail(auth, data)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)
+        })
+    })
+}
 export const logoutUserAPI = () => (dispatch) => {
     const auth = getAuth();
     signOut(auth).then(() => {

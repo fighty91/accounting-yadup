@@ -1,14 +1,15 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import { loginUserAPI } from "../../../config/redux/action";
+import { resetUserPasswordAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
-import './Login.scss'
 import { getCorpNameShow } from "../../organisms/MyFunctions/useGeneralFunc";
+import './Login.scss'
 
-const Login = (props) => {
+const ForgotPassword = (props) => {
     const navigate = useNavigate()
-    const [user, setUser] = useState({email: '', password: ''})
+    const [user, setUser] = useState({email: ''})
+    const [loading, setLoading] = useState(false)
 
     const handleOnchange = (event) => {
         const {name, value} = event.target
@@ -16,33 +17,20 @@ const Login = (props) => {
         newUser[name] = value
         setUser(newUser)
     }
-
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1700,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener('mouseenter', Swal.stopTimer)
-          toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    
     const handleSubmit = async () => {
-        const {email, password} = user
-        const res = await props.loginUserAPI({email, password})
+        setLoading(true)
+        const {email} = user
+        const res = await props.resetUserPasswordAPI(email)
         if(res) {
-            Toast.fire({
+            navigate('/login')
+            Swal.fire({
+                title: 'Nice!',
+                text: 'Please check your email for reset password',
                 icon: 'success',
-                title: 'Login successfully'
+                confirmButtonColor: '#198754'
             })
-            navigate('/')
-        } else {
-            Toast.fire({
-                icon: 'error',
-                title: 'Login Failed'
-            })
-        }
+        } else setLoading(false)
     }
     const handleEnterKey = (e) => {
         e.key === 'Enter' && handleSubmit()
@@ -71,30 +59,17 @@ const Login = (props) => {
             </svg>
 
             <main className="form-signin w-100 m-auto py-5 my-5">
-                {/* <img className="mb-4" src="../assets/brand/bootstrap-logo.svg" alt="" width="72" height="57" /> */}
-                <h1 className="h3 mb-3 fw-normal">Please Login</h1>
+                <h1 className="h3 mb-3 fw-normal">Forgot Password</h1>
 
-                <div className="form-floating">
+                <div className="form-floating mb-4">
                     <input type="email" className="form-control log-email" id="email" name="email" placeholder="name@example.com" onChange={handleOnchange} value={user.email} onKeyUp={handleEnterKey} />
                     <label htmlFor="email">Email address</label>
                 </div>
-                <div className="form-floating mb-5">
-                    <input type="password" className="form-control log-password" id="password" name="password" placeholder="Password" onChange={handleOnchange} value={user.password} onKeyUp={handleEnterKey} />
-                    <label htmlFor="password" >Password</label>
-                </div>
-
-                {/* <div className="form-check text-start my-3"> */}
-                    {/* <input className="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault" />
-                    <label className="form-check-label" htmlFor="flexCheckDefault">
-                        Remember me
-                    </label> */}
-                {/* </div> */}
                 {
-                    props.authLoading ?
+                    loading ?
                     <button className="btn btn-primary w-100 py-2" disabled>Loading...</button> :
-                    <button className="btn btn-primary w-100 py-2" onClick={handleSubmit}>Login</button>
+                    <button className="btn btn-primary w-100 py-2" onClick={handleSubmit}>Reset Password</button>
                 }
-                <Link to='/forgot-password' className="btn btn-outline-secondary w-100 py-2 mt-3">Forgot Password?</Link>
                 <p className="mt-5 mb-3 text-body-secondary">&copy; 2023 - AccSo</p>
             </main>
         </Fragment>
@@ -103,10 +78,8 @@ const Login = (props) => {
 
 const reduxState = (state) => ({
     authLoading: state.authLoading,
-    isLogin: state.isLogin
 })
-
 const reduxDispatch = (dispatch) => ({
-    loginUserAPI: (data) => dispatch(loginUserAPI(data))
+    resetUserPasswordAPI: (data) => dispatch(resetUserPasswordAPI(data))
 })
-export default connect(reduxState, reduxDispatch)(Login)
+export default connect(reduxState, reduxDispatch)(ForgotPassword)

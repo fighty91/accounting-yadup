@@ -343,29 +343,6 @@ const CreateUpdateReceiptJournal = (props) => {
         }
     }
 
-    const getNewTransNumber = async () => {
-        const {initialCode, startFrom} = identicalCode
-        // let dbNumberList = await props.getNumberListFromAPI()
-        let numberList = []
-        initialCode ?
-        // dbNumberList.forEach(e => {
-        //     let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-        //     if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
-        // }) :
-        // dbNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
-        transNumberList.forEach(e => {
-            let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-            if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
-        }) :
-        transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
-
-        let lastOrder = Math.max(...numberList)
-        let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
-        if(startFrom > newOrder) newOrder = startFrom
-        let newTransNumber = initialCode + newOrder
-        return newTransNumber
-    }
-
     const handleButtonIdentical = () => {
         setShowFormIdentic(false)
         setIdenticalAvailable(true)

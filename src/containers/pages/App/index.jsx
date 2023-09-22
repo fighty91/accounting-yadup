@@ -33,6 +33,7 @@ import OpeningBalance from "../OpeningBalance";
 import CreateUpdateOpeningBalance from "../OpeningBalance/CreateUpdateOpeningBalance";
 import EditAccount from "../Accounts/EditAccount";
 import NewAccount from "../Accounts/NewAccount";
+import ForgotPassword from "../Login/ForgotPassword";
 
 class App extends Component {
     render() {
@@ -77,6 +78,7 @@ class App extends Component {
                     <Route path="/users" Component={Users} />
                     <Route path="/users/new-user" Component={NewUser} />
                     <Route path="/login" Component={Login} />
+                    <Route path="/forgot-password" Component={ForgotPassword} />
                     <Route path="/logout" Component={Logout} />
                 </Routes>
             </Router>
