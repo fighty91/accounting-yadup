@@ -1,5 +1,5 @@
 const initialState = {
-    corp: 'petra',
+    corp: 'yadupa', // cek kembali
     isLogin: false,
     authLoading: false,
     logoutLoading: false,
