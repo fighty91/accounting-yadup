@@ -28,7 +28,7 @@ export const useAccountFunc = () => {
         return newAccounts
     }
     
-    // cek apakah bisa dihapus karena digunakan di getAccGroup
+    // cek apakah bisa dihapus karena digunakan di getAccGroup 
     const getNumberAccounts = async () => {
         const data = await getAccountsAPI()
         let numberData = []
