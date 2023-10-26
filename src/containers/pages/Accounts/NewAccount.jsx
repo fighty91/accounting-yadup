@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { connect } from "react-redux";
 import Swal from "sweetalert2";
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
@@ -8,7 +8,7 @@ import FormSubAccount from "../../../components/molecules/SubAccountForm";
 import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getCategoriesFromAPI, postAccountToAPI } from "../../../config/redux/action";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { deleteProps } from "../../organisms/MyFunctions/useGeneralFunc";
 
 const NewAccount = (props) => {
     const [parentAccounts, setParentAccounts] = useState([])
@@ -30,7 +30,6 @@ const NewAccount = (props) => {
     const [nullValid, setNullValid] = useState({})
     const [submitLoading, setSubmitLoading] = useState(false)
     
-    const {deleteProps} = useGeneralFunc()
     const navigate = useNavigate()
 
     const Toast = Swal.mixin({

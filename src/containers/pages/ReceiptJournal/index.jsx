@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
 import { getAccountsFromAPI, getAllNumberListFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+// import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { getCurrency } from "../../organisms/MyFunctions/useGeneralFunc";
 import './ReceiptJournal.scss'
 
 const ReceiptJournal = (props) => {
-    const { getCurrency } = useGeneralFunc()
     const [accounts, setAccounts] = useState()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState()

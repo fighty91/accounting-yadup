@@ -1,20 +1,22 @@
 const initialState = {
-    corp: 'yadupa',
+    corp: 'petra',
     isLogin: false,
     authLoading: false,
     logoutLoading: false,
 
-    user: [],
+    user: {},
     users: [],
     userAccess: [],
     accounts: [],
     categories: [],
     contacts: [],
+    mappingAccounts: {},
     transactions: {},
     identicalCode: {},
     nLReceiptJournal: {},
     nLPaymentJournal: {},
     nLJournalEntries: {},
+    nLClosingJournal: {},
 }
 
 const reducer = (state = initialState, action)  => {
@@ -50,6 +52,11 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 contacts: value
             }
+        case 'SET_MAPPING_ACCOUNTS' :
+            return {
+                ...state,
+                mappingAccounts: value
+            }
         case 'SET_TRANSACTIONS' :
             return {
                 ...state,
@@ -82,6 +89,15 @@ const reducer = (state = initialState, action)  => {
                 ...state,
                 transactions: entriesTransactions
             }
+        case 'SET_CLOSING_JOURNAL' :
+            let closingTransactions = {
+                ...state.transactions,
+                closingJournal: value
+            }
+            return {
+                ...state,
+                transactions: closingTransactions
+            }
         case 'SET_OPENING_BALANCE' :
             let openingBalanceTransactions = {
                 ...state.transactions,
@@ -110,6 +126,11 @@ const reducer = (state = initialState, action)  => {
             return {
                 ...state,
                 nLJournalEntries: value
+            }
+        case 'SET_NUMBER_LIST_CLOSING_JOURNAL' :
+            return {
+                ...state,
+                nLClosingJournal: value
             }
         case 'SET_USER' :
             return {

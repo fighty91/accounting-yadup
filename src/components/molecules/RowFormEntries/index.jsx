@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import InputValidation from "../../atoms/InputValidation";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+// import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { getCurrency, getNormalNumb } from "../../../containers/organisms/MyFunctions/useGeneralFunc";
 
 const RowFormEntries = (props) => {
     const [accountNumberAndName, setAccountNumberAndName] = useState('')
-    const { getCurrency, getNormalNumb } = useGeneralFunc()
     const handleFocusInputNumb = (event) => {
         const {value, name, id} = event.target
         const temp = value === '' ? '' : getNormalNumb(value)

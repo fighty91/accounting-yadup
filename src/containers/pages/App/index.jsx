@@ -34,6 +34,14 @@ import CreateUpdateOpeningBalance from "../OpeningBalance/CreateUpdateOpeningBal
 import EditAccount from "../Accounts/EditAccount";
 import NewAccount from "../Accounts/NewAccount";
 import ForgotPassword from "../Login/ForgotPassword";
+import CreateUpdateClosingJournal from "../ClosingJournal/CreateUpdateClosingJournal";
+import DetailClosingJournal from "../ClosingJournal/DetailClosingJournal";
+import ClosingJournal from "../ClosingJournal";
+import Settings from "../Settings";
+import MappingAccounts from "../Settings/MappingAccounts";
+import StatementOfChangesInNetAssets from "../Reports/StatementOfChangesInNetAssets";
+import ComprehensiveIncomeReport from "../Reports/ComprehensiveIncomeReport";
+import TrialBalance from "../Reports/TrialBalance";
 
 class App extends Component {
     render() {
@@ -46,8 +54,10 @@ class App extends Component {
                     <Route path="/receipt-journal" Component={ReceiptJournal}/>
                     <Route path="/payment-journal" Component={PaymentJournal}/>
                     <Route path="/journal-entries" Component={JournalEntries}/>
+                    <Route path="/closing-journal" Component={ClosingJournal}/>
                     <Route path="/opening-balance" Component={OpeningBalance}/>
                     <Route path="/reports" Component={Reports}/>
+                    <Route path="/settings" Component={Settings}/>
 
                     <Route path="/accounts/account-detail/:accountId" Component={DetailAccount}/>
                     <Route path="/accounts/edit-account/:accountId" Component={EditAccount}/>
@@ -70,10 +80,19 @@ class App extends Component {
                     <Route path="/journal-entries/new-transaction" Component={CreateUpdateEntries}/>
                     <Route path="/journal-entries/transaction-detail/:transId" Component={DetailJournalEntries}/>
 
+                    <Route path="/closing-journal/edit-transaction/:transId" Component={CreateUpdateClosingJournal}/>
+                    <Route path="/closing-journal/new-transaction" Component={CreateUpdateClosingJournal}/>
+                    <Route path="/closing-journal/transaction-detail/:transId" Component={DetailClosingJournal}/>
+
                     <Route path="/opening-balance/create-opening-balance" Component={CreateUpdateOpeningBalance}/>
                     <Route path="/opening-balance/update-opening-balance" Component={CreateUpdateOpeningBalance}/>
+
+                    <Route path="/settings/mapping-accounts" Component={MappingAccounts}/>
                     
                     <Route path="/reports/balance-sheet" Component={BalanceSheet}/>
+                    <Route path="/reports/statement-of-change-net-assets" Component={StatementOfChangesInNetAssets}/>
+                    <Route path="/reports/comprehensive-income-report" Component={ComprehensiveIncomeReport}/>
+                    <Route path="/reports/trial-balance" Component={TrialBalance}/>
 
                     <Route path="/users" Component={Users} />
                     <Route path="/users/new-user" Component={NewUser} />

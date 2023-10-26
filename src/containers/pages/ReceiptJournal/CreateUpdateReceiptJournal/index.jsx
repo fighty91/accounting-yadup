@@ -7,9 +7,10 @@ import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/Butto
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getReceiptJournalsFromAPI, getReceiptJournalFromAPI, postReceiptJournalToAPI, putReceiptJournalToAPI, getNumberListFromAPI, postNumberListToAPI, putNumberListToAPI, incrementLastOrderTNFromAPI, getTransNumberFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 import RowFormReceiptJournal from "../../../../components/molecules/RowFormReceiptJournal";
+// import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
+import { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } from "../../../organisms/MyFunctions/useGeneralFunc";
 import './CreateUpdateReceiptJournal.scss'
 
 const CreateUpdateReceiptJournal = (props) => {
@@ -19,7 +20,6 @@ const CreateUpdateReceiptJournal = (props) => {
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
-    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)

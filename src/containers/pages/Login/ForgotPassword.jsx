@@ -37,7 +37,7 @@ const ForgotPassword = (props) => {
     }
 
     useEffect(() => {
-        document.title = `Accounting ${getCorpNameShow()} - Login`
+        document.title = `Forgot Password - ${getCorpNameShow()} Accounting`
     }, [])
 
     return (

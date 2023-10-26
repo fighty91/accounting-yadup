@@ -7,9 +7,10 @@ import { ButtonSubmit, ButtonNavigate } from "../../../../components/atoms/Butto
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getNumberListFromAPI, getPaymentJournalFromAPI, getPaymentJournalsFromAPI, getTransNumberFromAPI, incrementLastOrderTNFromAPI, postNumberListToAPI, postPaymentJournalToAPI, putNumberListToAPI, putPaymentJournalToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
 import RowFormPaymentJournal from "../../../../components/molecules/RowFormPaymentJournal";
+// import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
+import { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } from "../../../organisms/MyFunctions/useGeneralFunc";
 import './CreateUpdatePaymentJournal.scss'
 
 const CreateUpdatePaymentJournal = (props) => {
@@ -19,8 +20,6 @@ const CreateUpdatePaymentJournal = (props) => {
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
-
-    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)
@@ -342,23 +341,6 @@ const CreateUpdatePaymentJournal = (props) => {
             else setSubmitLoading(false)
         }
     }
-
-    // const getNewTransNumber = async () => {
-    //     const {initialCode, startFrom} = identicalCode
-    //     let numberList = []
-    //     initialCode ?
-    //     transNumberList.forEach(e => {
-    //         let temp = +e.slice(initialCode.length).replace('.', ' ').replace(',', ' ')
-    //         if(e.startsWith(initialCode)) temp % 1 === 0 && numberList.push(temp)
-    //     }) :
-    //     transNumberList.forEach(e => +e.transNumber % 1 === 0 && numberList.push(+e.transNumber))
-
-    //     let lastOrder = Math.max(...numberList)
-    //     let newOrder = lastOrder > -1 ? lastOrder + 1 : 1
-    //     if(startFrom > newOrder) newOrder = startFrom
-    //     let newTransNumber = initialCode + newOrder
-    //     return newTransNumber
-    // }
 
     const handleButtonIdentical = () => {
         setShowFormIdentic(false)

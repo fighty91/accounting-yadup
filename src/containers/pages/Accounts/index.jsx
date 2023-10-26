@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import ContentHeader from "../../organisms/Layouts/ContentHeader/ContentHeader";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { getAccountsFromAPI, getCategoriesFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { getAccountsFromAPI, getCategoriesFromAPI, getClosingJournalsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import { getCurrencyAbs } from "../../organisms/MyFunctions/useGeneralFunc";
 import './Accounts.scss'
 
 const Accounts = (props) => {
@@ -12,7 +12,6 @@ const Accounts = (props) => {
     const [parentAccounts, setParentAccounts] = useState([])
     const [categories, setCategories] = useState([])
     const [transactions, setTransactions] = useState([])
-    const { getCurrencyAbs } = useGeneralFunc()
 
     const transAmount = (accountId) => {
         let parentAmount = 0
@@ -59,6 +58,7 @@ const Accounts = (props) => {
         !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
         !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
         !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+        !props.transactions.closingJournal && await props.getClosingJournalsFromAPI()
     }
     useEffect(() => {
         getTransactionsCheck()
@@ -69,11 +69,13 @@ const Accounts = (props) => {
         const temp2 = props.transactions.paymentJournal
         const temp3 = props.transactions.receiptJournal
         const temp4 = props.transactions.journalEntries
+        const temp5 = props.transactions.closingJournal
 
         temp1 && temp1.length > 0 && temp1.forEach(e => trans.push(e))
         temp2 && temp2.length > 0 && temp2.forEach(e => trans.push(e))
         temp3 && temp3.length > 0 && temp3.forEach(e => trans.push(e))
         temp4 && temp4.length > 0 && temp4.forEach(e => trans.push(e))
+        temp5 && temp5.length > 0 && temp5.forEach(e => trans.push(e))
 
         trans.length > 0 && setTransactions(trans)
     }
@@ -106,7 +108,7 @@ const Accounts = (props) => {
                                         <tbody className="table-group-divider">
                                             {
                                                 parentAccounts.map((parentAccount, i) => {
-                                                    let { id, number, accountName, isActive, categoryId } = parentAccount
+                                                    let {id, number, accountName, isActive, categoryId} = parentAccount
                                                     const {childAccounts, parentAmount} = transAmount(id)
                                                     const category = categories.find(e => e.id === categoryId)
                                                     const categoryName = category && category.name
@@ -155,7 +157,6 @@ const Accounts = (props) => {
                                 <p>There is no account...</p>
                             }
                         </div>
-
                     </div>
             </LayoutsMainContent>
         </Fragment>
@@ -173,6 +174,7 @@ const reduxDispatch = (dispatch) => ({
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getClosingJournalsFromAPI: () => dispatch(getClosingJournalsFromAPI()),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI())
 })
 

@@ -6,8 +6,9 @@ import { ButtonSubmit, ButtonLinkTo } from "../../../../components/atoms/ButtonA
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, postOpeningBalanceToAPI, putOpeningBalanceToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
+// import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+import { deleteProps, getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb } from "../../../organisms/MyFunctions/useGeneralFunc";
 import './CreateUpdateOpeningBalance.scss'
 
 const CreateUpdateOpeningBalance = (props) => {
@@ -15,8 +16,6 @@ const CreateUpdateOpeningBalance = (props) => {
     const {search} = useLocation()
     const searchParams = new URLSearchParams(search)
     let isUpdate = JSON.parse(searchParams.get('isUpdate'))
-
-    const { getCurrency, getCurrencyAbs, getFullDateNow, getNormalNumb, deleteProps } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [parentAccounts, setParentAccounts] = useState([])

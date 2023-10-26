@@ -1,0 +1,32 @@
+.detail-journal-closing-journal {
+    .contact {
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline 1px;
+        }
+    }
+    .label {
+        width: 60px;
+        min-width: 60px;
+    }
+    .amount, .amount-value {
+        font-size: 24px;
+        font-weight: 600;
+    }
+    .table-transaction-closing-journal {
+        a {
+            color: rgb(64, 64, 64);
+            text-decoration: none;
+            &:hover {
+                color:  #0d6efd;
+                text-decoration: underline 1px;
+            }
+        }
+        .account-number {
+            min-width: 75px;
+        }
+    }
+    .createdBy {
+        font-size: 12px;
+    }
+}

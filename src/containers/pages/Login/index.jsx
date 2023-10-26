@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { loginUserAPI } from "../../../config/redux/action";
 import Swal from "sweetalert2";
-import './Login.scss'
 import { getCorpNameShow } from "../../organisms/MyFunctions/useGeneralFunc";
+import './Login.scss'
 
 const Login = (props) => {
     const navigate = useNavigate()
@@ -49,7 +49,7 @@ const Login = (props) => {
     }
 
     useEffect(() => {
-        document.title = `Accounting ${getCorpNameShow()} - Login`
+        document.title = `${getCorpNameShow()} Accounting - Login`
     }, [])
 
     return (

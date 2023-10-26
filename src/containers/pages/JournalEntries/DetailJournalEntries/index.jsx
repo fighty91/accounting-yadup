@@ -1,17 +1,17 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import "./DetailJournalEntries.scss"
 import ContentHeader from "../../../organisms/Layouts/ContentHeader/ContentHeader";
 import { ButtonDelete, ButtonDuplicate, ButtonLinkTo } from "../../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { deleteJournalEntryFromAPI, deleteNumberListFromAPI, getAccountsFromAPI, getContactFromAPI, getJournalEntryFromAPI, getTransNumberFromAPI, getUsersFromAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+// import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
+import { getCurrency } from "../../../organisms/MyFunctions/useGeneralFunc";
+import "./DetailJournalEntries.scss"
 
 const DetailJournalEntries = (props) => {
     const { transId } = useParams()
-    const { getCurrency } = useGeneralFunc()
     const navigate = useNavigate()
 
     const [accounts, setAccounts] = useState([])

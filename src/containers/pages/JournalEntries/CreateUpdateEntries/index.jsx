@@ -8,8 +8,9 @@ import RowFormEntries from "../../../../components/molecules/RowFormEntries";
 import LayoutsMainContent from "../../../organisms/Layouts/LayoutMainContent";
 import { getAccountsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getJournalEntryFromAPI, getNumberListFromAPI, getTransNumberFromAPI, incrementLastOrderTNFromAPI, postJournalEntryToAPI, postNumberListToAPI, putJournalEntryToAPI, putNumberListToAPI } from "../../../../config/redux/action";
 import { connect } from "react-redux";
-import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
 import Swal from "sweetalert2";
+// import { useGeneralFunc } from "../../../../utils/MyFunction/MyFunction";
+import { getCurrency, getFullDateNow, getNormalNumb } from "../../../organisms/MyFunctions/useGeneralFunc";
 import './CreateUpdateEntries.scss'
 
 const CreateUpdateEntries = (props) => {
@@ -19,8 +20,6 @@ const CreateUpdateEntries = (props) => {
     let duplicate = JSON.parse(searchParams.get('duplicate'))
     let {transId} = useParams()
     !transId && (transId = searchParams.get('transId'))
-
-    const { getCurrency, getFullDateNow, getNormalNumb } = useGeneralFunc()
 
     const [validation, setValidation] = useState({nominalNull: [], nominalDouble: [], accountNull: []})
     const [isUpdate, setIsUpdate] = useState(false)

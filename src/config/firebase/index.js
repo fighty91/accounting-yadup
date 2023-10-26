@@ -12,15 +12,15 @@ import { getDatabase } from "firebase/database";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAOBouVas_oRcuDPwO5p0cfTCIhqNV1X3M",
-  authDomain: "accounting-yadupa.firebaseapp.com",
-  projectId: "accounting-yadupa",
-  storageBucket: "accounting-yadupa.appspot.com",
-  messagingSenderId: "13873007517",
-  appId: "1:13873007517:web:576fbd31428abb0a11bd74",
-  measurementId: "G-WXDB4E10ZD",
-  databaseURL: "https://accounting-yadupa-default-rtdb.asia-southeast1.firebasedatabase.app",
-};
+  apiKey: "AIzaSyAIvgBd_WbmuhXaCmt2BYFGf7oaQ-klfow",
+  authDomain: "petra-accounting-jayapura.firebaseapp.com",
+  databaseURL: "https://petra-accounting-jayapura-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "petra-accounting-jayapura",
+  storageBucket: "petra-accounting-jayapura.appspot.com",
+  messagingSenderId: "621194032542",
+  appId: "1:621194032542:web:c1cb48f152b426903c928f",
+  measurementId: "G-QJG0LWTX16"
+}
 
 // Initialize Firebase
 const firebase = initializeApp(firebaseConfig);

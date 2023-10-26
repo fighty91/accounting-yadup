@@ -101,53 +101,58 @@ const Contacts = (props) => {
                 </div>
                 <div className="card pb-4">
                     <div className="card-body">
-                        <div className="table-responsive-sm">
-                            <table className="table table-striped table-sm table-contacts">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Phone</th>
-                                        <th scope="col" className="text-start">Position</th>
-                                        <th scope="col" className="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="table-group-divider">
-                                    {
-                                        contacts.map((contact, i) => {
-                                            const {id, name, address, phone, position} = contact
-                                            const {customer, vendor, employee, other} = position
-                                            let positions = []
-                                            if (customer) {positions.push('Customer')}
-                                            if (vendor) {positions.push('Vendor')}
-                                            if (employee) {positions.push('Employee')}
-                                            if (other) {positions.push('Other')}
+                        {
+                            contacts.length > 0 ?
+                            <div className="table-responsive-sm">
+                                <table className="table table-striped table-sm table-contacts">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Phone</th>
+                                            <th scope="col" className="text-start">Position</th>
+                                            <th scope="col" className="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="table-group-divider">
+                                        {
+                                            contacts.map((contact, i) => {
+                                                const {id, name, address, phone, position} = contact
+                                                const {customer, vendor, employee, other} = position
+                                                let positions = []
+                                                if (customer) {positions.push('Customer')}
+                                                if (vendor) {positions.push('Vendor')}
+                                                if (employee) {positions.push('Employee')}
+                                                if (other) {positions.push('Other')}
 
-                                            return (
-                                                <tr key={id}>
-                                                    <td>{i+1}</td>
-                                                    <td className="ps-2">
-                                                        <Link to={`/contacts/detail/${id}`} className="contact-name">
-                                                            <p className="mb-0 fw-normal">{name}</p>
-                                                        </Link>
-                                                        <p className="mb-0 fw-light address">{address ? address : "-"}</p>
-                                                    </td>
-                                                    <td>{phone}</td>
-                                                    <td className="text-start position">{positions.join(', ')}</td>
-                                                    <td className="text-end">
-                                                        <div className="btn-group" role="group" aria-label="Basic outlined example">
-                                                            <button type="submit" className="btn btn-outline-danger action" onClick={()=>handleDeleteContact({id, name})}>Delete</button>
-                                                            <Link to={`/contacts/edit-contact/${id}`} className="btn btn-outline-success action">Edit</Link>
-                                                            <Link to={`/contacts/detail/${id}`} className="btn btn-outline-primary action">View</Link>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                                return (
+                                                    <tr key={id}>
+                                                        <td>{i+1}</td>
+                                                        <td className="ps-2">
+                                                            <Link to={`/contacts/detail/${id}`} className="contact-name">
+                                                                <p className="mb-0 fw-normal">{name}</p>
+                                                            </Link>
+                                                            <p className="mb-0 fw-light address">{address ? address : "-"}</p>
+                                                        </td>
+                                                        <td>{phone}</td>
+                                                        <td className="text-start position">{positions.join(', ')}</td>
+                                                        <td className="text-end">
+                                                            <div className="btn-group" role="group" aria-label="Basic outlined example">
+                                                                <button type="submit" className="btn btn-outline-danger action" onClick={()=>handleDeleteContact({id, name})}>Delete</button>
+                                                                <Link to={`/contacts/edit-contact/${id}`} className="btn btn-outline-success action">Edit</Link>
+                                                                <Link to={`/contacts/detail/${id}`} className="btn btn-outline-primary action">View</Link>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            :
+                            <p>There is no data...</p>
+                        }
                     </div>
                 </div>
             </LayoutsMainContent>

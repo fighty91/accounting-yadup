@@ -34,7 +34,6 @@ const Layouts = (props) => {
         window.addEventListener('online', setOnline);
     }, [])
 
-
     useEffect(() => {
         setUser(props.user)
     }, [props.user])

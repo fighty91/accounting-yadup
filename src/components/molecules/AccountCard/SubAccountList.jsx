@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
 import { getAccountsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+// import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { getCurrencyAbs } from "../../../containers/organisms/MyFunctions/useGeneralFunc";
 
 const SubAccountList = (props) => {
     const {accountId} = useParams()
-    const {getCurrencyAbs} = useGeneralFunc()
     const [subAccounts, setSubAccounts] = useState([])
     const [transactions, setTransactions] = useState([])
 

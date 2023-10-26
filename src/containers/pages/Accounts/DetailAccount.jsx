@@ -8,8 +8,9 @@ import TransactionsAccount from "../../../components/molecules/AccountCard/Trans
 import SubAccountList from "../../../components/molecules/AccountCard/SubAccountList";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
 import { connect } from "react-redux";
-import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, setActiveAccount } from "../../../config/redux/action";
+import { deleteAccountFromAPI, getAccountsFromAPI, getCategoriesFromAPI, getClosingJournalsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, setActiveAccount } from "../../../config/redux/action";
 import { confirmDeleteAccount } from "../../organisms/MyFunctions/useAccountFunc";
+import { ToastAlert, lostConnection } from "../../organisms/MyFunctions/useGeneralFunc";
 
 const DetailAccount = (props) => {
     let {accountId} = useParams()
@@ -25,24 +26,24 @@ const DetailAccount = (props) => {
     const [masterAccum, setMasterAccum] = useState()
     const [dataReady, setDataReady] = useState(false)
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1700,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener('mouseenter', Swal.stopTimer)
-          toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    // const Toast = Swal.mixin({
+    //     toast: true,
+    //     position: 'top-end',
+    //     showConfirmButton: false,
+    //     timer: 1700,
+    //     timerProgressBar: true,
+    //     didOpen: (toast) => {
+    //       toast.addEventListener('mouseenter', Swal.stopTimer)
+    //       toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //     }
+    // })
 
-    const lostConnection = () => Swal.fire({
-        title: 'Offline!',
-        text: 'Sorry, your internet connection is lost!!',
-        icon: 'warning',
-        confirmButtonColor: '#fd7e14'
-    })
+    // const lostConnection = () => Swal.fire({
+    //     title: 'Offline!',
+    //     text: 'Sorry, your internet connection is lost!!',
+    //     icon: 'warning',
+    //     confirmButtonColor: '#fd7e14'
+    // })
 
     const getContacts = async() => {
         let temp = props.contacts
@@ -54,16 +55,19 @@ const DetailAccount = (props) => {
         temp1 = props.transactions.openingBalance,
         temp2 = props.transactions.receiptJournal,
         temp3 = props.transactions.paymentJournal,
-        temp4 = props.transactions.journalEntries
+        temp4 = props.transactions.journalEntries,
+        temp5 = props.transactions.closingJournal
 
         if(!temp1) temp1 = await props.getOpeningBalanceFromAPI()
         if(!temp2) temp2 = await props.getReceiptJournalsFromAPI()
         if(!temp3) temp3 = await props.getPaymentJournalsFromAPI()
         if(!temp4) temp4 = await props.getJournalEntriesFromAPI()
+        if(!temp5) temp5 = await props.getClosingJournalsFromAPI()
 
         temp2 && temp2.length > 0 && temp2.forEach(e => newTrans.push(e))
         temp3 && temp3.length > 0 && temp3.forEach(e => newTrans.push(e))
         temp4 && temp4.length > 0 && temp4.forEach(e => newTrans.push(e))
+        temp5 && temp5.length > 0 && temp5.forEach(e => newTrans.push(e))
         temp1 && temp1.length > 0 && newTrans.unshift(temp1[0])
         return newTrans
     }
@@ -81,7 +85,7 @@ const DetailAccount = (props) => {
             if(deleteApproval) deleteSuccess = await props.deleteAccountFromAPI(accountId)
             if(deleteSuccess) {
                 navigate('/accounts')
-                Toast.fire({
+                ToastAlert.fire({
                     icon: 'success',
                     title: `Success Delete (${account.number})\n${account.accountName}`
                 })
@@ -109,12 +113,12 @@ const DetailAccount = (props) => {
         const res = await props.setActiveAccount({accountId, isActive})
         if(res) {
             isActive ?
-            Toast.fire({
+            ToastAlert.fire({
                 icon: 'success',
                 title: 'Account Active'
             })
             :
-            Toast.fire({
+            ToastAlert.fire({
                 icon: 'warning',
                 title: 'Account not Actived'
             })
@@ -216,7 +220,6 @@ const reduxState = (state) => ({
     transactions: state.transactions,
     contacts: state.contacts
 })
-
 const reduxDispatch = (dispatch) => ({
     getAccountsFromAPI: () => dispatch(getAccountsFromAPI()),
     getCategoriesFromAPI: () => dispatch(getCategoriesFromAPI()),
@@ -226,7 +229,8 @@ const reduxDispatch = (dispatch) => ({
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
-    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI())
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getClosingJournalsFromAPI: () => dispatch(getClosingJournalsFromAPI()),
 })
 
 export default connect(reduxState, reduxDispatch)(DetailAccount)

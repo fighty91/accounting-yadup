@@ -8,6 +8,7 @@ import { getCorpNameShow } from "../../MyFunctions/useGeneralFunc";
 const Sidebar = (props) => {
     const location = useLocation()
     const segmentTemp = location.pathname.split('/')[1]
+    const {userAccessId} = props.user
 
     const [segment, setSegment] = useState({})
     const navigate = useNavigate()
@@ -35,6 +36,10 @@ const Sidebar = (props) => {
                 newSegment.openingBalanceActive = true
                 document.title = 'Opening Balance'
                 break
+            case 'closing-journal':
+                newSegment.closingJournalActive = true
+                document.title = 'Closing Journal'
+                break
             case 'reports':
                 newSegment.reportActive = true
                 document.title = 'Report'
@@ -44,8 +49,14 @@ const Sidebar = (props) => {
                 document.title = 'Account'
                 break
             case 'users':
-                newSegment.userPageActive = true
-                document.title = 'User'
+                if(props.user && userAccessId < 3) {
+                    newSegment.userPageActive = true
+                    document.title = 'User'
+                } else navigate('/')
+                break
+            case 'settings':
+                newSegment.settingPageActive = true
+                document.title = 'Settings'
                 break
             default:
                 newSegment.dashboardActive = true
@@ -163,6 +174,11 @@ const Sidebar = (props) => {
                     <path d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z"/>
                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z"/>
                 </symbol>
+
+                <symbol id="book-journal" viewBox="0 0 16 16">
+                    <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
+                    <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0z"/>
+                </symbol>
             </svg>
             
 
@@ -226,6 +242,12 @@ const Sidebar = (props) => {
                                 </Link>
                             </li>
                             <li className="nav-item">
+                                <Link to="/closing-journal" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.closingJournalActive && 'active'}`} >
+                                    <svg className="bi"><use xlinkHref="#book-journal"/></svg>
+                                    Closing Journal
+                                </Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link to="/contacts" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.contactActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#contact-svg"/></svg>
                                     Contacts
@@ -243,12 +265,15 @@ const Sidebar = (props) => {
                                     Chart of Account
                                 </Link>
                             </li>
-                            <li className="nav-item">
-                                <Link to="/users" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.userPageActive && 'active'}`} >
-                                    <svg className="bi"><use xlinkHref="#people"/></svg>
-                                    Users
-                                </Link>
-                            </li>
+                            {
+                                userAccessId < 3 &&
+                                <li className="nav-item">
+                                    <Link to="/users" className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.userPageActive && 'active'}`} >
+                                        <svg className="bi"><use xlinkHref="#people"/></svg>
+                                        Users
+                                    </Link>
+                                </li>
+                            }
                         </ul>
         
                         <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
@@ -270,32 +295,31 @@ const Sidebar = (props) => {
                                     Last quarter
                                 </Link>
                             </li>
-                            <li className="nav-item">
+                            {/* <li className="nav-item">
                                 <Link className="nav-link d-flex align-items-center gap-2 link-secondary" >
                                     <svg className="bi"><use xlinkHref="#file-earmark-text"/></svg>
                                     Social engagement
                                 </Link>
-                            </li>
-                            <li className="nav-item">
+                            </li> */}
+                            {/* <li className="nav-item">
                                 <Link className="nav-link d-flex align-items-center gap-2 link-secondary" >
                                     <svg className="bi"><use xlinkHref="#file-earmark-text"/></svg>
                                     Year-end sale
                                 </Link>
-                            </li>
+                            </li> */}
                         </ul>
         
                         <hr className="my-3"/>
         
                         <ul className="nav flex-column mb-auto">
                             <li className="nav-item">
-                                <Link className="nav-link d-flex align-items-center gap-2 link-secondary" >
+                                <Link to='/settings' className={`nav-link d-flex align-items-center gap-2 link-secondary ${segment.settingPageActive && 'active'}`} >
                                     <svg className="bi"><use xlinkHref="#gear-wide-connected"/></svg>
                                     Settings
                                 </Link>
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link d-flex align-items-center gap-2 link-secondary" onClick={handleLogout} >
-                                {/* <Link to='/logout' className="nav-link d-flex align-items-center gap-2 link-secondary" onClick={logoutNotif} > */}
                                     <svg className="bi"><use xlinkHref="#door-closed"/></svg>
                                     Logout
                                 </Link>

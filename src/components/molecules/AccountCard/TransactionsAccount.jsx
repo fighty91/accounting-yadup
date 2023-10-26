@@ -1,17 +1,18 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
 import { connect } from "react-redux";
-import { getAllNumberListFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+import { getAllNumberListFromAPI, getClosingJournalsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI } from "../../../config/redux/action";
+// import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { getCurrency } from "../../../containers/organisms/MyFunctions/useGeneralFunc";
 
 const TransactionsAccount = (props) => {
     const {accountId} = useParams()
-    const { getCurrency } = useGeneralFunc()
     const [transactions, setTransactions] = useState([])
     const [contacts, setContacts] = useState([])
     const [nLReceiptJournal, setNLReceiptJournal] = useState()
     const [nLPaymentJournal, setNLPaymentJournal] = useState()
     const [nLJournalEntries, setNLJournalEntries] = useState()
+    const [nLClosingJournal, setNLClosingJournal] = useState()
 
     useEffect(() => {
         props.contacts.length === 0 && props.getContactsFromAPI()
@@ -26,6 +27,7 @@ const TransactionsAccount = (props) => {
         !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
         !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
         !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+        !props.transactions.journalEntries && await props.getClosingJournalsFromAPI()
     }
     useEffect(() => {
         getTransactionsProps()
@@ -36,6 +38,7 @@ const TransactionsAccount = (props) => {
             {trans: props.transactions.receiptJournal, surl: '/receipt-journal/transaction-detail/'},
             {trans: props.transactions.paymentJournal, surl: '/payment-journal/transaction-detail/'},
             {trans: props.transactions.journalEntries, surl: '/journal-entries/transaction-detail/'},
+            {trans: props.transactions.closingJournal, surl: '/closing-journal/transaction-detail/'},
         ],
         tempOB = props.transactions.openingBalance,
         urlOB = '/opening-balance'
@@ -61,7 +64,7 @@ const TransactionsAccount = (props) => {
     }, [props.transactions])
 
     useEffect(() => {
-        let arrCodeFor = {receiptJournal: 'nLReceiptJournal', paymentJournal: 'nLPaymentJournal', journalEntries: 'nLJournalEntries'}
+        let arrCodeFor = {receiptJournal: 'nLReceiptJournal', paymentJournal: 'nLPaymentJournal', journalEntries: 'nLJournalEntries', closingJournal: 'nLClosingJournal'}
         for(let e in arrCodeFor) {
             let temp = props[arrCodeFor[e]], tempCount = 0
             for(let x in temp) {x && tempCount++}
@@ -86,6 +89,12 @@ const TransactionsAccount = (props) => {
         for(let x in temp) { x && countTemp++ }
         countTemp > 0 && setNLJournalEntries(temp)
     }, [props.nLJournalEntries])
+    useEffect(() => {
+        const temp = props.nLClosingJournal
+        let countTemp = 0
+        for(let x in temp) { x && countTemp++ }
+        countTemp > 0 && setNLClosingJournal(temp)
+    }, [props.nLClosingJournal])
 
     const getTransNumber = (tNId, tNParams, transType) => {
         let temp, params = '#'
@@ -98,6 +107,9 @@ const TransactionsAccount = (props) => {
                 break;
             case 'Journal Entries':
                 nLJournalEntries && nLJournalEntries[tNParams].find(e => e.id === tNId && (temp = e.transNumber))
+                break;
+            case 'Closing Journal':
+                nLClosingJournal && nLClosingJournal[tNParams].find(e => e.id === tNId && (temp = e.transNumber))
                 break;
             case 'Opening Balance':
                 temp = 10001
@@ -185,13 +197,15 @@ const reduxState = (state) => ({
     transactions: state.transactions,
     nLReceiptJournal: state.nLReceiptJournal,
     nLPaymentJournal: state.nLPaymentJournal,
-    nLJournalEntries: state.nLJournalEntries
+    nLJournalEntries: state.nLJournalEntries,
+    nLClosingJournal: state.nLClosingJournal
 })
 const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
     getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
     getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getClosingJournalsFromAPI: () => dispatch(getClosingJournalsFromAPI()),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
     getAllNumberListFromAPI: (data) => dispatch(getAllNumberListFromAPI(data))
 })

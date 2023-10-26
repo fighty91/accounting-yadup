@@ -7,9 +7,9 @@ import InputValidation from "../../../components/atoms/InputValidation";
 import FormSubAccount from "../../../components/molecules/SubAccountForm";
 import { ButtonLinkTo, ButtonSubmit } from "../../../components/atoms/ButtonAndLink";
 import LayoutsMainContent from "../../organisms/Layouts/LayoutMainContent";
-import { getAccountsFromAPI, getCategoriesFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalFromAPI, getReceiptJournalFromAPI, putAccountToAPI } from "../../../config/redux/action";
+import { getAccountsFromAPI, getCategoriesFromAPI, getClosingJournalsFromAPI, getContactsFromAPI, getJournalEntriesFromAPI, getOpeningBalanceFromAPI, getPaymentJournalsFromAPI, getReceiptJournalsFromAPI, putAccountToAPI } from "../../../config/redux/action";
 import { checkAccHistory } from "../../organisms/MyFunctions/useAccountFunc";
-import { useGeneralFunc } from "../../../utils/MyFunction/MyFunction";
+import { ToastAlert, deleteProps, updateProps } from "../../organisms/MyFunctions/useGeneralFunc";
 
 const EditAccount = (props) => {
     const [parentAccounts, setParentAccounts] = useState([])
@@ -34,21 +34,20 @@ const EditAccount = (props) => {
     const [transactions, setTransactions] = useState([])
     const [submitLoading, setSubmitLoading] = useState(false)
 
-    const {deleteProps, updateProps} = useGeneralFunc()
     const {accountId} = useParams()
     const navigate = useNavigate()
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1700,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener('mouseenter', Swal.stopTimer)
-          toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    // const Toast = Swal.mixin({
+    //     toast: true,
+    //     position: 'top-end',
+    //     showConfirmButton: false,
+    //     timer: 1700,
+    //     timerProgressBar: true,
+    //     didOpen: (toast) => {
+    //       toast.addEventListener('mouseenter', Swal.stopTimer)
+    //       toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //     }
+    // })
 
     const getAccGroup = (dataAccountId) => {
         const data = props.accounts
@@ -116,9 +115,7 @@ const EditAccount = (props) => {
         if(numberData.find(e => e === data.number)) {
             newAvailable = false
             if(accountDb) {
-                if(accountDb.number === data.number) {
-                    newAvailable = true
-                }
+                if(accountDb.number === data.number) newAvailable = true
             }
         }
         setNumberAvailable(newAvailable)
@@ -172,7 +169,7 @@ const EditAccount = (props) => {
         if(res) {
             navigate(`/accounts/account-detail/${account.id}?page=profile`)
             const {accountName, number} = account
-            Toast.fire({
+            ToastAlert.fire({
                 icon: 'success',
                 title: `Success Update (${number})\n${accountName}`
             })
@@ -333,6 +330,7 @@ const EditAccount = (props) => {
         !props.transactions.receiptJournal && await props.getReceiptJournalsFromAPI()
         !props.transactions.paymentJournal && await props.getPaymentJournalsFromAPI()
         !props.transactions.journalEntries && await props.getJournalEntriesFromAPI()
+        !props.transactions.closingJournal && await props.getClosingJournalsFromAPI()
     }
     useEffect(() => {
         props.contacts.length < 1 && props.getContactsFromAPI()
@@ -421,9 +419,10 @@ const reduxDispatch = (dispatch) => ({
     getContactsFromAPI: () => dispatch(getContactsFromAPI()),
     putAccountToAPI: (data) => dispatch(putAccountToAPI(data)),
     getOpeningBalanceFromAPI: () => dispatch(getOpeningBalanceFromAPI()),
-    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalFromAPI()),
-    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalFromAPI()),
-    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI())
+    getReceiptJournalsFromAPI: () => dispatch(getReceiptJournalsFromAPI()),
+    getPaymentJournalsFromAPI: () => dispatch(getPaymentJournalsFromAPI()),
+    getJournalEntriesFromAPI: () => dispatch(getJournalEntriesFromAPI()),
+    getClosingJournalsFromAPI: () => dispatch(getClosingJournalsFromAPI())
 })
 
 export default connect(reduxState, reduxDispatch)(EditAccount)

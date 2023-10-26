@@ -4,7 +4,7 @@ import { database } from "../../firebase";
 import { corporation } from "../../corporation";
 import Swal from "sweetalert2";
 
-const corpName = corporation.name
+const corpName = corporation.id
 // const yadupauid = JSON.parse(localStorage.getItem(`${corpName}uid`))
 
 const lostConnection = () => Swal.fire({
@@ -17,7 +17,7 @@ const lostConnection = () => Swal.fire({
 const setUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
         const {email, uid, accessToken} = userData
-        set(ref(database, `${corpName}/userAccessToken/` + uid), {
+        set(ref(database, `userAccessToken/${uid}`), {
             email,
             accessToken
         }).then(() => resolve(true))
@@ -30,14 +30,14 @@ const setUserAccessToken = (userData) => {
 const updateUserAccessToken = (userData) => {
     return new Promise((resolve, reject) => {
         const {email, uid, accessToken, noUpdateTime} = userData
-        set(ref(database, `${corpName}/userAccessToken/${uid}/accessToken`), accessToken)
+        set(ref(database, `userAccessToken/${uid}/accessToken`), accessToken)
         .then(() => {
             resolve(true)
 
             const dbRef = ref(getDatabase())
             const updates = {}
-            updates[`${corpName}/userAccessToken/${uid}/email`] = email;
-            if(!noUpdateTime) updates[`${corpName}/userAccessToken/${uid}/timestamp`] = Date.now()
+            updates[`userAccessToken/${uid}/email`] = email;
+            if(!noUpdateTime) updates[`userAccessToken/${uid}/timestamp`] = Date.now()
             update(dbRef, updates)
         })
         .catch(err => {
@@ -58,7 +58,7 @@ const setUserRegister = (userData) => {
             }
             uid2 += Math.max(...userUid2)
         }
-        set(ref(database, `${corpName}/users/${uid}`), {
+        set(ref(database, `users/${uid}`), {
             uid1: uid,
             isActive: true,
             uid2, name, email, password,
@@ -74,7 +74,7 @@ const getUser = (uid) => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/users/${uid}`))
+        get(child(dbRef, `users/${uid}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 resolve(snapshot.val())
@@ -88,7 +88,7 @@ const getOnceUsers = () => {
     // get once
     return new Promise((resolve) => {
         const dbRef = ref(getDatabase())
-        get(child(dbRef, `${corpName}/users`))
+        get(child(dbRef, 'users'))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 resolve(snapshot.val())
@@ -103,7 +103,7 @@ const getUserAccessToken = (userId) => {
     // get once
     return new Promise((resolve, reject) => {
         const dbRef = ref(getDatabase())
-        get(child(dbRef, `${corpName}/userAccessToken/` + userId))
+        get(child(dbRef, `userAccessToken/${userId}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 resolve(snapshot.val())
@@ -120,10 +120,14 @@ const getUserAccessToken = (userId) => {
 export const getCheckToken = ({accessToken, userId}) => async (dispatch) => {
     const userData = await getUserAccessToken(userId)
     let tokenMatch = false
-    const loginTime = Date.now() - userData.timestamp
-    if(userData && accessToken === userData.accessToken && loginTime <= 259200000) { // logintime untuk 3 hari
-        tokenMatch = true
-        await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
+    if(userData && accessToken === userData.accessToken) {
+        const {timestamp} = userData,
+        loginTime = timestamp ? Date.now() - timestamp : 259200001
+        // logintime untuk 3 hari
+        if(loginTime <= 259200000) {
+            tokenMatch = true
+            await dispatch({type: 'CHANGE_IS_LOGIN', value: true})
+        }
     }
     return tokenMatch
 }
@@ -178,7 +182,7 @@ export const loginUserAPI = (data) => (dispatch) => {
         .then(async(userCredential) => {
             const {uid, accessToken} = userCredential.user
             
-            await set(ref(database, `${corpName}/users/${uid}/password`), password)
+            await set(ref(database, `users/${uid}/password`), password)
             await updateUserAccessToken({uid, email, accessToken, noUpdateTime})
             localStorage.setItem(`${corpName}uid`, JSON.stringify(uid))
             localStorage.setItem(`token_${corpName}uid`, JSON.stringify(accessToken))
@@ -218,7 +222,7 @@ export const logoutUserAPI = () => (dispatch) => {
 
 export const getUserFromAPI = (userId) => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/users/${userId}`)
+        const starCountRef = ref(database, `users/${userId}`)
         onValue(starCountRef, (snapshot) => {
             const user = snapshot.val()
             dispatch({type: 'SET_USER', value: user})
@@ -228,7 +232,7 @@ export const getUserFromAPI = (userId) => (dispatch) => {
 }
 export const getUsersFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/users`)
+        const starCountRef = ref(database, 'users')
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let users = []
@@ -250,7 +254,7 @@ export const getUsersFromAPI = () => (dispatch) => {
 }
 export const getUserAccessFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/userAccess`)
+        const starCountRef = ref(database, 'userAccess')
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let userAccess = []
@@ -262,6 +266,9 @@ export const getUserAccessFromAPI = () => (dispatch) => {
         })
     })
 }
+
+
+
 export const postAccountToAPI = (account) => (dispatch) => {
     return new Promise((resolve, reject) => {
         pushData(ref(database, `${corpName}/accounts`), account)
@@ -362,7 +369,7 @@ export const postContactToAPI = (contact) => (dispatch) => {
         })
         .catch(err => {
             console.log(err)
-            reject(false)   
+            reject(false)
         })
     })
 }
@@ -422,11 +429,38 @@ export const deleteContactFromAPI = (contactId) => (dispatch) => {
     })
 }
 
-export const getTransactionsFromAPI = () => async (dispatch) => {
-    await getJournalEntriesFromAPI()(dispatch)
-    await getPaymentJournalsFromAPI()(dispatch)
-    await getReceiptJournalsFromAPI()(dispatch)
+export const updateMappingAccountsToAPI = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        const {name, value} = data
+        const dbRef = ref(getDatabase())
+
+        const updates = {}
+        updates[`${corpName}/settings/mappingAccounts/${name}`] = value;
+        update(dbRef, updates)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)
+        })
+    })
 }
+export const getMappingAccountsFromAPI = () => (dispatch) => {
+    return new Promise(resolve => {
+        const starCountRef = ref(database, `${corpName}/settings/mappingAccounts`)
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            dispatch({type: 'SET_MAPPING_ACCOUNTS', value: temp})
+            resolve(temp)
+        })
+    })
+}
+
+// export const getTransactionsFromAPI = () => async (dispatch) => { // cek lagi
+//     await getJournalEntriesFromAPI()(dispatch)
+//     await getPaymentJournalsFromAPI()(dispatch)
+//     await getReceiptJournalsFromAPI()(dispatch)
+//     console.log('ada')
+// }
 
 export const postReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
     return new Promise((resolve, reject) => {
@@ -559,10 +593,10 @@ export const getPaymentJournalsFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 paymentJournal.push(temp[x])
             }
-            paymentJournal.sort((a, b) => 
-                a.transNumber < b.transNumber ? 1 :
-                a.transNumber > b.transNumber ? -1 : 0
-            )
+            // paymentJournal.sort((a, b) => 
+            //     a.transNumber < b.transNumber ? 1 :
+            //     a.transNumber > b.transNumber ? -1 : 0
+            // )
             paymentJournal.sort((a, b) => 
                 a.date < b.date ? 1 :
                 a.date > b.date ? -1 : 0
@@ -634,10 +668,10 @@ export const getJournalEntriesFromAPI = () => (dispatch) => {
                 temp[x].id = x
                 journalEntries.push(temp[x])
             }
-            journalEntries.sort((a, b) => 
-                a.transNumber < b.transNumber ? 1 :
-                a.transNumber > b.transNumber ? -1 : 0
-            )
+            // journalEntries.sort((a, b) => 
+            //     a.transNumber < b.transNumber ? 1 :
+            //     a.transNumber > b.transNumber ? -1 : 0
+            // )
             journalEntries.sort((a, b) => 
                 a.date < b.date ? 1 :
                 a.date > b.date ? -1 : 0
@@ -647,6 +681,82 @@ export const getJournalEntriesFromAPI = () => (dispatch) => {
         })
     })
 }
+
+
+
+export const postClosingJournalToAPI = (closingJournal) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        pushData(ref(database, `${corpName}/transactions/closingJournal`), closingJournal)
+        .then((dataCredential) => {
+            resolve(dataCredential.key)
+        })
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const putClosingJournalToAPI = (closingJournal) => (dispatch) => {
+    const {id} = closingJournal
+    let newClosingJournal = {...closingJournal}
+    delete newClosingJournal.id
+    return new Promise((resolve, reject) => {
+        set(ref(database, `${corpName}/transactions/closingJournal/${id}`), newClosingJournal)
+        .then(() => resolve(true))
+        .catch(err => {
+            console.log(err)
+            reject(false)   
+        })
+    })
+}
+export const deleteClosingJournalFromAPI = (transId) => (dispatch) => {
+    return new Promise(resolve => {
+        if(window.navigator.onLine) {
+            remove(ref(database, `${corpName}/transactions/closingJournal/${transId}`))
+            .then(() => resolve(true))
+            .catch(err => console.log('error',err))
+        }
+        else lostConnection()
+    })
+}
+export const getClosingJournalFromAPI = (id) => () => {
+    // get once
+    return new Promise(resolve => {
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `${corpName}/transactions/closingJournal/${id}`))
+        .then((snapshot) => {
+            if(snapshot.exists()) {
+                const tempClosing = {...snapshot.val(), id}
+                resolve(tempClosing)
+            } else {
+                resolve(snapshot.val())
+                console.log("No data available");
+            }
+        }).catch(error => console.error(error))
+    })
+}
+export const getClosingJournalsFromAPI = () => (dispatch) => {
+    return new Promise(async(resolve) => {
+        const starCountRef = ref(database, `${corpName}/transactions/closingJournal`)
+        onValue(starCountRef, (snapshot) => {
+            let temp = {...snapshot.val()}
+            let closingJournal = []
+            for(let x in temp) {
+                temp[x].id = x
+                closingJournal.push(temp[x])
+            }
+            closingJournal.sort((a, b) =>
+                a.date < b.date ? 1 :
+                a.date > b.date ? -1 : 0
+            )
+            dispatch({type: 'SET_CLOSING_JOURNAL', value: closingJournal})
+            resolve(closingJournal)
+        })
+    })
+}
+
+
+
 export const postOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
     return new Promise((resolve, reject) => {
         pushData(ref(database, `${corpName}/transactions/openingBalance`), openingBalance)
@@ -885,6 +995,9 @@ export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
                     break
                 case 'journalEntries':
                     type = 'SET_NUMBER_LIST_JOURNAL_ENTRIES'
+                    break
+                case 'closingJournal':
+                    type = 'SET_NUMBER_LIST_CLOSING_JOURNAL'
                     break
                 default:
                     break
