@@ -1,6 +1,6 @@
 export const corporation = {
-    id: 'petra',
-    name: 'petra'
+    id: 'yadupa',
+    name: 'yadupa'
 }
 
 // export default corporation

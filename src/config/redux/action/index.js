@@ -271,7 +271,7 @@ export const getUserAccessFromAPI = () => (dispatch) => {
 
 export const postAccountToAPI = (account) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/accounts`), account)
+        pushData(ref(database, `accounting/accounts`), account)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -288,7 +288,7 @@ export const putAccountToAPI = (account) => (dispatch) => {
     delete newAccount.amount
     delete newAccount.categoryName
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/accounts/${id}`), newAccount)
+        set(ref(database, `accounting/accounts/${id}`), newAccount)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -298,7 +298,7 @@ export const putAccountToAPI = (account) => (dispatch) => {
 }
 export const deleteAccountFromAPI = (accountId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/accounts/${accountId}`))
+        remove(ref(database, `accounting/accounts/${accountId}`))
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -306,7 +306,7 @@ export const deleteAccountFromAPI = (accountId) => (dispatch) => {
 export const setActiveAccount = (data) => (dispatch) => {
     return new Promise(resolve => {
         const {isActive, accountId} = data
-        set(ref(database, `${corpName}/accounts/${accountId}/isActive`), isActive)
+        set(ref(database, `accounting/accounts/${accountId}/isActive`), isActive)
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -315,7 +315,7 @@ export const getAccountFromAPI = (id) => () => {
     // get once
     return new Promise((resolve) => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/accounts/${id}`))
+        get(child(dbRef, `accounting/accounts/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const temp = {...snapshot.val(), id}
@@ -329,7 +329,7 @@ export const getAccountFromAPI = (id) => () => {
 }
 export const getAccountsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/accounts`)
+        const starCountRef = ref(database, `accounting/accounts`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let accounts = []
@@ -348,7 +348,7 @@ export const getAccountsFromAPI = () => (dispatch) => {
 }
 export const getCategoriesFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/categories`)
+        const starCountRef = ref(database, `accounting/categories`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let categories = []
@@ -363,7 +363,7 @@ export const getCategoriesFromAPI = () => (dispatch) => {
 }
 export const postContactToAPI = (contact) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/contacts`), contact)
+        pushData(ref(database, `accounting/contacts`), contact)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -378,7 +378,7 @@ export const putContactToAPI = (contact) => (dispatch) => {
     let newContact = {...contact}
     delete newContact.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/contacts/${id}`), newContact)
+        set(ref(database, `accounting/contacts/${id}`), newContact)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -390,7 +390,7 @@ export const getContactFromAPI = (id) => () => {
     // get once
     return new Promise((resolve) => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/contacts/${id}`))
+        get(child(dbRef, `accounting/contacts/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const temp = {...snapshot.val(), id}
@@ -404,7 +404,7 @@ export const getContactFromAPI = (id) => () => {
 }
 export const getContactsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/contacts`)
+        const starCountRef = ref(database, `accounting/contacts`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let contacts = []
@@ -423,7 +423,7 @@ export const getContactsFromAPI = () => (dispatch) => {
 }
 export const deleteContactFromAPI = (contactId) => (dispatch) => {
     return new Promise(resolve => {
-        remove(ref(database, `${corpName}/contacts/${contactId}`))
+        remove(ref(database, `accounting/contacts/${contactId}`))
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
@@ -435,7 +435,7 @@ export const updateMappingAccountsToAPI = (data) => (dispatch) => {
         const dbRef = ref(getDatabase())
 
         const updates = {}
-        updates[`${corpName}/settings/mappingAccounts/${name}`] = value;
+        updates[`accounting/settings/mappingAccounts/${name}`] = value;
         update(dbRef, updates)
         .then(() => resolve(true))
         .catch(err => {
@@ -446,7 +446,7 @@ export const updateMappingAccountsToAPI = (data) => (dispatch) => {
 }
 export const getMappingAccountsFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/settings/mappingAccounts`)
+        const starCountRef = ref(database, `accounting/settings/mappingAccounts`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             dispatch({type: 'SET_MAPPING_ACCOUNTS', value: temp})
@@ -464,7 +464,7 @@ export const getMappingAccountsFromAPI = () => (dispatch) => {
 
 export const postReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/transactions/receiptJournal`), receiptJournal)
+        pushData(ref(database, `accounting/transactions/receiptJournal`), receiptJournal)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -479,7 +479,7 @@ export const putReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
     let newReceiptJournal = {...receiptJournal}
     delete newReceiptJournal.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/transactions/receiptJournal/${id}`), newReceiptJournal)
+        set(ref(database, `accounting/transactions/receiptJournal/${id}`), newReceiptJournal)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -490,7 +490,7 @@ export const putReceiptJournalToAPI = (receiptJournal) => (dispatch) => {
 export const deleteReceiptJournalFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/transactions/receiptJournal/${transId}`))
+            remove(ref(database, `accounting/transactions/receiptJournal/${transId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -501,7 +501,7 @@ export const getReceiptJournalFromAPI = (id) => () => {
     // get once
     return new Promise((resolve) => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/transactions/receiptJournal/${id}`))
+        get(child(dbRef, `accounting/transactions/receiptJournal/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const tempReceipt = {...snapshot.val(), id}
@@ -515,7 +515,7 @@ export const getReceiptJournalFromAPI = (id) => () => {
 }
 export const getReceiptJournalsFromAPI = () => (dispatch) => {
     return new Promise(async(resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/receiptJournal`)
+        const starCountRef = ref(database, `accounting/transactions/receiptJournal`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let receiptJournal = []
@@ -534,7 +534,7 @@ export const getReceiptJournalsFromAPI = () => (dispatch) => {
 }
 export const postPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/transactions/paymentJournal`), paymentJournal)
+        pushData(ref(database, `accounting/transactions/paymentJournal`), paymentJournal)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -549,7 +549,7 @@ export const putPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
     let newPaymentJournal = {...paymentJournal}
     delete newPaymentJournal.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/transactions/paymentJournal/${id}`), newPaymentJournal)
+        set(ref(database, `accounting/transactions/paymentJournal/${id}`), newPaymentJournal)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -560,7 +560,7 @@ export const putPaymentJournalToAPI = (paymentJournal) => (dispatch) => {
 export const deletePaymentJournalFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/transactions/paymentJournal/${transId}`))
+            remove(ref(database, `accounting/transactions/paymentJournal/${transId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -571,7 +571,7 @@ export const getPaymentJournalFromAPI = (id) => () => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/transactions/paymentJournal/${id}`))
+        get(child(dbRef, `accounting/transactions/paymentJournal/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const tempPayment = {...snapshot.val(), id}
@@ -585,7 +585,7 @@ export const getPaymentJournalFromAPI = (id) => () => {
 }
 export const getPaymentJournalsFromAPI = () => (dispatch) => {
     return new Promise(async(resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/paymentJournal`);
+        const starCountRef = ref(database, `accounting/transactions/paymentJournal`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let paymentJournal = []
@@ -609,7 +609,7 @@ export const getPaymentJournalsFromAPI = () => (dispatch) => {
 
 export const postJournalEntryToAPI = (journalEntry) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/transactions/journalEntries`), journalEntry)
+        pushData(ref(database, `accounting/transactions/journalEntries`), journalEntry)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -624,7 +624,7 @@ export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
     let newJournalEntry = {...journalEntry}
     delete newJournalEntry.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/transactions/journalEntries/${id}`), newJournalEntry)
+        set(ref(database, `accounting/transactions/journalEntries/${id}`), newJournalEntry)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -635,7 +635,7 @@ export const putJournalEntryToAPI = (journalEntry) => (dispatch) => {
 export const deleteJournalEntryFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/transactions/journalEntries/${transId}`))
+            remove(ref(database, `accounting/transactions/journalEntries/${transId}`))
             .then(() => resolve(true))
             .catch(err => console.log('error',err))
         }
@@ -646,7 +646,7 @@ export const getJournalEntryFromAPI = (id) => () => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/transactions/journalEntries/${id}`))
+        get(child(dbRef, `accounting/transactions/journalEntries/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const tempEntries = {...snapshot.val(), id}
@@ -660,7 +660,7 @@ export const getJournalEntryFromAPI = (id) => () => {
 }
 export const getJournalEntriesFromAPI = () => (dispatch) => {
     return new Promise(async(resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/journalEntries`)
+        const starCountRef = ref(database, `accounting/transactions/journalEntries`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let journalEntries = []
@@ -686,7 +686,7 @@ export const getJournalEntriesFromAPI = () => (dispatch) => {
 
 export const postClosingJournalToAPI = (closingJournal) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/transactions/closingJournal`), closingJournal)
+        pushData(ref(database, `accounting/transactions/closingJournal`), closingJournal)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -701,7 +701,7 @@ export const putClosingJournalToAPI = (closingJournal) => (dispatch) => {
     let newClosingJournal = {...closingJournal}
     delete newClosingJournal.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/transactions/closingJournal/${id}`), newClosingJournal)
+        set(ref(database, `accounting/transactions/closingJournal/${id}`), newClosingJournal)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -712,7 +712,7 @@ export const putClosingJournalToAPI = (closingJournal) => (dispatch) => {
 export const deleteClosingJournalFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/transactions/closingJournal/${transId}`))
+            remove(ref(database, `accounting/transactions/closingJournal/${transId}`))
             .then(() => resolve(true))
             .catch(err => console.log('error',err))
         }
@@ -723,7 +723,7 @@ export const getClosingJournalFromAPI = (id) => () => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/transactions/closingJournal/${id}`))
+        get(child(dbRef, `accounting/transactions/closingJournal/${id}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const tempClosing = {...snapshot.val(), id}
@@ -737,7 +737,7 @@ export const getClosingJournalFromAPI = (id) => () => {
 }
 export const getClosingJournalsFromAPI = () => (dispatch) => {
     return new Promise(async(resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/closingJournal`)
+        const starCountRef = ref(database, `accounting/transactions/closingJournal`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let closingJournal = []
@@ -759,7 +759,7 @@ export const getClosingJournalsFromAPI = () => (dispatch) => {
 
 export const postOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        pushData(ref(database, `${corpName}/transactions/openingBalance`), openingBalance)
+        pushData(ref(database, `accounting/transactions/openingBalance`), openingBalance)
         .then((dataCredential) => {
             resolve(dataCredential.key)
         })
@@ -774,7 +774,7 @@ export const putOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
     let newOpeningBalance = {...openingBalance}
     delete newOpeningBalance.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/transactions/openingBalance/${id}`), newOpeningBalance)
+        set(ref(database, `accounting/transactions/openingBalance/${id}`), newOpeningBalance)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -785,7 +785,7 @@ export const putOpeningBalanceToAPI = (openingBalance) => (dispatch) => {
 export const deleteOpeningBalanceFromAPI = (transId) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/transactions/openingBalance/${transId}`))
+            remove(ref(database, `accounting/transactions/openingBalance/${transId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -794,7 +794,7 @@ export const deleteOpeningBalanceFromAPI = (transId) => (dispatch) => {
 }
 export const getOpeningBalanceFromAPI = () => (dispatch) => {
     return new Promise(async(resolve) => {
-        const starCountRef = ref(database, `${corpName}/transactions/openingBalance`);
+        const starCountRef = ref(database, `accounting/transactions/openingBalance`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             let openingBalance = []
@@ -813,7 +813,7 @@ export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => 
     temp = {...newIdentical}
     return new Promise(async(resolve, reject) => {
         const dbRef = ref(getDatabase());
-        await get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`))
+        await get(child(dbRef, `accounting/identicalCode/${codeFor}/codeList/${initialCode}`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 const {lastOrder, isActive} = snapshot.val()
@@ -822,7 +822,7 @@ export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => 
             }
         })
         if(!identicalActive)
-        await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}`), temp)
+        await set(ref(database, `accounting/identicalCode/${codeFor}/codeList/${initialCode}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -832,14 +832,14 @@ export const postIdenticalCodeToAPI = ({initialCode, codeFor, newIdentical}) => 
 }
 export const deleteIdentical = ({initialCode, codeFor}) => (dispatch) => {
     return new Promise(resolve => {
-        set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${initialCode}/isActive`), false)
+        set(ref(database, `accounting/identicalCode/${codeFor}/codeList/${initialCode}/isActive`), false)
         .then(() => resolve(true))
         .catch(err => console.log(err))
     })
 }
 export const chooseIdentical = ({initialCode, codeFor}) => (dispatch) => {
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/identicalCode/${codeFor}/lastCode`), initialCode || 'defaultCode')
+        set(ref(database, `accounting/identicalCode/${codeFor}/lastCode`), initialCode || 'defaultCode')
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -850,7 +850,7 @@ export const chooseIdentical = ({initialCode, codeFor}) => (dispatch) => {
 
 export const getIdenticalCodeFromAPI = () => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/identicalCode`);
+        const starCountRef = ref(database, `accounting/identicalCode`);
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()}
             for(let x in temp) {
@@ -881,13 +881,13 @@ export const incrementLastOrderTNFromAPI = ({tempStart, tNParams, codeFor}) => (
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase())
-        get(child(dbRef, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`))
+        get(child(dbRef, `accounting/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`))
         .then(async(snapshot) => {
                 let temp = snapshot.val()
                 temp < tempStart ?
                 temp = tempStart : temp++
                 // update last ordernya
-                await set(ref(database, `${corpName}/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`), temp).then()
+                await set(ref(database, `accounting/identicalCode/${codeFor}/codeList/${tNParams}/lastOrder`), temp).then()
                 .catch(err => console.log(err))
                 resolve(temp)
         }).catch(error => console.error(error))
@@ -899,7 +899,7 @@ export const postNumberListToAPI = ({tempNumber, tNParams, codeFor}) => (dispatc
             transNumber: tempNumber,
             createdAt: Date.now()
         }
-        pushData(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}`), temp)
+        pushData(ref(database, `accounting/numberList/${codeFor}/${tNParams}`), temp)
         .then((dataCredential) => resolve(dataCredential.key))
         .catch(err => {
             console.log(err)
@@ -912,7 +912,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
     let temp = {...tempTN}
     delete temp.id
     return new Promise((resolve, reject) => {
-        set(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${id}`), temp)
+        set(ref(database, `accounting/numberList/${codeFor}/${tNParams}/${id}`), temp)
         .then(() => resolve(true))
         .catch(err => {
             console.log(err)
@@ -923,7 +923,7 @@ export const putNumberListToAPI = ({tempTN, tNParams, codeFor}) => (dispatch) =>
 export const deleteNumberListFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) => {
     return new Promise(resolve => {
         if(window.navigator.onLine) {
-            remove(ref(database, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}`))
+            remove(ref(database, `accounting/numberList/${codeFor}/${tNParams}/${tNId}`))
             .then(() => resolve(true))
             .catch(err => console.log(err))
         }
@@ -934,7 +934,7 @@ export const getTransNumberFromAPI = ({tNId, tNParams, codeFor}) => (dispatch) =
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}/${tNId}/transNumber`))
+        get(child(dbRef, `accounting/numberList/${codeFor}/${tNParams}/${tNId}/transNumber`))
         .then((snapshot) => {
             if(snapshot.exists()) {
                 let temp = snapshot.val()
@@ -948,7 +948,7 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
     // get once
     return new Promise(resolve => {
         const dbRef = ref(getDatabase());
-        get(child(dbRef, `${corpName}/numberList/${codeFor}/${tNParams}`))
+        get(child(dbRef, `accounting/numberList/${codeFor}/${tNParams}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 let numberList = []
@@ -968,7 +968,7 @@ export const getNumberListFromAPI = ({tNParams, codeFor}) => (dispatch) => {
 }
 export const getAllNumberListFromAPI = (codeFor) => (dispatch) => {
     return new Promise(resolve => {
-        const starCountRef = ref(database, `${corpName}/numberList/${codeFor}`)
+        const starCountRef = ref(database, `accounting/numberList/${codeFor}`)
         onValue(starCountRef, (snapshot) => {
             let temp = {...snapshot.val()},
             type, value = {}
